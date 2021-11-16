@@ -1,0 +1,93 @@
+%% ----- Algorithm to search for a suitable Pixel -----
+
+% This function looks through a modis data set to find a pixel that has a
+% thermodynamic phase of liquid water, a high optical depth, and is
+% surrounded by many other pixels like it - thus it is not an edge case
+
+% save both 1km resolution pixels and we interpolate to find how these map
+% to 500 meter resolution pixels
+
+
+% By Andrew J. Buggee
+
+%%
+
+function [pixels] = findSuitablePixel(modis,inputs)
+
+
+tauThreshold = inputs.pixels.tauThreshold;
+% create logical mask for phase 
+
+liquidWater_mask = modis.cloud.phase == 2; % 2 is the value designated for liquid water
+
+% create tau mask based on threshold
+
+tau_mask = modis.cloud.optThickness16 >= tauThreshold;
+
+% find where there is overlap
+
+combined_mask = liquidWater_mask .* tau_mask;
+
+
+
+% we don't want any edge pixels. So the pixels also have to be atleast border_threshold away from the border of the image
+% This will reduce the number of computations! To do this we will turn the
+% 1's around the border into 0's
+
+border_threshold = 100; % distance away from image edge a pixel has to be in order to be considered
+
+border_mask = ones(size(combined_mask));
+border_mask([1:border_threshold,(size(border_mask,1)-border_threshold+1):end],:) = 0; % convert top and bottom border into zeros
+border_mask(:,[1:border_threshold,(size(border_mask,2)-border_threshold+1):end],:) = 0; % convert left and right border into zeros
+
+combined_mask = combined_mask .* border_mask;
+
+% set up a distance threshold, which is the number of pixels from a boundry
+% where the phase changes
+
+dist_threshold = 40; % this defines the closest possible distance to a 0 pixel in the combined mask 
+
+index_ones = find(combined_mask); % finds the indices of the non-zero elements
+index_zeros = find(~logical(combined_mask)); % finds the indices of the zero elements
+
+[row0,col0] = ind2sub(size(combined_mask),index_zeros); % convert to row column indices
+[row1,col1] = ind2sub(size(combined_mask),index_ones); % conver to row column indices
+
+
+
+flag_index = [];
+
+% run this calculation in parallel
+% p = parpool(4);
+
+parfor ii = 1:length(row1)
+        
+    dist2pixel = sqrt((row1(ii) - row0).^2 + (col1(ii) - col0).^2); 
+    
+    if min(dist2pixel,[],'all') >= dist_threshold
+        
+        flag_index = [flag_index; index_ones(ii)];
+    end
+    
+
+end
+
+% lets keep both the 1km resolution pixel location, and interpolate to get pixel
+% locations for 500 meter resolution data
+
+[pixels.res1km.row, pixels.res1km.col] = ind2sub(size(combined_mask),flag_index); 
+
+% save the size of each resolution swath
+pixels.res500m.size = size(modis.EV.m500.reflectance(:,:,1)); % the 500 meter resolution image swath
+pixels.res1km.size = size(combined_mask); % the 1km resolution image swath
+
+% lets map 1 km pixels to 500 meter pixels location
+
+[pixels.res500m.row, pixels.res500m.col] = cartesian_mapping_1000_to_500_pixels(pixels);
+
+
+
+
+
+
+
