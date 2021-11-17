@@ -24,7 +24,7 @@ irrad0 = source(:,2); % - mW/(m^2 nm) -  source irradiance
 mu0 = cosd(sza); % cosine of the solar zenith angle
 geomSets = length(mu)*length(phi);
 
-% introduce the spectral responces function
+% introduce the spectral response function
 specRep = ones(size(wavelength)); % perfect spectral response
 
 %% ----- CALCULATE REFLECTANCE FUNCTION -----

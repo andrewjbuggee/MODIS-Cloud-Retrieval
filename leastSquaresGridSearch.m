@@ -16,8 +16,11 @@ function [minVals] = leastSquaresGridSearch(modisRefl,modelData,inputs,pixels2us
 re = inputs.re;
 tau_c = inputs.tau_c;
 interpGridScaleFactor = inputs.interpGridScaleFactor;
-bands2search = inputs.bands2search;
-bands2run = inputs.bands2run;
+bands2search = inputs.bands2search; % bands to determine optical properties
+bands2run = inputs.bands2run; % bands to run through uvspec
+
+% save calculations
+saveCalcs_filename = inputs.saveCalculations_fileName;
 
 index = zeros(size(bands2search,1),length(bands2run));
 
@@ -66,16 +69,20 @@ for pp = 1:numPixels
     % lets shape our data in an easy to use format
     % first extract the data from the bands of interest
     
+    % lets compare with non-interpolated data and use the 1km resolution
+    % modis reflected data, right now, is in 500 meter resolution. So we
+    % have to use the 500 meter pixel indexes
+    
     observations = modisRefl(pixels2use.res500m.row(pixelIndex_500m(pp)),pixels2use.res500m.col(pixelIndex_500m(pp)),band_index);
 
-    modelData_vec = [modelData{pp,:,:,band_index}];
-    modelData_perPixel = reshape(modelData_vec,size(modelData,2),size(modelData,3),length(bands2search));
+    modelData_vec = modelData(pp,:,:,band_index);
+    modelData_vec = reshape(modelData_vec,size(modelData,2),size(modelData,3),length(bands2search));
     
     % preform 2D interpolation
-    newModelData = zeros(length(new_re),length(newTau_c),size(modelData_perPixel,3));
+    newModelData = zeros(length(new_re),length(newTau_c),size(modelData_vec,3));
     
-    for ii = 1:size(modelData_perPixel,3)
-        newModelData(:,:,ii) = interp2(X,Y,modelData_perPixel(:,:,ii),Xq,Yq);
+    for ii = 1:size(modelData_vec,3)
+        newModelData(:,:,ii) = interp2(X,Y,modelData_vec(:,:,ii),Xq,Yq);
     end
     
     % finally, lets now rescale the observation to be on a flat plane with the
@@ -86,7 +93,7 @@ for pp = 1:numPixels
     
     %% ---- lets view the surfaces of the model -----
     
-    band2Plot = 2;
+    band2Plot = 1;
     
     if inputs.flags.plotMLS_figures == true
         surfPlots4modisModel_andObs(Xq,Yq,newModelData(:,:,band2Plot),observations_newGrid(:,:,band2Plot),bandVals(band2Plot))
@@ -122,6 +129,9 @@ for pp = 1:numPixels
     end
     
 end
+
+
+save(saveCalcs_filename,"minVals",'-append'); % save inputSettings to the same folder as the input and output file
 
 
 

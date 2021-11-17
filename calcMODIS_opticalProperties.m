@@ -52,9 +52,12 @@ if inputs.flags.findSuitablePixels == true && pixels_file_flag == false
     % save these pixels in a .mat file, along with the inputs
     save([inputs.savedCalculations_folderName,'suitablePixels.mat'],'pixels','inputs');
     
-    % now we want only a subset of pixels to write INP files
+    % now we want only a random subset of pixels to write INP files. inputs
+    % defines how many pixels we should grab from the suitable pixels file.
+    % This function will also grab the geometry for each pixel and store
+    % this information in pixels2use
     
-    pixels2use = load_suitablePixels(inputs);
+    pixels2use = subset_suitablePixels(inputs,modis);
     
 elseif pixels_file_flag == true && inputs.flags.loadPixelSet == false
     
@@ -63,7 +66,7 @@ elseif pixels_file_flag == true && inputs.flags.loadPixelSet == false
     % pixels we used. Save the pixels used to the data folder listed in the
     % inputs
     
-    pixels2use = load_suitablePixels(inputs);
+    pixels2use = subset_suitablePixels(inputs,modis);
 
 elseif pixels_file_flag == true && inputs.flags.loadPixelSet == true
     
@@ -89,7 +92,7 @@ if inputs.flags.writeINPfiles == true
 else
     
     % if the files already exist, just grab the names!
-    names.inp = getMODIS_INPnames_withClouds(modis.solar,inputs);
+    names.inp = getMODIS_INPnames_withClouds(modis.solar,inputs,pixels2use);
     names.out = writeOutputNames(names.inp);
 end
 
@@ -127,15 +130,22 @@ modisR = grab_modis_reflectance(modis,inputs);
 
 minVals = leastSquaresGridSearch(modisR, R, inputs, pixels2use);
 
-[teTable, reflTable] = gatherTruthEstimateVals(modis, minVals, inputs); % containts truth ad estimates and difference
+[truthTable, calc_reflTable] = gatherTruthEstimateVals(modis, minVals, inputs, pixels2use); % containts truth ad estimates and difference
 
 
-%% ----- Makes Plots -----
+%% ----- Make Plots -----
 
 % Plot MODIS Calculated cloud properties
 figure; subplot(1,2,1); imagesc(modis.cloud.effRadius); colorbar; title('effective radius (\mum)')
 subplot(1,2,2); imagesc(modis.cloud.optThickness); colorbar; title('optical thickness')
 
+
+% plot relfectance curves with lines of constant radius
+plotReflectanceCurves_singleBand(R,inputs,pixels2use)
+
+% plot reflectance contours where x and y are tau and r
+
+plotReflectanceContours(R,inputs,pixels2use)
 
 % plot model reflectance function
 
@@ -192,7 +202,7 @@ inputs.INP_folderName = ['MODIS_day_',L1B_fileName(15:17),'_year_',L1B_fileName(
 % ----- defining what pixels to use -----
 
 inputs.pixels.tauThreshold = 15; % only find pixels in the modis data that is greater than or equal to a tau of this 
-inputs.pixels.num_INP_files_2write = 1; % we will randomly select this many pixels from the set of suitable pixels found to create .INP files
+inputs.pixels.num_2calculate = 1; % we will randomly select this many pixels from the set of suitable pixels found to create .INP files
 
 
 

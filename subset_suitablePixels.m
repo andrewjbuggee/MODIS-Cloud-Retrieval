@@ -5,12 +5,12 @@
 % By Andrew J. Buggee
 %%
 
-function pixels2use = load_suitablePixels(inputs)
+function pixels2use = subset_suitablePixels(inputs,modis)
 
 suitablePixels_fileName = [inputs.savedCalculations_folderName,'suitablePixels.mat'];
 
 folderName2Save = inputs.savedCalculations_folderName; % where to save the indices
-numPixels = inputs.pixels.num_INP_files_2write; % number of pixels to use in our calcualtions
+numPixels = inputs.pixels.num_2calculate; % number of pixels to use in our calcualtions
 
 load(suitablePixels_fileName,'pixels');
 
@@ -36,7 +36,7 @@ if numSuitablePixels > numPixels
     
     % lets map 1 km pixels to 500 meter pixels location
 
-    [pixels.res500m.row, pixels.res500m.col] = cartesian_mapping_1000_to_500_pixels(pixels);
+    [pixels2use.res500m.row, pixels2use.res500m.col] = cartesian_mapping_1000_to_500_pixels(pixels2use);
 
     save([folderName2Save,inputs.saveCalculations_fileName],'pixels2use','inputs')
     
@@ -65,6 +65,22 @@ else
     
 end
 
+
+% --- Load the geometry settings for each pixel ---
+
+pixel_rows = pixels2use.res1km.row;
+pixel_cols = pixels2use.res1km.col;
+
+for ii = 1:length(pixel_rows)
+
+    pixels2use.res1km.geometry.sza(ii) = modis.solar.zenith(pixel_rows(ii),pixel_cols(ii));
+    pixels2use.res1km.geometry.saz(ii) = modis.solar.azimuth(pixel_rows(ii),pixel_cols(ii));
+    
+    % we need the cosine of the zenith viewing angle
+    pixels2use.res1km.geometry.umu(ii) = round(cosd(double(modis.sensor.zenith(pixel_rows(ii),pixel_cols(ii)))),3); % values are in degrees
+    pixels2use.res1km.geometry.phi(ii) = modis.sensor.azimuth(pixel_rows(ii),pixel_cols(ii));
+    
+end
 
 
 
