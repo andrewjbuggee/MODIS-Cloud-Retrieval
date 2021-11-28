@@ -15,23 +15,27 @@ clear variables;
 % modisINP_folderName = '/Users/anbu8374/Documents/LibRadTran/libRadtran-2.0.4/MODIS_08_25_2021/';
 
 % this one is for my personal laptop
-modisINP_folderName = ['/Users/andrewbuggee/Documents/CU-Boulder-ATOC/',...
-    'Hyperspectral-Cloud-Droplet-Retrieval-Research/LibRadTran/libRadtran-2.0.4/MODIS_08_25_2021/'];
+% modisINP_folderName = ['/Users/andrewbuggee/Documents/CU-Boulder-ATOC/',...
+%     'Hyperspectral-Cloud-Droplet-Retrieval-Research/LibRadTran/libRadtran-2.0.4/MODIS_08_25_2021/'];
 
 % define the files names
 
-L1B_fileName = 'MOD02HKM.A2021237.1920.006.2021238072711.hdf';
+folderName = './MODIS_data/2021_07_13/';
 
-geoFileName = 'MOD03.A2021237.1920.006.2021238012056.hdf';
+L1B_500m_fileName = 'MOD02HKM.A2021194.1935.061.2021195073636.hdf';
 
-L2_fileName = 'MOD06_L2.A2021237.1920.061.2021238075516.hdf';
+L1B_1km_fileName = 'MOD021KM.A2021194.1935.061.2021195073636.hdf';
 
-modis = retrieveMODIS_data(L1B_fileName,geoFileName,L2_fileName);
+geoFileName = 'MOD03.A2021194.1935.061.2021195004243.hdf';
+
+L2_fileName = 'MOD06_L2.A2021194.1935.061.2021195080530.hdf';
+
+modis = retrieveMODIS_data(L1B_500m_fileName,geoFileName,L2_fileName);
 
 %% ----- Create a structure defining inputs of the problem -----
 
 % this is a built-in function that is defined at the bottom of this script
-inputs = create_modis_inputs(L1B_fileName);
+inputs = create_modis_inputs(folderName, L1B_500m_fileName);
 
 disp('Check inputs to make sure they are what you want!!')
 
@@ -103,19 +107,21 @@ end
 
 if inputs.flags.runUVSPEC == true
     
-    % R is the reflectance integrated over a bandwidth
-    % Rl is the reflectance at each spectral bin
-    [R,Rl] = runReflectanceFunction(inputs,names);
+    % 1st output - R is the reflectance integrated over a bandwidth
+    % 2nd output - Rl is the reflectance at each spectral bin
+    [R,~] = runReflectanceFunction(inputs,names);
     
 elseif inputs.flags.runUVSPEC == false
     
-    
+    disp('Load a reflectance from a previous calculation!')
     
 end
 %% ----- Compute the Reflectance Function for the MODIS Observations -----
 
 % We don't have to calculate the reflectance function of MODIS if we don't
 % want to. They proivde it as an output in their data
+
+% We want to grab modis reflectances at 1km!!
 
 modisR = grab_modis_reflectance(modis,inputs);
 
@@ -130,26 +136,30 @@ modisR = grab_modis_reflectance(modis,inputs);
 
 minVals = leastSquaresGridSearch(modisR, R, inputs, pixels2use);
 
-[truthTable, calc_reflTable] = gatherTruthEstimateVals(modis, minVals, inputs, pixels2use); % containts truth ad estimates and difference
+[truth_estimate_table, calc_reflTable] = gatherTruthEstimateVals(modis, minVals, inputs, pixels2use); % containts truth ad estimates and difference
 
 
 %% ----- Make Plots -----
 
-% Plot MODIS Calculated cloud properties
-figure; subplot(1,2,1); imagesc(modis.cloud.effRadius); colorbar; title('effective radius (\mum)')
-subplot(1,2,2); imagesc(modis.cloud.optThickness); colorbar; title('optical thickness')
-
 
 % plot relfectance curves with lines of constant radius
+% if there are more than 3 pixels, this function will plot three random
+% pixels from the set
 plotReflectanceCurves_singleBand(R,inputs,pixels2use)
 
 % plot reflectance contours where x and y are tau and r
 
 plotReflectanceContours(R,inputs,pixels2use)
 
-% plot model reflectance function
+% Plot MODIS re values against my calculated re values
 
-plot2ReflectanceFuncBands(modis,R,inputs)
+plot_effRadius_modis_estimates(truth_estimate_table)
+
+
+plot_tau_modis_estimates(truth_estimate_table)
+
+
+% plot2ReflectanceFuncBands(modis,R,inputs)
 
 %%
 
@@ -170,7 +180,7 @@ plot2ReflectanceFuncBands(modis,R,inputs)
 
 %% ----- CREATE INPUTS -----
 
-function inputs = create_modis_inputs(L1B_fileName)
+function inputs = create_modis_inputs(folderName, L1B_fileName)
 
 
 % ----- what water cloud files should we use? -----
@@ -192,7 +202,7 @@ inputs.bands2plot = [1,7]; % these are the modis bands that will be plotted, bot
 % rows, and 10 columns will be interpolated to be 100 columns
 inputs.interpGridScaleFactor = 10; % scale factor the will be used to increase the grid size for interpolation.
 
-inputs.savedCalculations_folderName = './MODIS_data/2021_08_25/'; % this is the folder that all the saved calculations for the 2021_08_25 data set will go
+inputs.savedCalculations_folderName = folderName; % this is the folder that all the saved calculations for the 2021_08_25 data set will go
 inputs.saveCalculations_fileName = ['uvspec_CALCS_',date,'.mat'];
 
 inputs.INP_folderName = ['MODIS_day_',L1B_fileName(15:17),'_year_',L1B_fileName(11:14),...
@@ -201,8 +211,8 @@ inputs.INP_folderName = ['MODIS_day_',L1B_fileName(15:17),'_year_',L1B_fileName(
 
 % ----- defining what pixels to use -----
 
-inputs.pixels.tauThreshold = 15; % only find pixels in the modis data that is greater than or equal to a tau of this 
-inputs.pixels.num_2calculate = 1; % we will randomly select this many pixels from the set of suitable pixels found to create .INP files
+inputs.pixels.tauThreshold = 10; % only find pixels in the modis data that is greater than or equal to a tau of this 
+inputs.pixels.num_2calculate = 100; % we will randomly select this many pixels from the set of suitable pixels found to create .INP files
 
 
 
@@ -212,10 +222,10 @@ inputs.pixels.num_2calculate = 1; % we will randomly select this many pixels fro
 % define flags that tell the codes to either run certain things, or don't
 % run certain things
 
-inputs.flags.findSuitablePixels = false; % if true, this will search the modis data set for pixels to use
-inputs.flags.loadPixelSet = true; % if true, the code will load an older set of pixels that has already been used before, and likely has INP files. If false, it tells the code to find a new subset of pixels
-inputs.flags.writeINPfiles = false; % if true, this will create inp files for each the length of vector pixel.row
-inputs.flags.runUVSPEC = false; % if true, this will run all of the inp files create from the above flag through uvspec
+inputs.flags.findSuitablePixels = true; % if true, this will search the modis data set for pixels to use
+inputs.flags.loadPixelSet = false; % if true, the code will load an older set of pixels that has already been used before, and likely has INP files. If false, it tells the code to find a new subset of pixels
+inputs.flags.writeINPfiles = true; % if true, this will create inp files for each the length of vector pixel.row
+inputs.flags.runUVSPEC = true; % if true, this will run all of the inp files create from the above flag through uvspec
 inputs.flags.plotMLS_figures = false; % this will tell the leasSquaresGridSearch code to plot the l
 
 

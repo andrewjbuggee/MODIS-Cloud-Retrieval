@@ -55,17 +55,17 @@ new_re = linspace(min(re),max(re),interpGridScaleFactor*length(re));
 % set up the new grid to interpolate on
 [Xq,Yq] = meshgrid(newTau_c,new_re);
 
-    % SWITCH TO 1KM DATA
-    % but for now, lets propose a simple algebraic fix so taht we select
-    % the proper pixel in our 500 meter data set
-    pixelIndex_500m = 1:4:((numPixels-1)*4 +1);
-    
+% SWITCH TO 1KM DATA
+% but for now, lets propose a simple algebraic fix so taht we select
+% the proper pixel in our 500 meter data set
+pixelIndex_500m = 1:4:((numPixels-1)*4 +1);
+
 
 for pp = 1:numPixels
     
-
-
-
+    
+    
+    
     % lets shape our data in an easy to use format
     % first extract the data from the bands of interest
     
@@ -74,9 +74,21 @@ for pp = 1:numPixels
     % have to use the 500 meter pixel indexes
     
     observations = modisRefl(pixels2use.res500m.row(pixelIndex_500m(pp)),pixels2use.res500m.col(pixelIndex_500m(pp)),band_index);
-
-    modelData_vec = modelData(pp,:,:,band_index);
-    modelData_vec = reshape(modelData_vec,size(modelData,2),size(modelData,3),length(bands2search));
+    
+    if iscell(modelData) == true
+        
+        modelData_vec = [modelData{pp,:,:,band_index}];
+        modelData_vec = reshape(modelData_vec,size(modelData,2),size(modelData,3),length(bands2search));
+        
+        
+        
+    elseif isnumeric(modelData) == true
+        
+        modelData_vec = modelData(pp,:,:,band_index);
+        modelData_vec = reshape(modelData_vec,size(modelData,2),size(modelData,3),length(bands2search));
+        
+        
+    end
     
     % preform 2D interpolation
     newModelData = zeros(length(new_re),length(newTau_c),size(modelData_vec,3));
@@ -118,7 +130,7 @@ for pp = 1:numPixels
     
     % lets look at the least squares grid
     if inputs.flags.plotMLS_figures == true
-
+        
         figure; s = surf(Xq,Yq,leastSquaresGrid);
         xlabel('Optical Depth')
         ylabel('Effective Radius (\mum)')

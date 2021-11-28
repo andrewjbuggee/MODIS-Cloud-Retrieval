@@ -44,7 +44,7 @@ if num_pixels <=3
                 for kk = 1:length(re)
                     
                     
-                    reflectance = R(pp,kk,:,bands2plot_index(ii,:));
+                    reflectance = R(pp,kk,:,bands2plot_index);
                     plot(tau_c,reflectance(:));
                     hold on
                     lgnd_str{kk} = ['r_{e} = ',num2str(re(kk)),' \mum'];
@@ -79,15 +79,18 @@ elseif num_pixels > 3
     
     % if there are a bunch of pixels, we will just grab a random subset of
     % 3 to plot
-    rand_index = randi(num_pixels,1,3);
+    rand_index = randsample(num_pixels,3); % random sampling without replacement
     
-    for pp = 1:num_pixels
+    for pp = 1:length(rand_index)
         
         for ii = 1:size(bands2plot,1)
             
             figure;
             
             for jj = 1:size(bands2plot,2)
+                
+                 % find indices for bands 2 plot
+                bands2plot_index = bands2plot(ii,jj) == bands2run;
                 
                 subplot(1,size(bands2plot,2),jj)
                 
@@ -97,7 +100,8 @@ elseif num_pixels > 3
                 
                 for kk = 1:length(re)
                     
-                    plot(tau_c,[R(rand_index(pp),kk,:,bands2plot(jj))]);
+                    reflectance = R(rand_index(pp),kk,:,bands2plot_index);
+                    plot(tau_c,reflectance(:));
                     hold on
                     lgnd_str{kk} = ['r_{e} = ',num2str(re(kk)),' \mum'];
                     
@@ -112,8 +116,8 @@ elseif num_pixels > 3
                     legend(lgnd_str,'Location','best')
                     
                     dim = [.5 0 .3 .3];
-                    str = ['sza = ',num2str(sza(pp)),' saz = ',num2str(saz(pp)),' vza = ',num2str(vza(pp)),...
-                        ' vaz = ',num2str(vaz(pp))];
+                    str = ['sza = ',num2str(sza(rand_index(pp))),' saz = ',num2str(saz(rand_index(pp))),' vza = ',num2str(vza(rand_index(pp))),...
+                        ' vaz = ',num2str(vaz(rand_index(pp)))];
                     annotation('textbox',dim,'String',str,'FitBoxToText','on','Color','white',...
                         'FontWeight','bold','FontSize',14);
                 end

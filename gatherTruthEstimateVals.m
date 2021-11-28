@@ -98,8 +98,8 @@ for pp = 1:num_pixels
     
     
     % compute the percent difference
-    truthTable.percentDiffR(pp) = abs(1 - minVals.minR(pp)/truthTable.modisR17(pp));
-    truthTable.precentDiffT(pp) = abs(1 - minVals.minT(pp)/truthTable.modisT17(pp));
+    truthTable.percentDiffR(pp) = abs(1 - minVals.minR(pp)/truthTable.modisR17(pp)) * 100;
+    truthTable.percentDiffT(pp) = abs(1 - minVals.minT(pp)/truthTable.modisT17(pp)) * 100;
 end
 
 reflectanceTable.Bands = Band;

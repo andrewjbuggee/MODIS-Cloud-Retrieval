@@ -89,9 +89,9 @@ elseif strcmp(fileName(6:8),'1KM')
     
     uncertainty = 'EV_1KM_RefSB_Uncert_Indexes';
     
-    earthView250 = hdfread(fileName,'EV_250_Aggr1km_RefSB');
-    earthView500 = hdfread(fileName,'EV_500_Aggr1km_RefSB');
-    earthView1000 = hdfread(fileName,'EV_1KM_RefSB'); % reflected bands at 1km resolution
+    earthView250 = hdfread(fileName,'EV_250_Aggr1km_RefSB'); % first two modis bands aggregated to 1km resolution
+    earthView500 = hdfread(fileName,'EV_500_Aggr1km_RefSB'); % modis bands 3-7 aggregated to 1km resolution
+    earthView1000 = hdfread(fileName,'EV_1KM_RefSB'); % modis bands 8 - 36 at 1km resolution
     
     m250_scaledIntegers = bandAcrossAlong2AcrossAlongBand(earthView250);
     m500_scaledIntegers = bandAcrossAlong2AcrossAlongBand(earthView500);
@@ -109,11 +109,14 @@ elseif strcmp(fileName(6:8),'1KM')
     % the 500 meter resolution data covers bands 3 through 7
     EV.m500.bands = readMODISbands([3:7]);
     
-    EV.km1.radiance = scalesOffsets2Matrix(m1000_scaledIntegers,radianceScales,radianceOffsets);
-    EV.km1.reflectance = scalesOffsets2Matrix(m1000_scaledIntegers,reflectanceScales,reflectanceOffsets);
+    % --- DONT NEED BANDS 8-36 FOR NOW ---
     
-    % the 1 kilometer resolution reflective bands span 8-16 and 26
-    EV.m250.bands = readMODISbands([8:16,26]);
+%     % retrieve the 1km bands, bands 8-36
+%     EV.km1.radiance = scalesOffsets2Matrix(m1000_scaledIntegers,radianceScales,radianceOffsets);
+%     EV.km1.reflectance = scalesOffsets2Matrix(m1000_scaledIntegers,reflectanceScales,reflectanceOffsets);
+%     
+%     % the 1 kilometer resolution reflective bands span 8-16 and 26
+%     EV.km1.bands = readMODISbands([8:16,26]);
     
     
 elseif strcmp(fileName(6:8),'OBC')

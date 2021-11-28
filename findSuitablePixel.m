@@ -15,6 +15,7 @@
 function [pixels] = findSuitablePixel(modis,inputs)
 
 
+
 tauThreshold = inputs.pixels.tauThreshold;
 % create logical mask for phase 
 
@@ -60,17 +61,33 @@ flag_index = [];
 % run this calculation in parallel
 % p = parpool(4);
 
-parfor ii = 1:length(row1)
-        
-    dist2pixel = sqrt((row1(ii) - row0).^2 + (col1(ii) - col0).^2); 
+while isempty(flag_index) == true
     
-    if min(dist2pixel,[],'all') >= dist_threshold
+    
+    
+    parfor ii = 1:length(row1)
         
-        flag_index = [flag_index; index_ones(ii)];
+        dist2pixel = sqrt((row1(ii) - row0).^2 + (col1(ii) - col0).^2);
+        
+        if min(dist2pixel,[],'all') >= dist_threshold
+            
+            flag_index = [flag_index; index_ones(ii)];
+        end
+        
+        
     end
     
-
+    if isempty(flag_index) == ture
+        disp(['No Suitable pixels found for a distance threshold of ',num2str(dist_threshold)])
+        dist_threshold = floor(dist_threshold/2);
+        
+    elseif isempty(flag_index) == false
+        disp([num2str(numel(flag_index)),' suitable pixels found with a distance threshold of ',num2str(dist_threshold)])
+    end
+    
+    
 end
+
 
 % lets keep both the 1km resolution pixel location, and interpolate to get pixel
 % locations for 500 meter resolution data
