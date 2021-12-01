@@ -15,6 +15,7 @@ ylabel('Effective Radius (\mum)')
 zlabel(['Reflectance (\lambda = ',num2str(band2Plot),' nm)'])
 s1.EdgeColor = 'k';
 s1.EdgeAlpha = 0.2;
+colorbar
 
 
 % now plot the reflectance value for the observation

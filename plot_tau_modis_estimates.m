@@ -13,7 +13,7 @@ est_T17 = truth_estimate_table.estT17;
 
 abs_diff = truth_estimate_table.absDiffT; % the absolute difference between my estimate and the modis estimate
 avg_abs_diff = mean(abs_diff);
-
+rms_diff = sqrt(mean((modis_T17 - est_T17).^2));
 
 
 % find the minimum and maximum values to create a y=x line
@@ -34,8 +34,9 @@ x = linspace((0.9 * min_global),(1.1*max_global),150);
 figure; plot(x,x,'w-','Linewidth',1)
 hold on; grid on; grid minor
 plot(est_T17,modis_T17,'m.')
-xlabel('My estimate - \tau_{c}')
-ylabel('MODIS estimate - \tau_{c}') 
+xlabel('My Estimate: \tau_{c}')
+ylabel('MODIS Estimate: \tau_{c}') 
+title(['RMS: ',num2str(rms_diff)])
 
 
 % find the indices of estiamtes that are furthest from their modis
@@ -62,11 +63,12 @@ end
 figure; plot(x,x,'w-','Linewidth',1)
 hold on; grid on; grid minor
 plot(est_T17,modis_T17,'m.')
-xlabel('My estimate - \tau_{c}')
-ylabel('MODIS estimate - \tau_{c}')  
+xlabel('My Estimate: \tau_{c}')
+ylabel('MODIS Estimate: \tau_{c}')  
 plot(est_T17(index_2find),modis_T17(index_2find),'c.')
 legend('Perfect Fit','all pixels',[num2str(num2find),' furthest from line'],'Location','best')
-title(['Mean Abs Difference: ',num2str(avg_abs_diff)]) 
+%title(['Mean Abs Difference: ',num2str(avg_abs_diff)]) 
+title(['RMS: ',num2str(rms_diff)])
 
 
 % find and remove values of tau that modis deems to be greater than 80.
@@ -91,14 +93,14 @@ for ii = 1:num2find
     
 end
 
-figure; plot(x,x,'w-','Linewidth',1)
-hold on; grid on; grid minor
-plot(est_T17_80,modis_T17_80,'m.')
-xlabel('My estimate - \tau_{c}')
-ylabel('MODIS estimate - \tau_{c}')  
-plot(est_T17_80(index_2find),modis_T17_80(index_2find),'c.')
-legend('Perfect Fit','all pixels',[num2str(num2find),' furthest from line'],'Location','best')
-title(['Mean Abs Difference: ',num2str(mean(abs_diff))]) 
+% figure; plot(x,x,'w-','Linewidth',1)
+% hold on; grid on; grid minor
+% plot(est_T17_80,modis_T17_80,'m.')
+% xlabel('My estimate - \tau_{c}')
+% ylabel('MODIS estimate - \tau_{c}')  
+% plot(est_T17_80(index_2find),modis_T17_80(index_2find),'c.')
+% legend('Perfect Fit','all pixels',[num2str(num2find),' furthest from line'],'Location','best')
+% title(['Mean Abs Difference: ',num2str(mean(abs_diff))]) 
 
 
 

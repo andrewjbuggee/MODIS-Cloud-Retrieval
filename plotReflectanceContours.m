@@ -40,7 +40,7 @@ if num_pixels <= 3
                 
                 reflectance = reshape(R(pp,:,:,bands2plot_index),length(re),length(tau_c));
                 contourf(tau_c,re,reflectance,'ShowText','on'); colorbar;
-                title(['Reflectance - ',num2str(band_center),' \mum'])
+                title(['Reflectance - ',num2str(band_center),' nm'])
                 xlabel('\tau_{c}'); ylabel('r_{e} (\mum)')
                 
             end
@@ -83,7 +83,7 @@ elseif num_pixels > 3
                 
                 reflectance = reshape(R(rand_index(pp),:,:,bands2plot_index),length(re),length(tau_c));
                 contourf(tau_c,re,reflectance,'ShowText','on'); colorbar;
-                title(['Reflectance - ',num2str(band_center),' \mum'])
+                title(['Reflectance - ',num2str(band_center),' nm'])
                 xlabel('\tau_{c}'); ylabel('r_{e} (\mum)')
                 
             end

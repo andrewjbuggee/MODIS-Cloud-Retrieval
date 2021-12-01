@@ -9,6 +9,8 @@
 
 % ---- Description of the different fields within the HDF File -----
 
+%   (1) radiance - units of W/m^2/micron/sr
+%   (2) reflectance - units of 1/sr
 
 
 

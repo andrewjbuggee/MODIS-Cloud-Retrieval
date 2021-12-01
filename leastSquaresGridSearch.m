@@ -105,7 +105,7 @@ for pp = 1:numPixels
     
     %% ---- lets view the surfaces of the model -----
     
-    band2Plot = 1;
+    band2Plot = 2;
     
     if inputs.flags.plotMLS_figures == true
         surfPlots4modisModel_andObs(Xq,Yq,newModelData(:,:,band2Plot),observations_newGrid(:,:,band2Plot),bandVals(band2Plot))
@@ -137,7 +137,8 @@ for pp = 1:numPixels
         zlabel(['Least Squares Difference'])
         s.EdgeColor = 'k';
         s.EdgeAlpha = 0.2;
-        
+        colorbar
+        title('Error Function')
     end
     
 end
