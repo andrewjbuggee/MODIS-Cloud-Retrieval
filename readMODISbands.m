@@ -29,10 +29,24 @@ function [mod_bands] = readMODISbands(n)
     end
     
 % --------------------------------------------------
+
+% check which computer you're using
+
+comp = whatComputer;
+
 % pull desired bins
 
+if strcmp(comp,'andrewbuggee')==true
+    
+    folder_bands = '/Users/andrewbuggee/Documents/MATLAB/CU Boulder/Hyperspectral_Cloud_Retrievals/MODIS_Cloud_Retrieval/MODIS_data/';
+    
+elseif strcmp(comp,'anbu8374')==true
+    
+    error('Dont have the correct folder location for modis_bands !!')
+    folder_bands = '/Users/anbu8374/MATLAB/Hyperspectral_Cloud_Retrievals/MODIS_Cloud_Retrieval/MODIS_data';
+    
+end
 
-    folder_bands = './MODIS_data/';
     file_bands = 'modis_bands.txt';
     fileID = fopen([folder_bands,file_bands],'r');
     T = fscanf(fileID,'%d %d %d\n');

@@ -28,6 +28,15 @@ cloudProp_info = hdfinfo(fileName);
 effectiveRadius17_scales = cloudProp_info.Vgroup.Vgroup(2).SDS(67).Attributes(5).Value; %  output will be a cell array
 effectiveRadius17_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(67).Attributes(6).Value;
 
+% effective radius uncertainty for bands 1 and 7
+effectiveRadius_uncertainty_17_scales = cloudProp_info.Vgroup.Vgroup(2).SDS(91).Attributes(5).Value;
+effectiveRadius_uncertainty_17_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(91).Attributes(6).Value;
+
+% effective radius uncertainty for bands 1 and 6
+effectiveRadius_uncertainty_16_scales = cloudProp_info.Vgroup.Vgroup(2).SDS(92).Attributes(5).Value;
+effectiveRadius_uncertainty_16_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(92).Attributes(6).Value;
+
+
 effectiveRadius16_scales = cloudProp_info.Vgroup.Vgroup(2).SDS(69).Attributes(5).Value; %  output will be a cell array
 effectiveRadius16_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(69).Attributes(6).Value;
 
@@ -58,8 +67,14 @@ cloudPhase_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(51).Attributes(6).Value;
 % extract the effective radius data using bands 1 and 7
 effectiveRadius_17 = hdfread(fileName,'Cloud_Effective_Radius');
 
+% extract the effective radius uncertainty bands 1 and 7
+effectiveRadius_uncertainty_17 = hdfread(fileName,'Cloud_Effective_Radius_Uncertainty');
+
 % extract the effective radius data using bands 1 and 6
 effectiveRadius_16 = hdfread(fileName,'Cloud_Effective_Radius_16');
+
+% extract the effective radius uncertainty bands 1 and 6
+effectiveRadius_uncertainty_16 = hdfread(fileName,'Cloud_Effective_Radius_Uncertainty_16');
 
 % extract the Optical thickness data using bands 1 and 7
 opticalThickness_17 = hdfread(fileName,'Cloud_Optical_Thickness');
@@ -90,9 +105,11 @@ cloudPhase = hdfread(fileName,'Cloud_Phase_Optical_Properties');
 
 
 cloud.effRadius17 = scalesOffsets2Matrix(effectiveRadius_17,effectiveRadius17_scales,effectiveRadius17_offset);
+cloud.effRad_uncertainty_17 = scalesOffsets2Matrix(effectiveRadius_uncertainty_17,effectiveRadius_uncertainty_17_scales,effectiveRadius_uncertainty_17_offset);
 cloud.optThickness17 = scalesOffsets2Matrix(opticalThickness_17,optThickness17_scales,optThickness17_offset);
 
 cloud.effRadius16 = scalesOffsets2Matrix(effectiveRadius_16,effectiveRadius16_scales,effectiveRadius16_offset);
+cloud.effRad_uncertainty_16 = scalesOffsets2Matrix(effectiveRadius_uncertainty_16,effectiveRadius_uncertainty_16_scales,effectiveRadius_uncertainty_16_offset);
 cloud.optThickness16 = scalesOffsets2Matrix(opticalThickness_16,optThickness16_scales,optThickness16_offset);
 
 cloud.topHeight = scalesOffsets2Matrix(cloudTop_geopotentialHeight,cloudTopHeight_scales,cloudTopHeight_offset);

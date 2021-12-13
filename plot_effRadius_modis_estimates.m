@@ -9,14 +9,25 @@ function [] = plot_effRadius_modis_estimates(truth_estimate_table)
 
 % extract the modis estimate and my calculation estimates
 modis_R17 = truth_estimate_table.modisR17;
+modis_R16 = truth_estimate_table.modisR16;
+
 est_R17 = truth_estimate_table.estR17;
+est_R27 = truth_estimate_table.estR27;
+est_R16 = truth_estimate_table.estR16;
 
-abs_diff = truth_estimate_table.absDiffR; % the absolute difference between my estimate and the modis estimate
-avg_abs_diff = mean(abs_diff);
-rms_diff = sqrt(mean((modis_R17 - est_R17).^2));
+square_diffR17 = truth_estimate_table.squareDiffR17; % the absolute difference between my estimate and the modis estimate
+rms_diff_R17 = sqrt(mean(square_diffR17));
+
+square_diffR27 = truth_estimate_table.squareDiffR27; % the absolute difference between my estimate and the modis estimate
+rms_diff_R27 = sqrt(mean(square_diffR27));
+
+square_diffR16 = truth_estimate_table.squareDiffR16; % the absolute difference between my estimate and the modis estimate
+rms_diff_R16 = sqrt(mean(square_diffR16));
 
 
-
+% ---------------------------------------------
+% ----------- Plot Bands 1 and 7 --------------
+% ---------------------------------------------
 
 % find the minimum and maximum values to create a y=x line
 
@@ -38,7 +49,64 @@ hold on; grid on; grid minor
 plot(est_R17,modis_R17,'m.')
 xlabel('My Estimate: r_{e} (\mum)')
 ylabel('MODIS Estimate: r_{e} (\mum)')
-title(['RMS: ',num2str(rms_diff),' \mum'])
+title(['Bands 1&7 - RMS: ',num2str(rms_diff_R17),' \mum'])
+
+
+% ---------------------------------------------
+% ----------- Plot Bands 2 and 7 --------------
+% ---------------------------------------------
+
+% MODIS may have used bands 2 and 7 instead of 1 and 7
+% find the minimum and maximum values to create a y=x line
+
+min_est = min(est_R27);
+min_modis = min(modis_R17);
+
+max_est = max(est_R27);
+max_modis = max(modis_R17);
+
+min_global = min([min_est,min_modis]);
+
+max_global = min([max_est,max_modis]);
+
+x = linspace((0.9 * min_global),(1.1*max_global),150);
+
+
+figure; plot(x,x,'w-','Linewidth',1)
+hold on; grid on; grid minor
+plot(est_R27,modis_R17,'m.')
+xlabel('My Estimate: r_{e} (\mum)')
+ylabel('MODIS Estimate: r_{e} (\mum)')
+title(['Bands 2&7 - RMS: ',num2str(rms_diff_R27),' \mum'])
+
+
+
+% ---------------------------------------------
+% ----------- Plot Bands 1 and 6 --------------
+% ---------------------------------------------
+
+
+% find the minimum and maximum values to create a y=x line
+
+min_est = min(est_R16);
+min_modis = min(modis_R16);
+
+max_est = max(est_R16);
+max_modis = max(modis_R16);
+
+min_global = min([min_est,min_modis]);
+
+max_global = min([max_est,max_modis]);
+
+x = linspace((0.9 * min_global),(1.1*max_global),150);
+
+
+figure; plot(x,x,'w-','Linewidth',1)
+hold on; grid on; grid minor
+plot(est_R16,modis_R16,'m.')
+xlabel('My Estimate: r_{e} (\mum)')
+ylabel('MODIS Estimate: r_{e} (\mum)')
+title(['Bands 1&6 - RMS: ',num2str(rms_diff_R16),' \mum'])
 
 
 % find the indices of estiamtes that are furthest from their modis
@@ -49,9 +117,9 @@ index_2find = zeros(1,num2find);
 
 for ii = 1:num2find
     
-    [~, index_2find(ii)] = max(abs_diff);
+    [~, index_2find(ii)] = max(square_diffR17);
     
-    abs_diff(index_2find(ii)) = 0; % set it to a value that will never be chosen!
+    square_diffR17(index_2find(ii)) = 0; % set it to a value that will never be chosen!
     
 end
     
@@ -70,7 +138,7 @@ ylabel('MODIS Estimate: r_{e} (\mum)')
 plot(est_R17(index_2find),modis_R17(index_2find),'c.')
 legend('Perfect Fit','all pixels',[num2str(num2find),' furthest from line'],'Location','best')
 %title(['Mean Abs Difference: ',num2str(avg_abs_diff),' \mum']) 
-title(['RMS: ',num2str(rms_diff),' \mum'])
+title(['Bands 1&7 - RMS: ',num2str(rms_diff_R17),' \mum'])
 
 
 % find and remove values of tau that modis deems to be greater than 80.
@@ -83,15 +151,15 @@ modis_R17_80 = modis_R17(~index_80);
 % redefine the absolute difference since we altered some values up above.
 % Also, ignore any values where the tau is greater than 80
 
-abs_diff = truth_estimate_table.absDiffR(~index_80); % the absolute difference between my estimate and the modis estimate
+square_diffR17 = truth_estimate_table.squareDiffR17(~index_80); % the absolute difference between my estimate and the modis estimate
 num2find = 10;
 index_2find = zeros(1,num2find);
 
 for ii = 1:num2find
     
-    [~, index_2find(ii)] = max(abs_diff);
+    [~, index_2find(ii)] = max(square_diffR17);
     
-    abs_diff(index_2find(ii)) = 0; % set it to a value that will never be chosen!
+    square_diffR17(index_2find(ii)) = 0; % set it to a value that will never be chosen!
     
 end
 

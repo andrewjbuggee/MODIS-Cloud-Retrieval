@@ -20,17 +20,10 @@ clear variables;
 
 % define the files names
 
-folderName = './MODIS_data/2021_07_13/';
+folderName = './MODIS_data/2021_08_25/';
 
-L1B_500m_fileName = 'MOD02HKM.A2021194.1935.061.2021195073636.hdf';
 
-L1B_1km_fileName = 'MOD021KM.A2021194.1935.061.2021195073636.hdf';
-
-geoFileName = 'MOD03.A2021194.1935.061.2021195004243.hdf';
-
-L2_fileName = 'MOD06_L2.A2021194.1935.061.2021195080530.hdf';
-
-modis = retrieveMODIS_data(L1B_500m_fileName,geoFileName,L2_fileName);
+[modis,L1B_500m_fileName] = retrieveMODIS_data(folderName);
 
 %% ----- Create a structure defining inputs of the problem -----
 
@@ -74,8 +67,7 @@ elseif pixels_file_flag == true && inputs.flags.loadPixelSet == false
 
 elseif pixels_file_flag == true && inputs.flags.loadPixelSet == true
     
-    disp('Load a pixel set from a previous calculation!')
-    
+    load('uvspec_CALCS_23-Nov-2021.mat','pixels2use');  
 end
 
 
@@ -113,7 +105,7 @@ if inputs.flags.runUVSPEC == true
     
 elseif inputs.flags.runUVSPEC == false
     
-    disp('Load a reflectance from a previous calculation!')
+    load('uvspec_CALCS_23-Nov-2021.mat','inputs','R');
     
 end
 %% ----- Compute the Reflectance Function for the MODIS Observations -----
@@ -136,7 +128,7 @@ modisR = grab_modis_reflectance(modis,inputs);
 
 minVals = leastSquaresGridSearch(modisR, R, inputs, pixels2use);
 
-[truth_estimate_table, calc_reflTable] = gatherTruthEstimateVals(modis, minVals, inputs, pixels2use); % containts truth ad estimates and difference
+[truth_estimate_table] = gatherTruthEstimateVals(modis, minVals, inputs, pixels2use); % containts truth ad estimates and difference
 
 
 %% ----- Make Plots -----
@@ -195,12 +187,12 @@ inputs.tau_c = [1,5:5:30,40:10:80]; % cloud optical thickness - value is in the 
 
 
 inputs.bands2run = [1,2,6,7]; % these are the bands that we will run uvspec with
-inputs.bands2search = [1,7]; % these are the modis bands that are used in the retrieval problem
+inputs.bands2search = [1,7; 2,7; 1,6]; % these are the modis bands that are used in the retrieval problem
 inputs.bands2plot = [1,7]; % these are the modis bands that will be plotted, both the modis calcualted stuff and the stuff I calcualte
 
 % if interpGridScalFactor is 10, then 9 rows will be interpolated to be 90
 % rows, and 10 columns will be interpolated to be 100 columns
-inputs.interpGridScaleFactor = 10; % scale factor the will be used to increase the grid size for interpolation.
+inputs.interpGridScaleFactor = 150; % scale factor the will be used to increase the grid size for interpolation.
 
 inputs.savedCalculations_folderName = folderName; % this is the folder that all the saved calculations for the 2021_08_25 data set will go
 inputs.saveCalculations_fileName = ['uvspec_CALCS_',date,'.mat'];
@@ -222,10 +214,10 @@ inputs.pixels.num_2calculate = 100; % we will randomly select this many pixels f
 % define flags that tell the codes to either run certain things, or don't
 % run certain things
 
-inputs.flags.findSuitablePixels = true; % if true, this will search the modis data set for pixels to use
+inputs.flags.findSuitablePixels = false; % if true, this will search the modis data set for pixels to use
 inputs.flags.loadPixelSet = false; % if true, the code will load an older set of pixels that has already been used before, and likely has INP files. If false, it tells the code to find a new subset of pixels
-inputs.flags.writeINPfiles = true; % if true, this will create inp files for each the length of vector pixel.row
-inputs.flags.runUVSPEC = true; % if true, this will run all of the inp files create from the above flag through uvspec
+inputs.flags.writeINPfiles = flase; % if true, this will create inp files for each the length of vector pixel.row
+inputs.flags.runUVSPEC = false; % if true, this will run all of the inp files create from the above flag through uvspec
 inputs.flags.plotMLS_figures = false; % this will tell the leasSquaresGridSearch code to plot the l
 
 

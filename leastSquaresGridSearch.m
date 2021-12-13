@@ -72,117 +72,118 @@ for pp = 1:numPixels
     % lets compare with non-interpolated data and use the 1km resolution
     % modis reflected data, right now, is in 500 meter resolution. So we
     % have to use the 500 meter pixel indexes
-    
-    observations = modisRefl(pixels2use.res500m.row(pixelIndex_500m(pp)),pixels2use.res500m.col(pixelIndex_500m(pp)),band_index);
-    
-    if iscell(modelData) == true
+    for bb = 1:size(bands2search,1)
         
-        modelData_vec = [modelData{pp,:,:,band_index}];
-        modelData_vec = reshape(modelData_vec,size(modelData,2),size(modelData,3),length(bands2search));
+        observations = modisRefl(pixels2use.res500m.row(pixelIndex_500m(pp)),pixels2use.res500m.col(pixelIndex_500m(pp)),band_index(bb,:));
+        
+        if iscell(modelData) == true
+            
+            modelData_vec = [modelData{pp,:,:,band_index(bb,:)}];
+            modelData_vec = reshape(modelData_vec,size(modelData,2),size(modelData,3),length(bands2search));
+            
+            
+            
+        elseif isnumeric(modelData) == true
+            
+            modelData_vec = modelData(pp,:,:,band_index(bb,:));
+            modelData_vec = reshape(modelData_vec,size(modelData,2),size(modelData,3),size(bands2search,2));
+            
+            
+        end
+        
+        % preform 2D interpolation
+        newModelData = zeros(length(new_re),length(newTau_c),size(modelData_vec,3));
+        
+        for ii = 1:size(modelData_vec,3)
+            newModelData(:,:,ii) = interp2(X,Y,modelData_vec(:,:,ii),Xq,Yq);
+        end
+        
+        % finally, lets now rescale the observation to be on a flat plane with the
+        % same dimensions as the interpolated model data
+        
+        observations_newGrid = repmat(observations,length(new_re),length(newTau_c));
         
         
+        %% ---- lets view the surfaces of the model -----
         
-    elseif isnumeric(modelData) == true
+        band2Plot = 2;
         
-        modelData_vec = modelData(pp,:,:,band_index);
-        modelData_vec = reshape(modelData_vec,size(modelData,2),size(modelData,3),length(bands2search));
+        if inputs.flags.plotMLS_figures == true
+            surfPlots4modisModel_andObs(Xq,Yq,newModelData(:,:,band2Plot),observations_newGrid(:,:,band2Plot),bandVals(band2Plot))
+        end
+        %% ----- Least Squares Difference ------
         
+        % take the difference between the model and the observaions at each
+        % wavelength. The we square the difference and sum along wavelenghts. Then
+        % we take the sqrt
+        
+        leastSquaresGrid = sqrt(sum((newModelData - observations_newGrid).^2,3));
+        
+        % If we assume that there is a unique global minimum, we can search for it
+        % using the minimum function. If we have more complicated scenario we need
+        % to use the optimization tools to search for global and local minima
+        
+        [minVals.minLSD(bb,pp),index] = min(leastSquaresGrid,[],'all','linear');
+        [row,col] = ind2sub(size(leastSquaresGrid),index);
+        
+        minVals.minR(bb,pp) = Yq(row,col);
+        minVals.minT(bb,pp) = Xq(row,col);
+        
+        % lets look at the least squares grid
+        if inputs.flags.plotMLS_figures == true
+            
+            figure; s = surf(Xq,Yq,leastSquaresGrid);
+            xlabel('Optical Depth')
+            ylabel('Effective Radius (\mum)')
+            zlabel(['Least Squares Difference'])
+            s.EdgeColor = 'k';
+            s.EdgeAlpha = 0.2;
+            colorbar
+            title('Error Function')
+        end
         
     end
     
-    % preform 2D interpolation
-    newModelData = zeros(length(new_re),length(newTau_c),size(modelData_vec,3));
     
-    for ii = 1:size(modelData_vec,3)
-        newModelData(:,:,ii) = interp2(X,Y,modelData_vec(:,:,ii),Xq,Yq);
-    end
-    
-    % finally, lets now rescale the observation to be on a flat plane with the
-    % same dimensions as the interpolated model data
-    
-    observations_newGrid = repmat(observations,length(new_re),length(newTau_c));
+    save(saveCalcs_filename,"minVals",'-append'); % save inputSettings to the same folder as the input and output file
     
     
-    %% ---- lets view the surfaces of the model -----
     
-    band2Plot = 2;
+    %% ---- Global Minimum Search -----
     
-    if inputs.flags.plotMLS_figures == true
-        surfPlots4modisModel_andObs(Xq,Yq,newModelData(:,:,band2Plot),observations_newGrid(:,:,band2Plot),bandVals(band2Plot))
-    end
-    %% ----- Least Squares Difference ------
+    % -- PROBLEM -- I need to create a proper function handle, rather than
+    % using a surface fit object to create a function handle. This is giving me
+    % erroneous resutls when using the global search function.
     
-    % take the difference between the model and the observaions at each
-    % wavelength. The we square the difference and sum along wavelenghts. Then
-    % we take the sqrt
+    % vec_Xq = reshape(Xq,[],1);
+    % vec_Yq = reshape(Yq,[],1);
+    % vec_leastSquares = reshape(leastSquaresGrid,[],1);
+    %
+    % leastSquares_fit = fit([vec_Xq,vec_Yq],vec_leastSquares,'poly23');
+    %
+    %
+    % % create a function handle using the surface fit
+    %
+    % leastSquares_fh = @(T,r) leastSquares_fit(T,r);
+    %
+    % % lets define a starting point for the minimization solver
+    % x0 = [0,0]; % start at 0 r and 0 tau
+    % % create lower and upper bounds
+    % lb = [0,0];
+    % ub = [40,80];
+    %
+    % % define the problem to solve
+    %
+    %
+    % problem = createOptimProblem('fmincon','objective',leastSquares_fh,'x0',x0,'lb',lb,'ub',ub,...
+    %                             'options',optimoptions(@fmincon,'Algorithm','sqp','Display','off'));
+    %
+    % % find local minimums
+    % gs = GlobalSearch('Display','iter');
+    %
+    % [xmin,fmin] = run(gs,problem)
     
-    leastSquaresGrid = sqrt(sum((newModelData - observations_newGrid).^2,3));
     
-    % If we assume that there is a unique global minimum, we can search for it
-    % using the minimum function. If we have more complicated scenario we need
-    % to use the optimization tools to search for global and local minima
-    
-    [minVals.minLSD(pp),index] = min(leastSquaresGrid,[],'all','linear');
-    [row,col] = ind2sub(size(leastSquaresGrid),index);
-    
-    minVals.minR(pp) = Yq(row,col);
-    minVals.minT(pp) = Xq(row,col);
-    
-    % lets look at the least squares grid
-    if inputs.flags.plotMLS_figures == true
-        
-        figure; s = surf(Xq,Yq,leastSquaresGrid);
-        xlabel('Optical Depth')
-        ylabel('Effective Radius (\mum)')
-        zlabel(['Least Squares Difference'])
-        s.EdgeColor = 'k';
-        s.EdgeAlpha = 0.2;
-        colorbar
-        title('Error Function')
-    end
-    
-end
-
-
-save(saveCalcs_filename,"minVals",'-append'); % save inputSettings to the same folder as the input and output file
-
-
-
-%% ---- Global Minimum Search -----
-
-% -- PROBLEM -- I need to create a proper function handle, rather than
-% using a surface fit object to create a function handle. This is giving me
-% erroneous resutls when using the global search function.
-
-% vec_Xq = reshape(Xq,[],1);
-% vec_Yq = reshape(Yq,[],1);
-% vec_leastSquares = reshape(leastSquaresGrid,[],1);
-%
-% leastSquares_fit = fit([vec_Xq,vec_Yq],vec_leastSquares,'poly23');
-%
-%
-% % create a function handle using the surface fit
-%
-% leastSquares_fh = @(T,r) leastSquares_fit(T,r);
-%
-% % lets define a starting point for the minimization solver
-% x0 = [0,0]; % start at 0 r and 0 tau
-% % create lower and upper bounds
-% lb = [0,0];
-% ub = [40,80];
-%
-% % define the problem to solve
-%
-%
-% problem = createOptimProblem('fmincon','objective',leastSquares_fh,'x0',x0,'lb',lb,'ub',ub,...
-%                             'options',optimoptions(@fmincon,'Algorithm','sqp','Display','off'));
-%
-% % find local minimums
-% gs = GlobalSearch('Display','iter');
-%
-% [xmin,fmin] = run(gs,problem)
-
-
 end
 
 

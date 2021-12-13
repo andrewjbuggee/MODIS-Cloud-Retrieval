@@ -6,7 +6,7 @@
 
 %%
 
-function [truthTable, reflectanceTable] = gatherTruthEstimateVals(modis, minVals, inputs,pixels2use)
+function [truthTable] = gatherTruthEstimateVals(modis, minVals, inputs,pixels2use)
 
 % extract inputs
 
@@ -28,12 +28,8 @@ saveCalcs_filename = inputs.saveCalculations_fileName;
 
 
 % create reflectance function table
-reflectanceTable = table;
 truthTable = table;
 
-
-% create cell array for band names
-Band = cell(length(bands2search),1);
 
 
 % extract the modis computed values for reflectance to compare with my
@@ -47,39 +43,9 @@ Band = cell(length(bands2search),1);
 pixelIndex_500m = 1:4:((num_pixels-1)*4 +1);
 
 for pp = 1:num_pixels
+   
+
     
-    
-    for ii = 1:length(bands2search)
-        
-        Band{ii} = [num2str(modisBandsCenter(bands2search(ii))),' nm'];
-        
-        if bands2search(ii)<=2
-            
-            % lets grab the 4 pixels that the 1 km data maps to in the 500
-            % meter data space. Then take the average value
-            four_vals_index = pixelIndex_500m(pp):1:(pixelIndex_500m(pp)+3);
-            for kk = 1:length(four_vals_index)
-                
-                hold4_values(kk) = modis.EV.m250.reflectance(pixel_row_500(four_vals_index(kk)),pixel_col_500(four_vals_index(kk)),bands2search(ii));
-            end
-            
-            reflectanceTable.modisRefl(ii,pp) = mean(hold4_values);
-            
-        elseif bands2search(ii)>2
-            
-            % lets grab the 4 pixels that the 1 km data maps to in the 500
-            % meter data space. Then take the average value
-            four_vals_index = pixelIndex_500m(pp):1:(pixelIndex_500m(pp)+3);
-            for kk = 1:length(four_vals_index)
-                
-                hold4_values(kk) = modis.EV.m500.reflectance(pixel_row_500(four_vals_index(kk)),pixel_col_500(four_vals_index(kk)),bands2search(ii)-2);
-            end
-            reflectanceTable.modisRefl(ii,pp) = mean(hold4_values);
-            
-            
-        end
-        
-    end
     
     
     
@@ -87,27 +53,40 @@ for pp = 1:num_pixels
     truthTable.modisR17(pp) = modis.cloud.effRadius17(pixel_row_1(pp),pixel_col_1(pp));
     truthTable.modisT17(pp) = modis.cloud.optThickness17(pixel_row_1(pp),pixel_col_1(pp));
     
+    truthTable.modisR16(pp) = modis.cloud.effRadius16(pixel_row_1(pp),pixel_col_1(pp));
+    truthTable.modisT16(pp) = modis.cloud.optThickness16(pixel_row_1(pp),pixel_col_1(pp));
+    
     % gather the estimated values in the table
     
-    truthTable.estR17(pp) = minVals.minR(pp);
-    truthTable.estT17(pp) = minVals.minT(pp);
+    truthTable.estR17(pp) = minVals.minR(1,pp);  % My estimates for bands 1 and 7
+    truthTable.estT17(pp) = minVals.minT(1,pp);
+    
+    truthTable.estR27(pp) = minVals.minR(2,pp); % My estiamtes for bands 2 and 7 (should have a different tau)
+    truthTable.estT27(pp) = minVals.minT(2,pp);
+    
+    truthTable.estR16(pp) = minVals.minR(3,pp); % My estimates for bands 1 and 6 ( should have a different estiamte for re)
+    truthTable.estT16(pp) = minVals.minT(3,pp);
     
     % compute the absolute difference
-    truthTable.absDiffR(pp) = abs(minVals.minR(pp) - truthTable.modisR17(pp));
-    truthTable.absDiffT(pp) = abs(minVals.minT(pp) - truthTable.modisT17(pp));
+    truthTable.squareDiffR17(pp) = (minVals.minR(1,pp) - truthTable.modisR17(pp)).^2;
+    truthTable.squareDiffT17(pp) = (minVals.minT(1,pp) - truthTable.modisT17(pp)).^2;
+    
+        % compute the absolute difference
+    truthTable.squareDiffR27(pp) = (minVals.minR(2,pp) - truthTable.modisR17(pp)).^2;
+    truthTable.squareDiffT27(pp) = (minVals.minT(2,pp) - truthTable.modisT17(pp)).^2;
+    
+        % compute the absolute difference
+    truthTable.squareDiffR16(pp) = (minVals.minR(3,pp) - truthTable.modisR16(pp)).^2;
+    truthTable.squareDiffT16(pp) = (minVals.minT(3,pp) - truthTable.modisT16(pp)).^2;
     
     
-    % compute the percent difference
-    truthTable.percentDiffR(pp) = abs(1 - minVals.minR(pp)/truthTable.modisR17(pp)) * 100;
-    truthTable.percentDiffT(pp) = abs(1 - minVals.minT(pp)/truthTable.modisT17(pp)) * 100;
 end
 
-reflectanceTable.Bands = Band;
 
 
 
 
-save(saveCalcs_filename,"truthTable","reflectanceTable",'-append'); % save inputSettings to the same folder as the input and output file
+save(saveCalcs_filename,"truthTable",'-append'); % save inputSettings to the same folder as the input and output file
 
 
 
