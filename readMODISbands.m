@@ -42,8 +42,7 @@ if strcmp(comp,'andrewbuggee')==true
     
 elseif strcmp(comp,'anbu8374')==true
     
-    error('Dont have the correct folder location for modis_bands !!')
-    folder_bands = '/Users/anbu8374/MATLAB/Hyperspectral_Cloud_Retrievals/MODIS_Cloud_Retrieval/MODIS_data';
+    folder_bands = '/Users/anbu8374/Documents/MATLAB/HyperSpectral_Cloud_Retrieval/MODIS_Cloud_Retrieval/MODIS_data/';
     
 end
 
