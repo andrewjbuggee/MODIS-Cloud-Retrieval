@@ -215,8 +215,8 @@ inputs.pixels.num_2calculate = 100; % we will randomly select this many pixels f
 % run certain things
 
 inputs.flags.findSuitablePixels = false; % if true, this will search the modis data set for pixels to use
-inputs.flags.loadPixelSet = false; % if true, the code will load an older set of pixels that has already been used before, and likely has INP files. If false, it tells the code to find a new subset of pixels
-inputs.flags.writeINPfiles = flase; % if true, this will create inp files for each the length of vector pixel.row
+inputs.flags.loadPixelSet = true; % if true, the code will load an older set of pixels that has already been used before, and likely has INP files. If false, it tells the code to find a new subset of pixels
+inputs.flags.writeINPfiles = false; % if true, this will create inp files for each the length of vector pixel.row
 inputs.flags.runUVSPEC = false; % if true, this will run all of the inp files create from the above flag through uvspec
 inputs.flags.plotMLS_figures = false; % this will tell the leasSquaresGridSearch code to plot the l
 
