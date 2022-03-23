@@ -44,7 +44,7 @@ max_global = min([max_est,max_modis]);
 x = linspace((0.9 * min_global),(1.1*max_global),150);
 
 
-figure; plot(x,x,'w-','Linewidth',1)
+figure; plot(x,x,'k-','Linewidth',1)
 hold on; grid on; grid minor
 plot(est_T17,modis_T17,'m.')
 xlabel('My Estimate: \tau_{c}')
@@ -72,7 +72,7 @@ max_global = min([max_est,max_modis]);
 x = linspace((0.9 * min_global),(1.1*max_global),150);
 
 
-figure; plot(x,x,'w-','Linewidth',1)
+figure; plot(x,x,'k-','Linewidth',1)
 hold on; grid on; grid minor
 plot(est_T27,modis_T17,'m.')
 xlabel('My Estimate: \tau_{c}')
@@ -101,7 +101,7 @@ max_global = min([max_est,max_modis]);
 x = linspace((0.9 * min_global),(1.1*max_global),150);
 
 
-figure; plot(x,x,'w-','Linewidth',1)
+figure; plot(x,x,'k-','Linewidth',1)
 hold on; grid on; grid minor
 plot(est_T16,modis_T16,'m.')
 xlabel('My Estimate: \tau_{c}')
@@ -130,7 +130,7 @@ end
 % first lets plot all pixels again, and then highlight the 10 that deviate
 % the most. This allows us to see how they stack up with the full set
 
-figure; plot(x,x,'w-','Linewidth',1)
+figure; plot(x,x,'k-','Linewidth',1)
 hold on; grid on; grid minor
 plot(est_T17,modis_T17,'m.')
 xlabel('My Estimate: \tau_{c}')
@@ -163,7 +163,7 @@ for ii = 1:num2find
     
 end
 
-% figure; plot(x,x,'w-','Linewidth',1)
+% figure; plot(x,x,'k-','Linewidth',1)
 % hold on; grid on; grid minor
 % plot(est_T17_80,modis_T17_80,'m.')
 % xlabel('My estimate - r_{e} (\mum)')

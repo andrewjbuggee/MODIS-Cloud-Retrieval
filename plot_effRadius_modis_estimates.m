@@ -7,16 +7,14 @@
 
 function [] = plot_effRadius_modis_estimates(truth_estimate_table)
 
-% extract the modis estimate and my calculation estimates
-modis_R17 = truth_estimate_table.modisR17;
+
 modis_R16 = truth_estimate_table.modisR16;
 
-est_R17 = truth_estimate_table.estR17;
+
 est_R27 = truth_estimate_table.estR27;
 est_R16 = truth_estimate_table.estR16;
 
-square_diffR17 = truth_estimate_table.squareDiffR17; % the absolute difference between my estimate and the modis estimate
-rms_diff_R17 = sqrt(mean(square_diffR17));
+
 
 square_diffR27 = truth_estimate_table.squareDiffR27; % the absolute difference between my estimate and the modis estimate
 rms_diff_R27 = sqrt(mean(square_diffR27));
@@ -28,6 +26,13 @@ rms_diff_R16 = sqrt(mean(square_diffR16));
 % ---------------------------------------------
 % ----------- Plot Bands 1 and 7 --------------
 % ---------------------------------------------
+
+% extract the modis estimate and my calculation estimates
+modis_R17 = truth_estimate_table.modisR17;
+est_R17 = truth_estimate_table.estR17;
+
+square_diffR17 = truth_estimate_table.squareDiffR17; % the absolute difference between my estimate and the modis estimate
+rms_diff_R17 = sqrt(mean(square_diffR17));
 
 % find the minimum and maximum values to create a y=x line
 
@@ -44,7 +49,7 @@ max_global = min([max_est,max_modis]);
 x = linspace((0.9 * min_global),(1.1*max_global),150);
 
 
-figure; plot(x,x,'w-','Linewidth',1)
+figure; plot(x,x,'k-','Linewidth',1)
 hold on; grid on; grid minor
 plot(est_R17,modis_R17,'m.')
 xlabel('My Estimate: r_{e} (\mum)')
@@ -72,7 +77,7 @@ max_global = min([max_est,max_modis]);
 x = linspace((0.9 * min_global),(1.1*max_global),150);
 
 
-figure; plot(x,x,'w-','Linewidth',1)
+figure; plot(x,x,'k-','Linewidth',1)
 hold on; grid on; grid minor
 plot(est_R27,modis_R17,'m.')
 xlabel('My Estimate: r_{e} (\mum)')
@@ -101,7 +106,7 @@ max_global = min([max_est,max_modis]);
 x = linspace((0.9 * min_global),(1.1*max_global),150);
 
 
-figure; plot(x,x,'w-','Linewidth',1)
+figure; plot(x,x,'k-','Linewidth',1)
 hold on; grid on; grid minor
 plot(est_R16,modis_R16,'m.')
 xlabel('My Estimate: r_{e} (\mum)')
@@ -130,7 +135,7 @@ end
 % first lets plot all pixels again, and then highlight the 10 that deviate
 % the most. This allows us to see how they stack up with the full set
 
-figure; plot(x,x,'w-','Linewidth',1)
+figure; plot(x,x,'k-','Linewidth',1)
 hold on; grid on; grid minor
 plot(est_R17,modis_R17,'m.')
 xlabel('My Estimate: r_{e} (\mum)')
@@ -163,7 +168,7 @@ for ii = 1:num2find
     
 end
 
-% figure; plot(x,x,'w-','Linewidth',1)
+% figure; plot(x,x,'k-','Linewidth',1)
 % hold on; grid on; grid minor
 % plot(est_R17_80,modis_R17_80,'m.')
 % xlabel('My estimate - r_{e} (\mum)')
