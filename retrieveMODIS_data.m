@@ -8,6 +8,10 @@
 
 function [modis,L1B_500m_fileName] = retrieveMODIS_data(folderName)
 
+% -----------------------------------------------------
+% ----- Check to see if the folder name is valid ------
+% -----------------------------------------------------
+
 
 files = dir([folderName,'*.hdf']); % find all files that end in .hdf
 
