@@ -1,8 +1,8 @@
 %% ----- Algorithm to search for a suitable Pixel -----
 
 % This function looks through a modis data set to find a pixel that has a
-% thermodynamic phase of liquid water, a high optical depth, and is
-% surrounded by many other pixels like it - thus it is not an edge case
+% thermodynamic phase of liquid water, a certain optical depth threshold,
+% and is surrounded by many other pixels like it - thus it is not an edge case
 
 % save both 1km resolution pixels and we interpolate to find how these map
 % to 500 meter resolution pixels

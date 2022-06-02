@@ -4,7 +4,7 @@
 % By Andrew J. Buggee
 %%
 
-function [] = plotReflectanceCurves_singleBand(R,inputs,pixels2use)
+function f = plotReflectanceCurves_singleBand(R,inputs,pixels2use)
 
 bands2run = inputs.bands2run;
 bands2plot = inputs.bands2plot;
@@ -24,7 +24,7 @@ if num_pixels <=3
     
     for pp = 1:num_pixels
         
-        figure;
+        f(pp) = figure;
         
         for ii = 1:size(bands2plot,1)
             
@@ -37,7 +37,7 @@ if num_pixels <=3
                 
                 subplot(1,size(bands2plot,2),jj)
                 
-                band_center = modisBandsCenter(bands2plot(ii,jj));
+                bandVals = modisBands(bands2plot(ii,jj));
                 
                 lgnd_str = cell(1,length(re));
                 
@@ -52,7 +52,7 @@ if num_pixels <=3
                 end
                 
                 
-                title(['Reflectance - ',num2str(band_center),' nm'])
+                title(['Reflectance - ',num2str(bandVals),' nm'])
                 xlabel('\tau_{c}'); ylabel('Reflectance')
                 grid on; grid minor
                 
@@ -62,8 +62,8 @@ if num_pixels <=3
                     dim = [.5 0 .3 .3];
                     str = ['sza = ',num2str(sza(pp)),' saz = ',num2str(saz(pp)),' vza = ',num2str(vza(pp)),...
                         ' vaz = ',num2str(vaz(pp))];
-                    annotation('textbox',dim,'String',str,'FitBoxToText','on','Color','white',...
-                        'FontWeight','bold','FontSize',14);
+                    annotation('textbox',dim,'String',str,'FitBoxToText','on','Color','k',...
+                        'FontWeight','bold','FontSize',14, 'EdgeColor', 'w');
                 end
                 
                 
@@ -85,7 +85,7 @@ elseif num_pixels > 3
         
         for ii = 1:size(bands2plot,1)
             
-            figure;
+            f(pp) = figure;
             
             for jj = 1:size(bands2plot,2)
                 
@@ -94,7 +94,7 @@ elseif num_pixels > 3
                 
                 subplot(1,size(bands2plot,2),jj)
                 
-                band_center = modisBandsCenter(bands2plot(ii,jj));
+                bandVals = modisBands(bands2plot(ii,jj));
                 
                 lgnd_str = cell(1,length(re));
                 
@@ -108,7 +108,7 @@ elseif num_pixels > 3
                 end
                 
                 
-                title(['Reflectance - ',num2str(band_center),' nm'])
+                title(['Reflectance - ',num2str(bandVals(1)),' nm'])
                 xlabel('\tau_{c}'); ylabel('Reflectance')
                 grid on; grid minor
                 
@@ -118,8 +118,8 @@ elseif num_pixels > 3
                     dim = [.5 0 .3 .3];
                     str = ['sza = ',num2str(sza(rand_index(pp))),' saz = ',num2str(saz(rand_index(pp))),' vza = ',num2str(vza(rand_index(pp))),...
                         ' vaz = ',num2str(vaz(rand_index(pp)))];
-                    annotation('textbox',dim,'String',str,'FitBoxToText','on','Color','white',...
-                        'FontWeight','bold','FontSize',14);
+                    annotation('textbox',dim,'String',str,'FitBoxToText','on','Color','k',...
+                        'FontWeight','bold','FontSize',14, 'EdgeColor','w');
                 end
                 
                 

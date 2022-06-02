@@ -37,8 +37,8 @@ numPixels = size(modelData,1); % number of pixels to preform grid search on
 
 
 
-% now extract the band values
-bandVals = modisBandsCenter(bands2search);
+% now extract the mid point of each MODIS band being modeled
+bandVals = modisBands(bands2search);
 
 % lets interpolate the model data to increase our grid
 
@@ -109,7 +109,7 @@ for pp = 1:numPixels
         band2Plot = 2;
         
         if inputs.flags.plotMLS_figures == true
-            surfPlots4modisModel_andObs(Xq,Yq,newModelData(:,:,band2Plot),observations_newGrid(:,:,band2Plot),bandVals(band2Plot))
+            surfPlots4modisModel_andObs(Xq,Yq,newModelData(:,:,band2Plot),observations_newGrid(:,:,band2Plot),bandVals(band2Plot,1))
         end
         %% ----- Least Squares Difference ------
         

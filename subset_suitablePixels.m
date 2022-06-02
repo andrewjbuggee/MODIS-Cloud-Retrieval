@@ -10,7 +10,7 @@ function pixels2use = subset_suitablePixels(inputs,modis)
 suitablePixels_fileName = [inputs.savedCalculations_folderName,'suitablePixels.mat'];
 
 folderName2Save = inputs.savedCalculations_folderName; % where to save the indices
-numPixels = inputs.pixels.num_2calculate; % number of pixels to use in our calcualtions
+numPixels2Calculate = inputs.pixels.num_2calculate; % number of pixels to use in our calcualtions
 
 load(suitablePixels_fileName,'pixels');
 
@@ -22,9 +22,9 @@ load(suitablePixels_fileName,'pixels');
 numSuitablePixels = length(pixels.res1km.row);
 
 
-if numSuitablePixels > numPixels
+if numSuitablePixels > numPixels2Calculate
     
-    rand_indices = randi(numSuitablePixels,numPixels,1); % generate random numbers to choose pixels
+    rand_indices = randi(numSuitablePixels,numPixels2Calculate,1); % generate random numbers to choose pixels
     
     pixels2use.res1km.row = pixels.res1km.row(rand_indices); % row positions
     pixels2use.res1km.col = pixels.res1km.col(rand_indices); % column positions
@@ -40,7 +40,7 @@ if numSuitablePixels > numPixels
 
     save([folderName2Save,inputs.saveCalculations_fileName],'pixels2use','inputs')
     
-elseif numSuitablePixels < numPixels
+elseif numSuitablePixels < numPixels2Calculate
     
     % if we ask for more than there are, just use them all
     
@@ -52,7 +52,7 @@ elseif numSuitablePixels < numPixels
     save([folderName2Save,inputs.saveCalculations_fileName],'pixels2use','inputs')
     
     
-elseif numSuitablePixels == numPixels
+elseif numSuitablePixels == numPixels2Calculate
     
     pixels2use = pixels;
     

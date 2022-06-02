@@ -51,10 +51,14 @@ for pp = 1:num_pixels
     
     % extract the values MODIS calculates using its own algorithm
     truthTable.modisR17(pp) = modis.cloud.effRadius17(pixel_row_1(pp),pixel_col_1(pp));
+    truthTable.modisR17_uncert(pp) = modis.cloud.effRad_uncert_17(pixel_row_1(pp),pixel_col_1(pp));
     truthTable.modisT17(pp) = modis.cloud.optThickness17(pixel_row_1(pp),pixel_col_1(pp));
+    truthTable.modisT17_uncert(pp) = modis.cloud.optThickness_uncert_17(pixel_row_1(pp),pixel_col_1(pp));
     
     truthTable.modisR16(pp) = modis.cloud.effRadius16(pixel_row_1(pp),pixel_col_1(pp));
+    truthTable.modisR16_uncert(pp) = modis.cloud.effRad_uncert_16(pixel_row_1(pp),pixel_col_1(pp));
     truthTable.modisT16(pp) = modis.cloud.optThickness16(pixel_row_1(pp),pixel_col_1(pp));
+    truthTable.modisT16_uncert(pp) = modis.cloud.optThickness_uncert_16(pixel_row_1(pp),pixel_col_1(pp));
     
     % gather the estimated values in the table
     

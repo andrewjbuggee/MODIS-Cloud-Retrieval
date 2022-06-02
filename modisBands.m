@@ -1,6 +1,6 @@
 % ----- Determine the MODIS Bands -----
 
-function bandVals = modisBandsCenter(band_number)
+function bandVals = modisBands(band_number)
 
 % Check inputs 
 
@@ -26,12 +26,13 @@ filename = 'modis_bands.txt';
 bandData = readtable(filename);
 
 
-lowVals = bandData.Var2(band_number);
-upperVals = bandData.Var3(band_number);
+lowerVal = bandData.Var2(band_number);
+upperVal = bandData.Var3(band_number);
 
-midVals = (upperVals - lowVals)/2 + lowVals;
+centerVal = (upperVal - lowerVal)/2 + lowerVal;
 
-bandVals = midVals;
+bandVals = [centerVal, lowerVal, upperVal];
+
 
 end
 

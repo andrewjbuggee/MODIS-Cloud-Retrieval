@@ -9,7 +9,10 @@ function [] = plot_tau_modis_estimates(truth_estimate_table)
 
 % extract the modis estimate and my calculation estimates
 modis_T17 = truth_estimate_table.modisT17;
+modis_T17_uncert = modis_T17.*(truth_estimate_table.modisT17_uncert./100);
+
 modis_T16 = truth_estimate_table.modisT16;
+modis_T16_uncert = modis_T16.*(truth_estimate_table.modisT16_uncert./100);
 
 est_T17 = truth_estimate_table.estT17;
 est_T27 = truth_estimate_table.estT27;
@@ -44,12 +47,13 @@ max_global = min([max_est,max_modis]);
 x = linspace((0.9 * min_global),(1.1*max_global),150);
 
 
-figure; plot(x,x,'k-','Linewidth',1)
+f = figure; plot(x,x,'k-','Linewidth',1)
 hold on; grid on; grid minor
-plot(est_T17,modis_T17,'m.')
+errorbar(est_T17,modis_T17, modis_T17_uncert,'vertical','m.','MarkerSize',10)
 xlabel('My Estimate: \tau_{c}')
 ylabel('MODIS Estimate: \tau_{c}')
 title(['Bands 1&7 - RMS: ',num2str(rms_diff_T17),' \mum'])
+set(f, 'Position', [0 0 1000 400])
 
 
 % ---------------------------------------------
@@ -59,26 +63,26 @@ title(['Bands 1&7 - RMS: ',num2str(rms_diff_T17),' \mum'])
 % MODIS may have used bands 2 and 7 instead of 1 and 7
 % find the minimum and maximum values to create a y=x line
 
-min_est = min(est_T27);
-min_modis = min(modis_T17);
-
-max_est = max(est_T27);
-max_modis = max(modis_T17);
-
-min_global = min([min_est,min_modis]);
-
-max_global = min([max_est,max_modis]);
-
-x = linspace((0.9 * min_global),(1.1*max_global),150);
-
-
-figure; plot(x,x,'k-','Linewidth',1)
-hold on; grid on; grid minor
-plot(est_T27,modis_T17,'m.')
-xlabel('My Estimate: \tau_{c}')
-ylabel('MODIS Estimate: \tau_{c}')
-title(['Bands 2&7 - RMS: ',num2str(rms_diff_T27),' \mum'])
-
+% min_est = min(est_T27);
+% min_modis = min(modis_T17);
+% 
+% max_est = max(est_T27);
+% max_modis = max(modis_T17);
+% 
+% min_global = min([min_est,min_modis]);
+% 
+% max_global = min([max_est,max_modis]);
+% 
+% x = linspace((0.9 * min_global),(1.1*max_global),150);
+% 
+% 
+% f = figure; plot(x,x,'k-','Linewidth',1)
+% hold on; grid on; grid minor
+% plot(est_T27,modis_T17,'m.')
+% xlabel('My Estimate: \tau_{c}')
+% ylabel('MODIS Estimate: \tau_{c}')
+% title(['Bands 2&7 - RMS: ',num2str(rms_diff_T27),' \mum'])
+% set(f, 'Position', [0 0 1000 400])
 
 
 % ---------------------------------------------
@@ -101,12 +105,20 @@ max_global = min([max_est,max_modis]);
 x = linspace((0.9 * min_global),(1.1*max_global),150);
 
 
-figure; plot(x,x,'k-','Linewidth',1)
+f = figure; plot(x,x,'k-','Linewidth',1)
 hold on; grid on; grid minor
-plot(est_T16,modis_T16,'m.')
+errorbar(est_T16,modis_T16, modis_T16_uncert,'vertical','m.','MarkerSize',10)
 xlabel('My Estimate: \tau_{c}')
 ylabel('MODIS Estimate: \tau_{c}')
 title(['Bands 1&6 - RMS: ',num2str(rms_diff_T16),' \mum'])
+set(f, 'Position', [0 0 1000 400])
+
+
+
+
+% ---------------------------------------------
+% ----------- Plot Bands 1 and 7 --------------
+% ---------------------------------------------
 
 
 % find the indices of estiamtes that are furthest from their modis
@@ -130,15 +142,17 @@ end
 % first lets plot all pixels again, and then highlight the 10 that deviate
 % the most. This allows us to see how they stack up with the full set
 
-figure; plot(x,x,'k-','Linewidth',1)
-hold on; grid on; grid minor
-plot(est_T17,modis_T17,'m.')
-xlabel('My Estimate: \tau_{c}')
-ylabel('MODIS Estimate: \tau_{c}') 
-plot(est_T17(index_2find),modis_T17(index_2find),'c.')
-legend('Perfect Fit','all pixels',[num2str(num2find),' furthest from line'],'Location','best')
-%title(['Mean Abs Difference: ',num2str(avg_abs_diff),' \mum']) 
-title(['Bands 1&7 - RMS: ',num2str(rms_diff_T17),' \mum'])
+% f = figure; plot(x,x,'k-','Linewidth',1)
+% hold on; grid on; grid minor
+% plot(est_T17,modis_T17,'m.')
+% xlabel('My Estimate: \tau_{c}')
+% ylabel('MODIS Estimate: \tau_{c}') 
+% %plot(est_T17(index_2find),modis_T17(index_2find),'c.')
+% legend('Perfect Fit','all pixels','Location','best')
+% %legend('Perfect Fit','all pixels',[num2str(num2find),' furthest from line'],'Location','best')
+% %title(['Mean Abs Difference: ',num2str(avg_abs_diff),' \mum']) 
+% title(['Bands 1&7 - RMS: ',num2str(rms_diff_T17),' \mum'])
+% set(f, 'Position', [0 0 1000 400])
 
 
 % find and remove values of tau that modis deems to be greater than 80.
