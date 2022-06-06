@@ -23,11 +23,24 @@ liquidWater_mask = modis.cloud.phase == 2; % 2 is the value designated for liqui
 
 % create tau mask based on threshold
 
-tau_mask = modis.cloud.optThickness16 >= tauThreshold;
+% finds clouds with an optical thickness of a certain value and an
+% uncertainty less than the definition below
+uncertaintyLimit = 10;                              % percentage
+
+tau_mask = modis.cloud.optThickness17 >= tauThreshold & modis.cloud.optThickness_uncert_17<uncertaintyLimit;
+
+
+
+% Find pixels with an effective radius of at least 0 and an uncertainty
+% less than the amount defined below
+uncertaintyLimit = 10;
+re_mask = modis.cloud.effRadius17>=0 & modis.cloud.optThickness_uncert_17<uncertaintyLimit;        % find values greater than 0
 
 % find where there is overlap
 
-combined_mask = liquidWater_mask .* tau_mask;
+combined_mask = logical(liquidWater_mask .* tau_mask.*re_mask);
+
+
 
 
 
@@ -35,7 +48,7 @@ combined_mask = liquidWater_mask .* tau_mask;
 % This will reduce the number of computations! To do this we will turn the
 % 1's around the border into 0's
 
-border_threshold = 100; % distance away from image edge a pixel has to be in order to be considered
+border_threshold = 10; % distance away from image edge a pixel has to be in order to be considered
 
 border_mask = ones(size(combined_mask));
 border_mask([1:border_threshold,(size(border_mask,1)-border_threshold+1):end],:) = 0; % convert top and bottom border into zeros

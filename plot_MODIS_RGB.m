@@ -25,13 +25,13 @@ I = cat(3,R,G,B);
 % for some reason we our aray is upside down. We want the equatorward
 % direction to be south, and the polewrad direction to be north
 
-I = rot90(rot90(I));
+I = rot90(I,2);
 
 % lets make a plot!
 
 f = figure; 
 image(I); 
-title(['True Color - ',inputs.INP_folderName(6:end-1)])
+title(['True Color'])
 set(f, 'Position', [0 0 2.5*floor(numCols/10) 2*floor(numRows/10)])
 
 end

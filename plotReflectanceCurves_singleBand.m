@@ -52,7 +52,7 @@ if num_pixels <=3
                 end
                 
                 
-                title(['Reflectance - ',num2str(bandVals),' nm'])
+                title([num2str(bandVals),' nm'])
                 xlabel('\tau_{c}'); ylabel('Reflectance')
                 grid on; grid minor
                 
@@ -108,7 +108,7 @@ elseif num_pixels > 3
                 end
                 
                 
-                title(['Reflectance - ',num2str(bandVals(1)),' nm'])
+                title([num2str(bandVals(1)),' nm'])
                 xlabel('\tau_{c}'); ylabel('Reflectance')
                 grid on; grid minor
                 
