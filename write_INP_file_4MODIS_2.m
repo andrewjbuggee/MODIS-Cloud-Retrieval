@@ -55,7 +55,7 @@ lambda = modisBands(inputs.bands2run);      % nm - midpoint and boundaries for e
 re = inputs.re;                 % microns - values of re that we wish to model
 tau_c = inputs.tau_c;           % values of tau that we wish to model
 
-re_mat = repmat(inputs.re,2,length(inputs.tau_c));      % homogenous re matrix
+re_mat = repmat(inputs.re,1,length(inputs.tau_c));      % homogenous re matrix
 tau_mat = repmat(inputs.tau_c,length(inputs.re),1);  % we need to run every re at every value of tau
 
 % % the above matrices must be rerun for every modis band!
@@ -79,15 +79,19 @@ lambda_forTau = lambda(1,1);                % nm
 
 % For now lets hard code the cloud height
 z_topBottom = [1.5, 1];         % km - altitude above surface for the cloud top and cloud bottom
-H = 0.5;                        % km - geometric cloud thickness
 
 % lets only model the monodispersed clouds
 dist_str = 'mono';
+homogeneity_str = 'homogeneous';
 
-wc_filename = write_wc_file(re_mat, tau_mat(:), z_topBottom, H, lambda_forTau, dist_str);
+wc_filename = write_wc_file(re_mat, tau_mat(:), z_topBottom, lambda_forTau, dist_str, homogeneity_str);
 
 % rehape so we can step through values for r and tau
 wc_filename = reshape(wc_filename, length(re),length(tau_c));
+
+% define the parameterization used to convert water cloud properties to
+% optical properties
+wc_parameterization = inputs.flags.wc_properties;
 
 % we have 4 variables that can change for each INP file
 
@@ -120,6 +124,14 @@ for pp = 1:length(pixel_row)
     
     if phi<0
         phi = phi+360;
+    end
+    
+        % Modis defines the azimuth viewing angle as [0,180] 
+    % and [-180,0], whereas libradtran defines the azimuth
+    % angle as [0,360]. So we need to make this adjustment
+    
+    if phi0<0
+        phi0 = phi0+360;
     end
     
     % create the begining of the file name string
@@ -203,7 +215,7 @@ for pp = 1:length(pixel_row)
                 % Define the technique or parameterization used to convert liquid cloud
                 % properties of r_eff and LWC to optical depth
                 formatSpec = '%s %s %5s %s \n\n';
-                fprintf(fileID, formatSpec,'wc_properties', 'mie interpolate', ' ', '# optical properties parameterization technique');
+                fprintf(fileID, formatSpec,'wc_properties', wc_parameterization, ' ', '# optical properties parameterization technique');
                 
                 % Define the wavelengths for which the equation of radiative transfer will
                 % be solve

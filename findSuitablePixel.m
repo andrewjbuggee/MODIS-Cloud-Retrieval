@@ -77,7 +77,7 @@ while isempty(flag_index) == true
         
     end
     
-    if isempty(flag_index) == ture
+    if isempty(flag_index) == true
         disp(['No Suitable pixels found for a distance threshold of ',num2str(dist_threshold)])
         dist_threshold = floor(dist_threshold/2);
         
