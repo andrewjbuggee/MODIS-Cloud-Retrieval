@@ -1,9 +1,9 @@
 function [f] = plot_MODIS_RGB(modis, inputs)
 
 
-R = modis.EV.m250.radiance(:,:,2);      % 850 nm band is going to be our red hue
-G = modis.EV.m250.radiance(:,:,1);      % 650 nm band is going to be our green hue
-B = modis.EV.m500.radiance(:,:,3);      % 465 nm band is going to be our blue hue
+R = modis.EV1km.radiance(:,:,2);      % 850 nm band is going to be our red hue
+G = modis.EV1km.radiance(:,:,1);      % 650 nm band is going to be our green hue
+B = modis.EV1km.radiance(:,:,3);      % 465 nm band is going to be our blue hue
 
 numRows = size(R,1);
 numCols = size(R,2);
@@ -32,7 +32,7 @@ I = rot90(I,2);
 f = figure; 
 image(I); 
 title(['True Color'])
-set(f, 'Position', [0 0 2.5*floor(numCols/10) 2*floor(numRows/10)])
+set(f, 'Position', [0 0 numCols numRows])
 
 end
 

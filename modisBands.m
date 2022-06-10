@@ -25,7 +25,7 @@ filename = 'modis_bands.txt';
 
 bandData = readtable(filename);
 
-
+% ALL VALUES ARE IN NANOMETERS
 lowerVal = bandData.Var2(band_number);
 upperVal = bandData.Var3(band_number);
 

@@ -20,8 +20,8 @@ pixel_row_1 = pixels2use.res1km.row;
 pixel_col_1 = pixels2use.res1km.col;
 
 % 500 meter resolution pixels
-pixel_row_500 = pixels2use.res500m.row;
-pixel_col_500 = pixels2use.res500m.col;
+%pixel_row_500 = pixels2use.res500m.row;
+%pixel_col_500 = pixels2use.res500m.col;
 
 % save calculations
 saveCalcs_filename = inputs.saveCalculations_fileName;

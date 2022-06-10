@@ -32,11 +32,11 @@ if numSuitablePixels > numPixels2Calculate
     
 
     pixels2use.res1km.size = pixels.res1km.size;
-    pixels2use.res500m.size = pixels.res500m.size;
+    %pixels2use.res500m.size = pixels.res500m.size;
     
     % lets map 1 km pixels to 500 meter pixels location
 
-    [pixels2use.res500m.row, pixels2use.res500m.col] = cartesian_mapping_1000_to_500_pixels(pixels2use);
+    %[pixels2use.res500m.row, pixels2use.res500m.col] = cartesian_mapping_1000_to_500_pixels(pixels2use);
 
     save([folderName2Save,inputs.saveCalculations_fileName],'pixels2use','inputs')
     

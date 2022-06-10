@@ -4,26 +4,15 @@
 % By Andrew J. Buggee
 %%
 
-function modisR = grab_modis_reflectance(modis,inputs)
+function modisRefl = grab_modis_reflectance(modis,inputs)
 
 bands2run = inputs.bands2run;
 
-modisR = [];
+modisRefl = [];
 
 for ii = 1:length(bands2run)
     
-    
-    if bands2run(ii)<=2
-        
-        index = bands2run(ii);
-        modisR = cat(3,modisR,modis.EV.m250.reflectance(:,:,index));
-        
-    elseif bands2run(ii)>2
-        
-        index = bands2run(ii) - 2;
-        modisR = cat(3,modisR,modis.EV.m500.reflectance(:,:,index));
-        
-    end
+    modisRefl = cat(3,modisRefl,modis.EV1km.reflectance(:,:,bands2run(ii)));
     
     
 end

@@ -14,6 +14,10 @@
 
 function [pixels] = findSuitablePixel(modis,inputs)
 
+% ---------------------------------------------------------------------
+% LETS DEFINE MINIMUM VALUES FOR THE OPTICAL DEPTH AND THE UNCERTAINTY
+% PIXELS ABOVE THESE MINIMUM VALUES WILL BE USED IN THE TBLUT ALGORITHM
+% ---------------------------------------------------------------------
 
 
 tauThreshold = inputs.pixels.tauThreshold;
@@ -24,22 +28,21 @@ liquidWater_mask = modis.cloud.phase == 2; % 2 is the value designated for liqui
 % create tau mask based on threshold
 
 % finds clouds with an optical thickness of a certain value and an
-% uncertainty less than the definition below
+% uncertainty less than the definition below. Uncertainties are in
+% percentages
 uncertaintyLimit = 10;                              % percentage
 
 tau_mask = modis.cloud.optThickness17 >= tauThreshold & modis.cloud.optThickness_uncert_17<uncertaintyLimit;
 
 
-
 % Find pixels with an effective radius of at least 0 and an uncertainty
-% less than the amount defined below
+% less than the amount defined below. Uncertainties are in percentages
 uncertaintyLimit = 10;
 re_mask = modis.cloud.effRadius17>=0 & modis.cloud.optThickness_uncert_17<uncertaintyLimit;        % find values greater than 0
 
 % find where there is overlap
 
 combined_mask = logical(liquidWater_mask .* tau_mask.*re_mask);
-
 
 
 
@@ -108,13 +111,14 @@ end
 [pixels.res1km.row, pixels.res1km.col] = ind2sub(size(combined_mask),flag_index); 
 
 % save the size of each resolution swath
-pixels.res500m.size = size(modis.EV.m500.reflectance(:,:,1)); % the 500 meter resolution image swath
-pixels.res1km.size = size(combined_mask); % the 1km resolution image swath
+%pixels.res500m.size = size(modis.EV500m.reflectance(:,:,1)); % the 500 meter resolution image swath
+pixels.res1km.size = size(modis.EV1km.reflectance(:,:,1)); % the 1km resolution image swath
 
 % lets map 1 km pixels to 500 meter pixels location
 
-[pixels.res500m.row, pixels.res500m.col] = cartesian_mapping_1000_to_500_pixels(pixels);
+%[pixels.res500m.row, pixels.res500m.col] = cartesian_mapping_1000_to_500_pixels(pixels);
 
+end
 
 
 

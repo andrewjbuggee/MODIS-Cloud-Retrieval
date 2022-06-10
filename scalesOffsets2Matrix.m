@@ -24,7 +24,7 @@ if length(offsets)==1
     
     if length(scales)>1
         
-        scalesMat = repmat(reshape(scales(1:numBands),1,1,[]),numRows,numCols);
+        scalesMat = repmat(reshape(scales,1,1,[]),numRows,numCols);
         offsetsMat = repmat(offsets,numRows,numCols);
         
     elseif length(scales)==1
@@ -38,13 +38,13 @@ else
     
     if length(scales)>1
         
-        scalesMat = repmat(reshape(scales(1:numBands),1,1,[]),numRows,numCols);
-        offsetsMat = repmat(reshape(offsets(1:numBands),1,1,[]),numRows,numCols);
+        scalesMat = repmat(reshape(scales,1,1,[]),numRows,numCols);
+        offsetsMat = repmat(reshape(offsets,1,1,[]),numRows,numCols);
         
     elseif length(scales)==1
         
         scalesMat = repmat(scales,numRows,numCols);
-        offsetsMat = repmat(reshape(offsets(1:numBands),1,1,[]),numRows,numCols);
+        offsetsMat = repmat(reshape(offsets,1,1,[]),numRows,numCols);
         
     end
     

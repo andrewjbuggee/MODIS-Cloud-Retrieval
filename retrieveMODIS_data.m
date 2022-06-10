@@ -16,10 +16,11 @@ function [modis,L1B_fileNames] = retrieveMODIS_data(folderName)
 files = dir([folderName,'*.hdf']); % find all files that end in .hdf
 
 % check to see if we found any files!
-if length(files)==0
+if isempty(files)==true
     error([newline,'There are not files in the folder provided!', newline])
 end
 
+L1B_fileNames = cell(1,length(files));
 
 for ii = 1:length(files)
     
@@ -31,14 +32,14 @@ for ii = 1:length(files)
             % 500m resolution calibrated data
             
             L1B_fileNames{ii} = file_ii;
-            modis.EV = readMODIS_L1B_data(file_ii);
+            modis.EV500m = readMODIS_L1B_data(file_ii);
             
         elseif strcmp(file_ii(1:8),'MOD021KM') == true || strcmp(file_ii(1:8),'MYD021KM') == true
             % 1km resolution data, which is the same resolution as the
             % cloud microphysical retrievals
             
             L1B_fileNames{ii} = file_ii;
-            modis.EV = readMODIS_L1B_data(file_ii);
+            modis.EV1km = readMODIS_L1B_data(file_ii);
             
         end
         

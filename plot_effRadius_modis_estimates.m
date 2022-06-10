@@ -106,13 +106,13 @@ max_global = min([max_est,max_modis]);
 x = linspace((0.9 * min_global),(1.1*max_global),150);
 
 
-f =figure; plot(x,x,'k-','Linewidth',1)
-hold on; grid on; grid minor
-errorbar(est_R16,modis_R16,modis_R16_uncert,'vertical','m.','MarkerSize',10)
-xlabel('My Estimate: r_{e} (\mum)')
-ylabel('MODIS Estimate: r_{e} (\mum)')
-title(['Bands 1&6 - RMS: ',num2str(rms_diff_R16),' \mum'])
-set(f, 'Position', [0 0 1000 400])
+% f =figure; plot(x,x,'k-','Linewidth',1)
+% hold on; grid on; grid minor
+% errorbar(est_R16,modis_R16,modis_R16_uncert,'vertical','m.','MarkerSize',10)
+% xlabel('My Estimate: r_{e} (\mum)')
+% ylabel('MODIS Estimate: r_{e} (\mum)')
+% title(['Bands 1&6 - RMS: ',num2str(rms_diff_R16),' \mum'])
+% set(f, 'Position', [0 0 1000 400])
 
 
 

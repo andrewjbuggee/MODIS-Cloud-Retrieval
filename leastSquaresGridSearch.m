@@ -45,7 +45,7 @@ bandVals = modisBands(bands2search);
 % in our model data, the column space, whixh spans the x direction, varies
 % with tau. The row space, which spans the y direction, vaires with re
 
-[X,Y] = meshgrid(tau_c,re);
+[T0,Re0] = meshgrid(tau_c,re);
 
 % now lets expand the two variables in question to the preferred size
 
@@ -53,7 +53,7 @@ newTau_c = linspace(min(tau_c),max(tau_c),interpGridScaleFactor*length(tau_c));
 new_re = linspace(min(re),max(re),interpGridScaleFactor*length(re));
 
 % set up the new grid to interpolate on
-[Xq,Yq] = meshgrid(newTau_c,new_re);
+[T,Re] = meshgrid(newTau_c,new_re);
 
 % SWITCH TO 1KM DATA
 % but for now, lets propose a simple algebraic fix so taht we select
@@ -74,7 +74,7 @@ for pp = 1:numPixels
     % have to use the 500 meter pixel indexes
     for bb = 1:size(bands2search,1)
         
-        observations = modisRefl(pixels2use.res500m.row(pixelIndex_500m(pp)),pixels2use.res500m.col(pixelIndex_500m(pp)),band_index(bb,:));
+        observations = modisRefl(pixels2use.res1km.row(pp),pixels2use.res1km.col(pp),band_index(bb,:));
         
         if iscell(modelData) == true
             
@@ -95,7 +95,7 @@ for pp = 1:numPixels
         newModelData = zeros(length(new_re),length(newTau_c),size(modelData_vec,3));
         
         for ii = 1:size(modelData_vec,3)
-            newModelData(:,:,ii) = interp2(X,Y,modelData_vec(:,:,ii),Xq,Yq);
+            newModelData(:,:,ii) = interp2(T0,Re0,modelData_vec(:,:,ii),T,Re);
         end
         
         % finally, lets now rescale the observation to be on a flat plane with the
@@ -109,7 +109,7 @@ for pp = 1:numPixels
         band2Plot = 2;
         
         if inputs.flags.plotMLS_figures == true
-            surfPlots4modisModel_andObs(Xq,Yq,newModelData(:,:,band2Plot),observations_newGrid(:,:,band2Plot),bandVals(band2Plot,1))
+            surfPlots4modisModel_andObs(T,Re,newModelData(:,:,band2Plot),observations_newGrid(:,:,band2Plot),bandVals(band2Plot,1))
         end
         %% ----- Least Squares Difference ------
         
@@ -126,13 +126,13 @@ for pp = 1:numPixels
         [minVals.minLSD(bb,pp),index] = min(leastSquaresGrid,[],'all','linear');
         [row,col] = ind2sub(size(leastSquaresGrid),index);
         
-        minVals.minR(bb,pp) = Yq(row,col);
-        minVals.minT(bb,pp) = Xq(row,col);
+        minVals.minR(bb,pp) = Re(row,col);
+        minVals.minT(bb,pp) = T(row,col);
         
         % lets look at the least squares grid
         if inputs.flags.plotMLS_figures == true
             
-            figure; s = surf(Xq,Yq,leastSquaresGrid);
+            figure; s = surf(T,Re,leastSquaresGrid);
             xlabel('Optical Depth')
             ylabel('Effective Radius (\mum)')
             zlabel(['Least Squares Difference'])
@@ -155,11 +155,11 @@ for pp = 1:numPixels
     % using a surface fit object to create a function handle. This is giving me
     % erroneous resutls when using the global search function.
     
-    % vec_Xq = reshape(Xq,[],1);
-    % vec_Yq = reshape(Yq,[],1);
+    % vec_T = reshape(T,[],1);
+    % vec_Re = reshape(Re,[],1);
     % vec_leastSquares = reshape(leastSquaresGrid,[],1);
     %
-    % leastSquares_fit = fit([vec_Xq,vec_Yq],vec_leastSquares,'poly23');
+    % leastSquares_fit = fit([vec_T,vec_Re],vec_leastSquares,'poly23');
     %
     %
     % % create a function handle using the surface fit
