@@ -46,6 +46,12 @@ pixel_row = pixels2use.res1km.row; % for everything I need in this code, we use 
 pixel_col = pixels2use.res1km.col; %
 newFolder = [libRadTran_path,'/',inputs.INP_folderName]; % where the newly created .inp files will be saved
 
+% If the folder doesn't exist, create it
+if ~exist(newFolder, 'dir')
+       mkdir(newFolder)
+end
+
+
 % define the MODIS bands of interest
 lambda = modisBands(inputs.bands2run);      % nm - midpoint and boundaries for each MODIS band we wish to model
 
