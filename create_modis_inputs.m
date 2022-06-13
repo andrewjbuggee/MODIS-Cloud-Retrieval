@@ -17,6 +17,9 @@
 function inputs = create_modis_inputs(folderName, L1B_fileNames)
 
 
+% --- SAVE THE MODIS FILE NAME ----
+inputs.modisDataFolder = folderName;
+
 % ----- what water cloud files should we use? -----
 
 % The retrieved values of re and Tau computed by the MODIS TBLUT algorithm

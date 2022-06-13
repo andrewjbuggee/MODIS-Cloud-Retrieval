@@ -5,7 +5,7 @@ liquidWater_mask = modis.cloud.phase == 2; % 2 is the value designated for liqui
 
 % create tau mask based on threshold
 tauThreshold = inputs.pixels.tauThreshold;
-tauThreshold = 5;
+%tauThreshold = 5;
 
 % finds clouds with an optical thickness of a certain value and an
 % uncertainty less than the definition below
