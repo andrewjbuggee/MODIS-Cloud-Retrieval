@@ -4,7 +4,7 @@
 
 %%
 
-function inpNames = write_INP_file_4MODIS_2(inputs, pixels2use, modis)
+function inpNames = write_INP_file_4MODIS_homogenous(inputs, pixels2use, modis)
 
 % ------------------------------------------------
 % ---------- INPUTS AND FUNCTION SET UP ----------

@@ -121,6 +121,11 @@ elseif strcmp(fileName(6:8),'1KM')
     reflectanceScales_250m = info.Vgroup.Vgroup(2).SDS(5).Attributes(9).Value; % output should be a vector with 2 entires for the first two bands
     reflectanceOffset_250m = info.Vgroup.Vgroup(2).SDS(5).Attributes(10).Value; % output should be a vector with 2 entires for the first two bands
     
+    % --- Reflectance Uncertainty Scales and Offsets for the first two bands ---
+    reflectanceUncertainty_specified_250m = info.Vgroup.Vgroup(2).SDS(6).Attributes(5).Value; % specfied uncertainty for relfectance in the first two bands
+    reflectanceUncertainty_scale_250m = info.Vgroup.Vgroup(2).SDS(6).Attributes(6).Value; % specfied uncertainty for relfectance in the first two bands
+
+        
     % --- Radiance scales for bands 3-7 ---
     radianceScales_500m = info.Vgroup.Vgroup(2).SDS(8).Attributes(6).Value; % output should be a vector with 5 entries for the bands 3-7
     radianceOffsets_500m = info.Vgroup.Vgroup(2).SDS(8).Attributes(7).Value; % output should be a vector with 5 entries for the bands 3-7
@@ -128,6 +133,13 @@ elseif strcmp(fileName(6:8),'1KM')
     % --- Reflectance scales for bands 3-7 ---
     reflectanceScales_500m = info.Vgroup.Vgroup(2).SDS(8).Attributes(9).Value; % output should be a vector with 5 entries for the bands 3-7
     reflectanceOffsets_500m = info.Vgroup.Vgroup(2).SDS(8).Attributes(10).Value; % output should be a vector with 5 entries for the bands 3-7
+    
+    
+    % --- Reflectance Uncertainty Scales and Offsets for bands 3-7 ---
+    reflectanceUncertainty_specified_500m = info.Vgroup.Vgroup(2).SDS(9).Attributes(5).Value; % specfied uncertainty for relfectance in the first two bands
+    reflectanceUncertainty_scale_500m = info.Vgroup.Vgroup(2).SDS(9).Attributes(6).Value; % specfied uncertainty for relfectance in the first two bands
+
+    
     
     % --------------------------------------------------------------
     % --- NOT USING BANDS 8-36 SO WE DONT NEED EV_1KM_RefSB data ---
@@ -138,24 +150,50 @@ elseif strcmp(fileName(6:8),'1KM')
     % including the 250m and 500m data resolution data aggregated to 1km
     % resolution
     
-    uncertainty = 'EV_1KM_RefSB_Uncert_Indexes';
+    % Uncertainty Index for 250m EV reflectance product aggregated to 1 km
+    % This is the uncertainty for bands 1-2 measured in percent
+    uncertainty_250 = hdfread(fileName,'EV_250_Aggr1km_RefSB_Uncert_Indexes');
     
+    % 250m Earth Viewing (EV) Science data aggregated to 1 km. This is the
+    % data covering the first two MODIS bands
     earthView250 = hdfread(fileName,'EV_250_Aggr1km_RefSB'); % first two modis bands aggregated to 1km resolution
     
+    
+    % Uncertainty Index for 250m EV reflectance product aggregated to 1 km
+    % This is the uncertainty for bands 3-7 measured in percent
+    uncertainty_500 = hdfread(fileName,'EV_500_Aggr1km_RefSB_Uncert_Indexes');
+    
+    
+    % 500m Earth Viewing (EV) Science data aggregated to 1 km. This is the
+    % data covering the MODIS bands 3-7
     earthView500 = hdfread(fileName,'EV_500_Aggr1km_RefSB'); % modis bands 3-7 aggregated to 1km resolution
     
     %earthView1000 = hdfread(fileName,'EV_1KM_RefSB'); % modis bands 8 - 36 at 1km resolution
     
     m250_scaledIntegers = bandAcrossAlong2AcrossAlongBand(earthView250);
     m500_scaledIntegers = bandAcrossAlong2AcrossAlongBand(earthView500);
-    %m1000_scaledIntegers = bandAcrossAlong2AcrossAlongBand(earthView1000);
-    
-    
+
+    uncertainty250_scaledIntegers = bandAcrossAlong2AcrossAlongBand(uncertainty_250);   
+    uncertainty500_scaledIntegers = bandAcrossAlong2AcrossAlongBand(uncertainty_500);
+
     EV.radiance = cat(3, scalesOffsets2Matrix(m250_scaledIntegers,radianceScales_250m,radianceOffset_250m),...
         scalesOffsets2Matrix(m500_scaledIntegers,radianceScales_500m,radianceOffsets_500m));
     
     EV.reflectance = cat(3, scalesOffsets2Matrix(m250_scaledIntegers,reflectanceScales_250m,reflectanceOffset_250m), ...
         scalesOffsets2Matrix(m500_scaledIntegers,reflectanceScales_500m,reflectanceOffsets_500m));
+    
+    
+    % --- Compute the uncertainty for each band ---
+    
+    
+    EV.reflectanceUncert = cat(3,repmat(reshape(reflectanceUncertainty_specified_250m,1,1,[]),...
+        size(uncertainty250_scaledIntegers,1),size(uncertainty250_scaledIntegers,2)).* ...
+        exp(uncertainty250_scaledIntegers./repmat(reshape(reflectanceUncertainty_scale_250m,1,1,[]),...
+        size(uncertainty250_scaledIntegers,1),size(uncertainty250_scaledIntegers,2))),...
+        repmat(reshape(reflectanceUncertainty_specified_500m,1,1,[]),size(uncertainty500_scaledIntegers,1),...
+        size(uncertainty500_scaledIntegers,2)).* exp(uncertainty500_scaledIntegers./...
+        repmat(reshape(reflectanceUncertainty_scale_500m,1,1,[]),size(uncertainty500_scaledIntegers,1),...
+        size(uncertainty500_scaledIntegers,2))));
     
     % --- DONT NEED BANDS 8-36 FOR NOW ---
     
