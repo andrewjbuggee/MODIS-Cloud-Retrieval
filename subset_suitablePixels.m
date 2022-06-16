@@ -38,7 +38,7 @@ if numSuitablePixels > numPixels2Calculate
 
     %[pixels2use.res500m.row, pixels2use.res500m.col] = cartesian_mapping_1000_to_500_pixels(pixels2use);
 
-    save([folderName2Save,inputs.saveCalculations_fileName],'pixels2use','inputs')
+
     
 elseif numSuitablePixels < numPixels2Calculate
     
@@ -49,14 +49,14 @@ elseif numSuitablePixels < numPixels2Calculate
     
     pixels2use = pixels;
     
-    save([folderName2Save,inputs.saveCalculations_fileName],'pixels2use','inputs')
+
     
     
 elseif numSuitablePixels == numPixels2Calculate
     
     pixels2use = pixels;
     
-    save([folderName2Save,inputs.saveCalculations_fileName],'pixels2use','inputs')
+    
     
     
 else
@@ -82,6 +82,9 @@ for ii = 1:length(pixel_rows)
     
 end
 
+
+% Save pixels2use and inputs
+save([folderName2Save,inputs.saveCalculations_fileName],'pixels2use','inputs')
 
 
 

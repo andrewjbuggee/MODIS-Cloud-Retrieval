@@ -87,6 +87,53 @@ dim = [.49 0.6 .3 .3];
 str = ['\tau_{c} > ',num2str(tauThreshold)];
 annotation('textbox',dim,'String',str,'FitBoxToText','on','Color','k',...
            'FontWeight','bold','FontSize',14, 'EdgeColor','k');
+       
+       
+       
+% ---------------------------------------------         
+% ---------------------------------------------       
+% Lets also plot the cloud top height and phase
+% ---------------------------------------------  
+% ---------------------------------------------  
+
+% Lets look at the optical thickness estimates for all liquid water pixels
+f = figure; subplot(1,2,1)
+geoscatter(lat_combinedMask, long_combinedMask, 5, modis.cloud.topHeight(combined_mask), '.')
+title('MODIS Cloud Top Height (m)')
+cb = colorbar;
+set(get(cb, 'label'), 'string', 'Cloud Top Height (m)')
+set(gca, 'FontSize',18)
+set(gca, 'FontWeight', 'bold')
+hold on;
+geoscatter(avirisLatBorder, avirisLongBorder, 1, 'r', '.','MarkerFaceAlpha',0.1)
+geolimits(latLimits, longLimits)
+
+
+
+% Lets look at the droplet radius retrieval estimates for all liquid water pixels
+subplot(1,2,2)
+geoscatter(modis.geo.lat(liquidWater_mask), modis.geo.long(liquidWater_mask), 5, modis.cloud.phase(liquidWater_mask), '.')
+title('MODIS Detection of Liquid Water')
+
+set(gca, 'FontSize',18)
+set(gca, 'FontWeight', 'bold')
+set(f, 'Position', [0 0 1800 700])
+hold on;
+geoscatter(avirisLatBorder, avirisLongBorder, 1, 'r', '.','MarkerFaceAlpha',0.1)
+geolimits(latLimits, longLimits)
+% Create textbox describing the AVIRIS data location
+dim = [.15 .6 .3 .3];
+str = 'AVIRIS data within red box';
+annotation('textbox',dim,'String',str,'FitBoxToText','on','Color','k',...
+           'FontWeight','bold','FontSize',14, 'EdgeColor','k');
+% Create textbox describing the optical depth threshold
+dim = [.49 0.6 .3 .3];
+str = ['\tau_{c} > ',num2str(tauThreshold)];
+annotation('textbox',dim,'String',str,'FitBoxToText','on','Color','k',...
+           'FontWeight','bold','FontSize',14, 'EdgeColor','k');
+       
+       
+
 
 
 

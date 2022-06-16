@@ -83,8 +83,19 @@ lambda_forTau = lambda(1,1);                % nm
 % --- WE COULD USE CLOUD HEIGHT DERIVED FROM MODIS?! ---
 % ------------------------------------------------------
 
+% cloudTopHeight = modis.cloud.topHeight(pixels2use.res1km.linearIndex)./1e3;         % km - MODIS estiamte cloud top height  
+% z_topBottom = [cloudTopHeight, cloudTopHeight-0.5];                                 % hard code all codes to be 500 meters thick
+% % Find the locations where clouds are at the surface
+% index0 = z_topBottom(:,2)<0;
+% z_topBottom(index0,2) =0;
+% z_topBottom = z_topBottom';                                             % needs to be in an array with 2 rows
+% ---------------------------------------
 % For now lets hard code the cloud height
-z_topBottom = [1.5, 1];         % km - altitude above surface for the cloud top and cloud bottom
+% ---------------------------------------
+% ---------------------------------------
+z_topBottom = [1.5, 0.5];         % km - altitude above surface for the cloud top and cloud bottom
+% ---------------------------------------
+% ---------------------------------------
 
 % lets only model the monodispersed clouds
 dist_str = 'mono';
@@ -139,6 +150,9 @@ for pp = 1:length(pixel_row)
     if phi0<0
         phi0 = phi0+360;
     end
+    
+    
+    
     
     % create the begining of the file name string
     fileBegin = ['pixel_',num2str(pixel_row(pp)),'r_',num2str(pixel_col(pp)),'c_sza_',num2str(sza),'_saz_',num2str(phi0),'_band_'];

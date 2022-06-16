@@ -69,21 +69,28 @@ optThickness16_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(75).Attributes(6).Va
 optThickness_uncertainty_16_scales = cloudProp_info.Vgroup.Vgroup(2).SDS(95).Attributes(5).Value;
 optThickness_uncertainty_16_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(95).Attributes(6).Value;
 
-% extract the cloud top height scales and offset
-cloudTopHeight_scales = cloudProp_info.Vgroup.Vgroup(2).SDS(18).Attributes(5).Value; %  output will be a cell array
-cloudTopHeight_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(18).Attributes(6).Value;
+% extract the cloud top height at 1km resolution scales and offset
+cloudTopHeight_scales = cloudProp_info.Vgroup.Vgroup(2).SDS(58).Attributes(5).Value; %  output will be a cell array
+cloudTopHeight_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(58).Attributes(6).Value;
 
-% extract the cloud top pressure scales and offset
-cloudTopPressure_scales = cloudProp_info.Vgroup.Vgroup(2).SDS(22).Attributes(5).Value; %  output will be a cell array
-cloudTopPressure_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(22).Attributes(6).Value;
+% extract the cloud top pressure at 1km resolution scales and offset
+cloudTopPressure_scales = cloudProp_info.Vgroup.Vgroup(2).SDS(57).Attributes(5).Value; %  output will be a cell array
+cloudTopPressure_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(57).Attributes(6).Value;
 
-% extract the cloud top temperature scales and offset
-cloudTopTemperature_scales = cloudProp_info.Vgroup.Vgroup(2).SDS(28).Attributes(5).Value; %  output will be a cell array
-cloudTopTemperature_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(28).Attributes(6).Value;
+% extract the cloud top temperature at 1km resolution scales and offset
+cloudTopTemperature_scales = cloudProp_info.Vgroup.Vgroup(2).SDS(59).Attributes(5).Value; %  output will be a cell array
+cloudTopTemperature_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(59).Attributes(6).Value;
 
-% extract the cloud top temperature scales and offset
-cloudPhase_scales = cloudProp_info.Vgroup.Vgroup(2).SDS(51).Attributes(5).Value; %  output will be a cell array
-cloudPhase_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(51).Attributes(6).Value;
+% extract the cloud phase used in Optical Thickness/Effective Radius determination -  scales and offset
+% The values in this SDS are set to mean the following:                              
+% 0 -- cloud mask undetermined                                                       
+% 1 -- clear sky                                                                     
+% 2 -- liquid water cloud                                                            
+% 3 -- ice cloud                                                                     
+% 4 -- undetermined phase cloud (but retrieval is attempted as  liquid water)        
+
+cloudPhase_scales = cloudProp_info.Vgroup.Vgroup(2).SDS(105).Attributes(5).Value; %  output will be a cell array
+cloudPhase_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(105).Attributes(6).Value;
 
 
 
@@ -125,14 +132,14 @@ opticalThickness_16 = hdfread(fileName,'Cloud_Optical_Thickness_16');
 optThickness_uncertainty_16 = hdfread(fileName,'Cloud_Optical_Thickness_Uncertainty_16');
 
 
-% extract the cloud top geopotential height - units (meters)
-cloudTop_geopotentialHeight = hdfread(fileName,'Cloud_Top_Height');
+% extract the cloud top geopotential height at 1km resolution - units (meters)
+cloudTop_geopotentialHeight = hdfread(fileName,'cloud_top_height_1km');
 
 % extract the cloud top pressure - units (hpa)
-cloudTop_pressure = hdfread(fileName,'Cloud_Top_Pressure');
+cloudTop_pressure = hdfread(fileName,'cloud_top_pressure_1km');
 
 % extract the cloud top temperature - units (k)
-cloudTop_temperature = hdfread(fileName,'Cloud_Top_Temperature');
+cloudTop_temperature = hdfread(fileName,'cloud_top_temperature_1km');
 
 % extract the cloud phase - 
 % The values are:

@@ -78,7 +78,9 @@ inputs.flags.findSuitablePixels = false; % if true, this will search the modis d
 inputs.flags.loadPixelSet = false; 
 inputs.flags.writeINPfiles = true; % if true, this will create inp files for each the length of vector pixel.row
 inputs.flags.runUVSPEC = true; % if true, this will run all of the inp files create from the above flag through uvspec
-inputs.flags.plotMLS_figures = false; % this will tell the leasSquaresGridSearch code to plot the l
+inputs.flags.plotMLS_figures = false; % this will tell the leasSquaresGridSearch code to plot the 
+
+% can be 'hu' or 'mie interpolate'
 inputs.flags.wc_properties = 'hu';        % use the hu and stamnes parameterization for converting cloud properties to optical properties
 
 

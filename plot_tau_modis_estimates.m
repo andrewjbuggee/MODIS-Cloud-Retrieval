@@ -189,4 +189,61 @@ end
 
 
 
+% -----------------------------------------------------------
+% -----------------------------------------------------------
+% -----------------------------------------------------------
+% PLOT THE SAME GRAPHS BUT FILTER FOR MODIS R_E<24
+% THIS IS THE R_E LIMIT IN THE PRE-COMPUTED MIE TABLE
+% -----------------------------------------------------------
+% -----------------------------------------------------------
+% -----------------------------------------------------------
+% extract the modis estimate and my calculation estimates
+
+% Find Modis values less than 24 microns, the limit in our pre-computed mie
+% table
+index24 = truth_estimate_table.estR17<24;
+
+% extract the modis estimate and my calculation estimates
+modis_T17 = truth_estimate_table.modisT17(index24);
+modis_T17_uncert = modis_T17.*(truth_estimate_table.modisT17_uncert(index24)./100);
+
+est_T17 = truth_estimate_table.estT17(index24);
+
+
+square_diffT17 = truth_estimate_table.squareDiffT17(index24); % the absolute difference between my estimate and the modis estimate
+rms_diff_T17 = sqrt(mean(square_diffT17));
+
+
+
+% ---------------------------------------------
+% ----------- Plot Bands 1 and 7 --------------
+% ---------------------------------------------
+
+% find the minimum and maximum values to create a y=x line
+
+min_est = min(est_T17);
+min_modis = min(modis_T17);
+
+max_est = max(est_T17);
+max_modis = max(modis_T17);
+
+min_global = min([min_est,min_modis]);
+
+max_global = min([max_est,max_modis]);
+
+x = linspace((0.9 * min_global),(1.1*max_global),150);
+
+
+f = figure; plot(x,x,'k-','Linewidth',1)
+hold on; grid on; grid minor
+errorbar(est_T17,modis_T17, modis_T17_uncert,'vertical','m.','MarkerSize',10)
+xlabel('My Estimate: \tau_{c}')
+ylabel('MODIS Estimate: \tau_{c}')
+title(['Bands 1&7 - RMS: ',num2str(rms_diff_T17),' \mum'])
+set(f, 'Position', [0 0 1000 400])
+
+
+
+
+
 end
