@@ -1,5 +1,12 @@
 %% ----- CALCULATE THE REFLECTANCE FUNCTION -----
 
+% OUTPUTS:
+%   (1) R - This is the reflectance over a finite bandwidth. R integrates
+%   the monochromatic reflectance, R_lambda, over the wavelength range
+
+%   (2) R_lambda - This is the reflectance for a monochromatic calculation.
+%   If the equation of radiative transfer is solved for a single
+%   wavelength, then we don't need to integrate. 
 
 
 % By Andrew J. Buggee
@@ -50,8 +57,10 @@ elseif length(wavelength)>1
     
     for ii = 1:geomSets
         
+        % First calculate the reflectance function at each discrete
+        % wavelength within the wavelength band
         R_lambda(:,ii) = pi*ds.radiance(ii).rad_umu_phi./(mu0*irrad0); % - 1/sr - reflectance function for monochromatic calculation
-        R(ii) = trapz(wavelength,R_lambda(ii).*specRep.*irrad0)./trapz(wavelength,specRep.*irrad0); % - 1/sr - reflectance function over a finite bandwidth
+        R(ii) = trapz(wavelength,R_lambda(:,ii).*specRep.*irrad0)./trapz(wavelength,specRep.*irrad0); % - 1/sr - reflectance function over a finite bandwidth
         
     end
     

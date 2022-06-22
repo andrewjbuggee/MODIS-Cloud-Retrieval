@@ -9,6 +9,9 @@ function [] = plot_tau_modis_estimates(truth_estimate_table)
 
 % extract the modis estimate and my calculation estimates
 modis_T17 = truth_estimate_table.modisT17;
+
+% The uncertainty is listed as a percentage. Lets convert it to a
+% reflectance
 modis_T17_uncert = modis_T17.*(truth_estimate_table.modisT17_uncert./100);
 
 modis_T16 = truth_estimate_table.modisT16;

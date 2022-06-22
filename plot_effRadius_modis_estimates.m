@@ -14,7 +14,10 @@ function [] = plot_effRadius_modis_estimates(truth_estimate_table)
 
 % extract the modis estimate and my calculation estimates
 modis_R17 = truth_estimate_table.modisR17;
-modis_R17_uncert = modis_R17.*(truth_estimate_table.modisR17_uncert./100); 
+
+% The uncertainty is listed as a percent. Lets convert this to a value in
+% microns
+modis_R17_uncert = modis_R17.*(truth_estimate_table.modisR17_uncert./100);          % microns
 
 est_R17 = truth_estimate_table.estR17;
 

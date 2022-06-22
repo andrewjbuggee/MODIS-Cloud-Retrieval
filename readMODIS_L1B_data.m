@@ -184,8 +184,8 @@ elseif strcmp(fileName(6:8),'1KM')
     
     
     % --- Compute the uncertainty for each band ---
-    
-    
+    % This uncertainty is measured as a percent
+    % Meaning, its values are between 0 and 100
     EV.reflectanceUncert = cat(3,repmat(reshape(reflectanceUncertainty_specified_250m,1,1,[]),...
         size(uncertainty250_scaledIntegers,1),size(uncertainty250_scaledIntegers,2)).* ...
         exp(uncertainty250_scaledIntegers./repmat(reshape(reflectanceUncertainty_scale_250m,1,1,[]),...
