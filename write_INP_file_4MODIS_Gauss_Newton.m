@@ -69,6 +69,12 @@ wc_parameterization = modisInputs.flags.wc_properties;
 %   3) re
 %   4) tau_c
 
+% ------------------------------------------------------
+% ---------- Lets define the % of cloud cover ----------
+% ------------------------------------------------------
+cloud_cover = 0.775;
+% ------------------------------------------------------
+
 
 
 % write INP files for all 7 MODIS bands. This function writes files for a
@@ -174,7 +180,7 @@ for pp = 1:numPixels
         % Define the percentage of horizontal cloud cover
         % This is a number between 0 and 1
         formatSpec = '%s %s %5s %s \n';
-        fprintf(fileID, formatSpec,'cloudcover wc', '1.0', ' ', '# Cloud cover percentage');
+        fprintf(fileID, formatSpec,'cloudcover wc', num2str(cloud_cover), ' ', '# Cloud cover percentage');
         
         % Define the technique or parameterization used to convert liquid cloud
         % properties of r_eff and LWC to optical depth

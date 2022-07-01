@@ -27,6 +27,10 @@ for ii = 1:length(files)
     file_ii = files(ii).name;
     
     if strcmp(file_ii(1:5),'MOD02') == true || strcmp(file_ii(1:5), 'MYD02') == true
+
+        % Record the time the data was taken
+        % Time recorded in [hours, minutes]
+        modis.time = [str2double(file_ii(19:20)), str2double(file_ii(21:22))];        % UTC time of data recording
         
         if strcmp(file_ii(1:8),'MOD02HKM') == true || strcmp(file_ii(1:8),'MYD02HKM') == true
             % 500m resolution calibrated data

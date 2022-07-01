@@ -76,6 +76,14 @@ tau_mat = repmat(inputs.tau_c,length(inputs.re),1);  % we need to run every re a
 % For now, lets only use MODIS band 1
 lambda_forTau = lambda(1,1);                % nm
 
+
+% ------------------------------------------------------
+% ---------- Lets define the % of cloud cover ----------
+% ------------------------------------------------------
+cloud_cover = 0.775;
+% ------------------------------------------------------
+
+
 % we can create all the water files ahead of the INP file creation. Then we
 % will step through each component and create an INP file
 
@@ -93,15 +101,17 @@ lambda_forTau = lambda(1,1);                % nm
 % For now lets hard code the cloud height
 % ---------------------------------------
 % ---------------------------------------
-z_topBottom = [1.5, 0.5];         % km - altitude above surface for the cloud top and cloud bottom
+% Using the VOCALS-REx insitu data
+z_topBottom = [1.150, 0.9];         % km - altitude above surface for the cloud top and cloud bottom
 % ---------------------------------------
 % ---------------------------------------
 
 % lets only model the monodispersed clouds
 dist_str = 'mono';
 homogeneity_str = 'homogeneous';
+parameterization_str = inputs.flags.wc_parameterization;        % Tells the function how to compute LWC
 
-wc_filename = write_wc_file(re_mat, tau_mat(:), z_topBottom, lambda_forTau, dist_str, homogeneity_str);
+wc_filename = write_wc_file(re_mat, tau_mat(:), z_topBottom, lambda_forTau, dist_str, homogeneity_str, parameterization_str);
 
 % rehape so we can step through values for r and tau
 wc_filename = reshape(wc_filename, length(re),length(tau_c));
@@ -230,7 +240,7 @@ for pp = 1:length(pixel_row)
                 % Define the percentage of horizontal cloud cover
                 % This is a number between 0 and 1
                 formatSpec = '%s %s %5s %s \n';
-                fprintf(fileID, formatSpec,'cloudcover wc', '1.0', ' ', '# Cloud cover percentage');
+                fprintf(fileID, formatSpec,'cloudcover wc', num2str(cloud_cover), ' ', '# Cloud cover percentage');
                 
                 % Define the technique or parameterization used to convert liquid cloud
                 % properties of r_eff and LWC to optical depth

@@ -52,10 +52,10 @@ x = linspace((0.9 * min_global),(1.1*max_global),150);
 
 f = figure; plot(x,x,'k-','Linewidth',1)
 hold on; grid on; grid minor
-errorbar(est_T17,modis_T17, modis_T17_uncert,'vertical','m.','MarkerSize',10)
-xlabel('My Estimate: \tau_{c}')
-ylabel('MODIS Estimate: \tau_{c}')
-title(['Bands 1&7 - RMS: ',num2str(rms_diff_T17),' \mum'])
+errorbar(est_T17,modis_T17, modis_T17_uncert,'vertical','m.','MarkerSize',20)
+xlabel('My Estimate: $\tau_{c}$','Interpreter','latex')
+ylabel('MODIS Estimate: $\tau_{c}$','Interpreter','latex')
+title(['Bands $1\& 7$ - RMS: ',num2str(rms_diff_T17)],'Interpreter','latex')
 set(f, 'Position', [0 0 1000 400])
 
 
@@ -237,13 +237,13 @@ max_global = min([max_est,max_modis]);
 x = linspace((0.9 * min_global),(1.1*max_global),150);
 
 
-f = figure; plot(x,x,'k-','Linewidth',1)
-hold on; grid on; grid minor
-errorbar(est_T17,modis_T17, modis_T17_uncert,'vertical','m.','MarkerSize',10)
-xlabel('My Estimate: \tau_{c}')
-ylabel('MODIS Estimate: \tau_{c}')
-title(['Bands 1&7 - RMS: ',num2str(rms_diff_T17),' \mum'])
-set(f, 'Position', [0 0 1000 400])
+% f = figure; plot(x,x,'k-','Linewidth',1)
+% hold on; grid on; grid minor
+% errorbar(est_T17,modis_T17, modis_T17_uncert,'vertical','m.','MarkerSize',10)
+% xlabel('My Estimate: \tau_{c}')
+% ylabel('MODIS Estimate: \tau_{c}')
+% title(['Bands 1&7 - RMS: ',num2str(rms_diff_T17)])
+% set(f, 'Position', [0 0 1000 400])
 
 
 

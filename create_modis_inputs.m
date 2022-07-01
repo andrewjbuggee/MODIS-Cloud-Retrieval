@@ -80,8 +80,14 @@ inputs.flags.writeINPfiles = true; % if true, this will create inp files for eac
 inputs.flags.runUVSPEC = true; % if true, this will run all of the inp files create from the above flag through uvspec
 inputs.flags.plotMLS_figures = false; % this will tell the leasSquaresGridSearch code to plot the 
 
+
+% ------------------
+% ----- Stuff for writing water cloud files! -----
+% ------------------
 % can be 'hu' or 'mie interpolate'
 inputs.flags.wc_properties = 'hu';        % use the hu and stamnes parameterization for converting cloud properties to optical properties
+% can either be 'mie' or '2limit'
+inputs.flags.wc_parameterization = '2limit';        % This string is used to compute the LWC from optical depth and effective radius
 
 
 % ----- ISSUE A WARNING! SETTINGS SHOULD BE CHECKED -----

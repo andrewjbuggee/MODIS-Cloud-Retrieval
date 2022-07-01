@@ -118,30 +118,30 @@ ypos = xneg;
 
 colormap parula
 num2plot = 1e3;
-
-if numel(re17)>num2plot
-    
-    
-    rand_ind = randi([1,numel(re17)],num2plot,1);
-    
-    f = figure; errorbar(re17(rand_ind),T17(rand_ind),yneg(rand_ind),ypos(rand_ind),xneg(rand_ind),xpos(rand_ind),'o')
-    xlabel('r_{e}^{16} (\mu m)')
-    ylabel('\tau^{17}')
-    title('MODIS r_{e} and \tau_{c} Estimates')
-    grid on; grid minor
-    set(f, 'Position', [0 0 1000 400])
-    set(gca, 'YDir', 'reverse')
-    
-else
-    f = figure; errorbar(re17,T17,yneg,ypos,xneg,xpos,'o')
-    xlabel('r_{e}^{17} (\mu m)')
-    ylabel('\tau^{17}')
-    title('MODIS r_{e} and \tau_{c} Estimates')
-    grid on; grid minor
-    set(f, 'Position', [0 0 1000 400])
-    set(gca, 'YDir', 'reverse')
-    
-end
+% 
+% if numel(re17)>num2plot
+%     
+%     
+%     rand_ind = randi([1,numel(re17)],num2plot,1);
+%     
+%     f = figure; errorbar(re17(rand_ind),T17(rand_ind),yneg(rand_ind),ypos(rand_ind),xneg(rand_ind),xpos(rand_ind),'o')
+%     xlabel('r_{e}^{16} (\mu m)')
+%     ylabel('\tau^{17}')
+%     title('MODIS r_{e} and \tau_{c} Estimates')
+%     grid on; grid minor
+%     set(f, 'Position', [0 0 1000 400])
+%     set(gca, 'YDir', 'reverse')
+%     
+% else
+%     f = figure; errorbar(re17,T17,yneg,ypos,xneg,xpos,'o')
+%     xlabel('r_{e}^{17} (\mu m)')
+%     ylabel('\tau^{17}')
+%     title('MODIS r_{e} and \tau_{c} Estimates')
+%     grid on; grid minor
+%     set(f, 'Position', [0 0 1000 400])
+%     set(gca, 'YDir', 'reverse')
+%     
+% end
 
 
 
