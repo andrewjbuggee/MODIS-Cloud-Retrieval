@@ -52,8 +52,8 @@ end
 % -------------------------------------------------
 % -------------------------------------------------
 % define the MODIS bands of interest
-% For now we will hard code the first 7 modis bands
-lambda = modisBands(1:7);      % nm - midpoint and boundaries for each MODIS band we wish to model
+
+lambda = modisBands(GN_inputs.bands2use);      % nm - midpoint and boundaries for each MODIS band we wish to model
 % -------------------------------------------------
 % -------------------------------------------------
 
@@ -72,7 +72,35 @@ wc_parameterization = modisInputs.flags.wc_properties;
 % ------------------------------------------------------
 % ---------- Lets define the % of cloud cover ----------
 % ------------------------------------------------------
-cloud_cover = 0.775;
+
+if strcmp(modisInputs.modisDataFolder(96:end), '/2008_11_11_1850/')==true
+
+    % For 11/11/2008 - 14:30 data
+    cloud_cover = 0.795;
+
+elseif strcmp(modisInputs.modisDataFolder(96:end), '/2008_11_11_1430/')==true
+
+    % For 11/11/2008 - 14:30 data
+    cloud_cover = 0.725;
+
+elseif strcmp(modisInputs.modisDataFolder(96:end), '/2008_11_09/')==true
+
+    % For 11/09/2008 data
+    cloud_cover = 0.70;
+
+else
+
+    cloud_cover = 0.775;
+
+end
+
+
+
+
+
+
+
+
 % ------------------------------------------------------
 
 
@@ -80,7 +108,7 @@ cloud_cover = 0.775;
 % write INP files for all 7 MODIS bands. This function writes files for a
 % single pixel at a time, for now...
 numPixels = length(pixel_row);
-numBands = GN_inputs.numBands2use;
+numBands = length(GN_inputs.bands2use);
 
 inpNames = cell(numPixels, numBands);
 
@@ -112,9 +140,9 @@ for pp = 1:numPixels
     % create the begining of the file name string
     fileBegin = ['GN_pixel_',num2str(pixel_row(pp)),'r_',num2str(pixel_col(pp)),'c_sza_',num2str(sza),'_saz_',num2str(phi0),'_band_'];
     
-    for bb = 1:GN_inputs.numBands2use
+    for bb = 1:numBands
         
-        band_num = bb;        % modis band number that defines the upper and lower wavelength boundaries used to compute the equation of radiative transfer
+        band_num = GN_inputs.bands2use(bb);        % modis band number that defines the upper and lower wavelength boundaries used to compute the equation of radiative transfer
         
         
         

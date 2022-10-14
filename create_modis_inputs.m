@@ -32,12 +32,12 @@ inputs.modisDataFolder = folderName;
 % pre-computed table of reflectances for the specfic geometry of each pixel
 
 inputs.re = [4:4:24]; % - microns - effective radius - value is in the file name
-inputs.tau_c = [1,5:5:30,40:10:80]; % cloud optical thickness - value is in the file name
+inputs.tau_c = [1,5:5:40]; % cloud optical thickness - value is in the file name
 
 
 
-inputs.bands2run = [1,2,6,7]; % these are the bands that we will run uvspec with
-inputs.bands2search = [1,7; 2,7; 1,6]; % these are the modis bands that are used in the retrieval problem
+inputs.bands2run = [1,6,7]; % these are the bands that we will run uvspec with
+inputs.bands2search = [1,7; 1,6]; % these are the modis bands that are used in the retrieval problem
 inputs.bands2plot = [1,7]; % these are the modis bands that will be plotted, both the modis calcualted stuff and the stuff I calcualte
 
 % if interpGridScaleFactor is 10, then 9 rows will be interpolated to be 90
@@ -55,7 +55,7 @@ inputs.INP_folderName = ['MODIS_day_',L1B_fileNames{1}(15:17),'_year_',L1B_fileN
 
 % only find pixels in the modis data that is greater than or equal to a tau 
 % defined by the value below
-inputs.pixels.tauThreshold = 10; 
+inputs.pixels.tauThreshold = 3; 
  
 % we will randomly select this many pixels from the set of suitable pixels
 % found to create .INP files Each pixel and its associated geometry will

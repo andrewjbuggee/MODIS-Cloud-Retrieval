@@ -62,26 +62,27 @@ for pp = 1:num_pixels
     
     % gather the estimated values in the table
     
+    
     truth_estimate_table.estR17(pp) = minVals.minR(1,pp);  % My estimates for bands 1 and 7
     truth_estimate_table.estT17(pp) = minVals.minT(1,pp);
     
-    truth_estimate_table.estR27(pp) = minVals.minR(2,pp); % My estiamtes for bands 2 and 7 (should have a different tau)
-    truth_estimate_table.estT27(pp) = minVals.minT(2,pp);
+%     truth_estimate_table.estR27(pp) = minVals.minR(2,pp); % My estiamtes for bands 2 and 7 (should have a different tau)
+%     truth_estimate_table.estT27(pp) = minVals.minT(2,pp);
     
-    truth_estimate_table.estR16(pp) = minVals.minR(3,pp); % My estimates for bands 1 and 6 ( should have a different estiamte for re)
-    truth_estimate_table.estT16(pp) = minVals.minT(3,pp);
+    truth_estimate_table.estR16(pp) = minVals.minR(2,pp); % My estimates for bands 1 and 6 ( should have a different estiamte for re)
+    truth_estimate_table.estT16(pp) = minVals.minT(2,pp);
     
     % compute the absolute difference
     truth_estimate_table.squareDiffR17(pp) = (minVals.minR(1,pp) - truth_estimate_table.modisR17(pp)).^2;
     truth_estimate_table.squareDiffT17(pp) = (minVals.minT(1,pp) - truth_estimate_table.modisT17(pp)).^2;
     
-        % compute the absolute difference
-    truth_estimate_table.squareDiffR27(pp) = (minVals.minR(2,pp) - truth_estimate_table.modisR17(pp)).^2;
-    truth_estimate_table.squareDiffT27(pp) = (minVals.minT(2,pp) - truth_estimate_table.modisT17(pp)).^2;
+    % compute the absolute difference
+%     truth_estimate_table.squareDiffR27(pp) = (minVals.minR(2,pp) - truth_estimate_table.modisR17(pp)).^2;
+%     truth_estimate_table.squareDiffT27(pp) = (minVals.minT(2,pp) - truth_estimate_table.modisT17(pp)).^2;
     
-        % compute the absolute difference
-    truth_estimate_table.squareDiffR16(pp) = (minVals.minR(3,pp) - truth_estimate_table.modisR16(pp)).^2;
-    truth_estimate_table.squareDiffT16(pp) = (minVals.minT(3,pp) - truth_estimate_table.modisT16(pp)).^2;
+    % compute the absolute difference
+    truth_estimate_table.squareDiffR16(pp) = (minVals.minR(2,pp) - truth_estimate_table.modisR16(pp)).^2;
+    truth_estimate_table.squareDiffT16(pp) = (minVals.minT(2,pp) - truth_estimate_table.modisT16(pp)).^2;
     
     
 end

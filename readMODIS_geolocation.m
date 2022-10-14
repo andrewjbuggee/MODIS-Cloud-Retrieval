@@ -12,6 +12,14 @@ function [sensor,solar,geo] = readMODIS_geolocation(fileName)
     % these are the lat-long positions of MODIS pixels on Earths surface
     geo.lat = hdfread(fileName,'Latitude');
     geo.long = hdfread(fileName,'Longitude');
+
+    % Sometimes MODIS won't properly register data. If this happens, it
+    % will assign a value of -999 to the latitude and longitude. Let's
+    % convert these to nans'
+
+    geo.lat(geo.lat<-90) = nan;
+    geo.long(geo.long<-180) = nan;
+
     
     
     % Read the scale factors for the solar geometry

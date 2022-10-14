@@ -184,6 +184,22 @@ cloud.SPI = scalesOffsets2Matrix(subPix_heteroIndex,subPix_heteroIndex_scales,su
 
 
 
+%% ---- Convert null results to nan's -----
+
+% Cloud effective radius cannot be less than 0. Occasionally MODIS data
+% will contain negative values for measurements that need to be thrown out.
+% Convert these to nans
+
+cloud.effRadius17(cloud.effRadius17<-99) = nan;
+cloud.effRadius16(cloud.effRadius16<-99) = nan;
+
+% Cloud optical thickness cannot be less than 0. Occasionally MODIS data
+% will contain negative values for measurements that need to be thrown out.
+% Convert these to nans
+
+cloud.optThickness17(cloud.optThickness17<-99) = nan;
+cloud.optThickness16(cloud.optThickness16<-99) = nan; 
+
 
 
 
