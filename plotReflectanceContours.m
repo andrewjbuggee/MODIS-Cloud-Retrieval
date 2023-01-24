@@ -42,6 +42,8 @@ if num_pixels <= 3
                 contourf(tau_c,re,reflectance,'ShowText','on'); colorbar;
                 title(['Reflectance - ',num2str(bandVals(1)),' nm'])
                 xlabel('\tau_{c}'); ylabel('r_{e} (\mum)')
+                set(gcf, 'Position', [0 0 1000 400])
+
                 
             end
             
@@ -85,6 +87,8 @@ elseif num_pixels > 3
                 contourf(tau_c,re,reflectance,'ShowText','on'); colorbar;
                 title(['Reflectance - ',num2str(bandVals(1)),' nm'])
                 xlabel('\tau_{c}'); ylabel('r_{e} (\mum)')
+                set(gcf, 'Position', [0 0 1000 400])
+
                 
             end
             

@@ -48,11 +48,12 @@ if num_pixels <=3
                     plot(tau_c,reflectance(:));
                     hold on
                     lgnd_str{kk} = ['r_{e} = ',num2str(re(kk)),' \mum'];
-                    
+                    set(gcf, 'Position', [0 0 1500 600])
+
                 end
                 
                 
-                title([num2str(bandVals),' nm'])
+                title([num2str(bandVals(ii,jj)),' nm'])
                 xlabel('\tau_{c}'); ylabel('Reflectance')
                 grid on; grid minor
                 
@@ -104,6 +105,8 @@ elseif num_pixels > 3
                     plot(tau_c,reflectance(:));
                     hold on
                     lgnd_str{kk} = ['r_{e} = ',num2str(re(kk)),' \mum'];
+                    set(gcf, 'Position', [0 0 1500 600])
+
                     
                 end
                 

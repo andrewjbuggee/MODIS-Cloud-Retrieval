@@ -18,14 +18,11 @@ modis_T16 = truth_estimate_table.modisT16;
 modis_T16_uncert = modis_T16.*(truth_estimate_table.modisT16_uncert./100);
 
 est_T17 = truth_estimate_table.estT17;
-est_T27 = truth_estimate_table.estT27;
 est_T16 = truth_estimate_table.estT16;
 
 square_diffT17 = truth_estimate_table.squareDiffT17; % the absolute difference between my estimate and the modis estimate
 rms_diff_T17 = sqrt(mean(square_diffT17));
 
-square_diffT27 = truth_estimate_table.squareDiffT27; % the absolute difference between my estimate and the modis estimate
-rms_diff_T27 = sqrt(mean(square_diffT27));
 
 square_diffT16 = truth_estimate_table.squareDiffT16; % the absolute difference between my estimate and the modis estimate
 rms_diff_T16 = sqrt(mean(square_diffT16));

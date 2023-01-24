@@ -92,7 +92,7 @@ cloud_cover = 0.775;
 % ------------------------------------------------------
 
 % cloudTopHeight = modis.cloud.topHeight(pixels2use.res1km.linearIndex)./1e3;         % km - MODIS estiamte cloud top height  
-% z_topBottom = [cloudTopHeight, cloudTopHeight-0.5];                                 % hard code all codes to be 500 meters thick
+% z_topBottom = [cloudTopHeight, cloudTopHeight-0.5];                                 % hard code all clouds to be 500 meters thick
 % % Find the locations where clouds are at the surface
 % index0 = z_topBottom(:,2)<0;
 % z_topBottom(index0,2) =0;
@@ -102,7 +102,7 @@ cloud_cover = 0.775;
 % ---------------------------------------
 % ---------------------------------------
 % Using the VOCALS-REx insitu data
-z_topBottom = [1.150, 0.9];         % km - altitude above surface for the cloud top and cloud bottom
+z_topBottom = [1.150, 0.95];         % km - altitude above surface for the cloud top and cloud bottom
 % ---------------------------------------
 % ---------------------------------------
 

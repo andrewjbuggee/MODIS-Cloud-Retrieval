@@ -83,13 +83,10 @@ set(f, 'Position', [0 0 1000 400])
 modis_R16 = truth_estimate_table.modisR16;
 modis_R16_uncert = modis_R16.*(truth_estimate_table.modisR16_uncert./100);  
 
-est_R27 = truth_estimate_table.estR27;
 est_R16 = truth_estimate_table.estR16;
 
 
 
-square_diffR27 = truth_estimate_table.squareDiffR27; % the absolute difference between my estimate and the modis estimate
-rms_diff_R27 = sqrt(mean(square_diffR27));
 
 square_diffR16 = truth_estimate_table.squareDiffR16; % the absolute difference between my estimate and the modis estimate
 rms_diff_R16 = sqrt(mean(square_diffR16));

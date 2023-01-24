@@ -135,6 +135,14 @@ optThickness_uncertainty_16 = hdfread(fileName,'Cloud_Optical_Thickness_Uncertai
 % extract the cloud top geopotential height at 1km resolution - units (meters)
 cloudTop_geopotentialHeight = hdfread(fileName,'cloud_top_height_1km');
 
+% extract the cloud phase - 
+% The values are:
+%   0 - no phase result
+%   1 - no phase result
+%   2 - liquid water
+%   3 - ice
+%   4 - undetermined
+
 % extract the cloud top pressure - units (hpa)
 cloudTop_pressure = hdfread(fileName,'cloud_top_pressure_1km');
 
