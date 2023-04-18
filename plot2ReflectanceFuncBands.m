@@ -6,113 +6,126 @@
 
 %%
 
-function [] = plot2ReflectanceFuncBands(modis,R,inputs)
+function [] = plot2ReflectanceFuncBands(modis,R,modisInputs, pixels2use)
 
 % extract inputs
 
-re = inputs.re;
-tau_c = inputs.tau_c;
-pixel_row = inputs.pixel_row;
-pixel_col = inputs.pixel_col;
-bands2plot = inputs.bands2plot;
+re = modisInputs.re;
+tau_c = modisInputs.tau_c;
+pixel_row = pixels2use.res1km.row;
+pixel_col = pixels2use.res1km.col;
+bands2run = modisInputs.bands2run;
+bands2plot = modisInputs.bands2plot;
+
+
 
 if length(bands2plot)~=2
-    
+
     error('Can only plot two bands at a time')
-    
+
 end
 
 
-figure;
+modis_band_vals = modisBands([modisInputs.bands2plot]);
+
+% find the indices needed to plot the bands listed above
+for ii = 1:length(bands2plot)
+    index_bands(ii) = find(bands2run==bands2plot(ii));
+end
+
+
+% Create a legend string
+legend_str = cell(1, length(tau_c) + 1 + length(re));
+% set the first length(tau_c)+1 entries to be empty strings
+for ss = 1:length(tau_c)+1
+    legend_str{ss} = '';
+end
+
+
+% R is a 4-D matrix.
+%   dim(R,1) = changing pixels
+%   dim(R,2) = changing effective radius
+%   dim(R,3) = changing optical thickness
+%   dim(R,4) = changing spectral band
+
+
 
 % Plot values with constant particle radius, and vary the optical thickness
-% the column dimension varies optical thickness
 
-legendStr1 = cell(1,size(R,1));
+% Plot across pixels
+for pp = 1:size(R,1)
 
-for ii = 1:size(R,1)
+    figure;
 
-    plot([R{ii,:,bands2plot(1)}],[R{ii,:,bands2plot(2)}]);
-    
-     hold on
-          
-     legendStr1{ii} = [num2str(re(ii)),' \mum'];
+    % Step through each effective radius. Each line represents the reflectance
+    % at a constant droplet size, with varrying optical thickness.
+    for rr = 1:length(re)
 
+        plot(reshape(R(pp,rr,:,index_bands(1)),1,[]), reshape(R(pp,rr,:,index_bands(2)),1,[]),...
+            '.-', 'MarkerSize',50,'LineWidth',1.5);
+        hold on
 
-end
+        % store legend string for later
+        legend_str{length(tau_c) + rr} = ['$r_e = $', num2str(re(rr))];
 
-legendStr2 = cell(1,size(R,2));
+    end
 
-text_x = zeros(1,size(R,2));
-text_y = zeros(1,size(R,2));
+    % set up color order for each curve
+    colororder(mySavedColors(1:length(re),'fixed'));
 
-% now plot the lines on constant optical thickness
-
-for jj = 1:size(R,2)
-    
-    x = [R{:,jj,bands2plot(1)}];
-    y = [R{:,jj,bands2plot(2)}];
-
-    plot(x,y,'w--');
-    
-     hold on
-     
-     if jj<size(R,2)
-        legendStr2{jj} = num2str(tau_c(jj));
-     elseif jj == size(R,2)
-         legendStr2{jj} = [num2str(tau_c(jj)),'   \tau_{c}'];
-     end
-     
-     
-    [~,idx] = min(y);
-    text_x(jj) = x(idx)+ 0.005;
-    text_y(jj) = y(idx) - 0.005;
+    % Now plot the MODIS measurement on top
+    plot(modis.EV1km.reflectance(pixel_row(pp), pixel_col(pp),modisInputs.bands2run(index_bands(1))),...
+        modis.EV1km.reflectance(pixel_row(pp), pixel_col(pp),modisInputs.bands2run(index_bands(2))), 'diamond',...
+        'MarkerSize',15, 'Color',mySavedColors(length(re)+1, 'fixed'), 'MarkerFaceColor','none');
 
 
+    % ------ Plot lines of constant optical depth ------
+    % Now step through each optical depth. Each line represents the reflectance
+    % at a constant optical depth, with varrying effective radius.
+    for tt = 1:length(tau_c)
 
-end
+        x = reshape(R(pp,:,tt,index_bands(1)),1,[]);
+        y = reshape(R(pp,:,tt,index_bands(2)),1,[]);
 
-    t = text(text_x, text_y, legendStr2, 'Color', 'w','fontsize',14,'fontweight','bold');
+        t = plot(x, y, 'LineStyle','--', 'Color','k');
 
-if bands2plot(1)<=2 && bands2plot(2)<=2
-    
-    xlabel(['Reflectance Function (',num2str(modis.EV.m250.bands.center(bands2plot(1))),' nm)']); 
-    ylabel(['Reflectance Function (',num2str(modis.EV.m250.bands.center(bands2plot(2))),' nm)']);
-    
-elseif bands2plot(1)<=2 && bands2plot(2)>2
-    
-    yband = bands2plot(2) - 2;
-    
-    xlabel(['Reflectance Function (',num2str(modis.EV.m250.bands.center(bands2plot(1))),' nm)']); 
-    ylabel(['Reflectance Function (',num2str(modis.EV.m500.bands.center(yband)),' nm)']);
-    
-    elseif bands2plot(1)>2 && bands2plot(2)>2
-        
-        xband = bands2plot(1) - 2;
-        yband = bands2plot(2) - 2;
-    
-    xlabel(['Reflectance Function (',num2str(modis.EV.m500.bands.center(xband)),' nm)']); 
-    ylabel(['Reflectance Function (',num2str(modis.EV.m500.bands.center(yband)),' nm)']);
-    
-    elseif bands2plot(1)>2 && bands2plot(2)<=2
-        
-        xband = bands2plot(1) - 2;
-    
-    xlabel(['Reflectance Function (',num2str(modis.EV.m500.bands.center(xband)),' nm)']); 
-    ylabel(['Reflectance Function (',num2str(modis.EV.m250.bands.center(bands2plot(2))),' nm)']);
-    
-    
-end
+        % add line label on plot
+        if tt==1
+            text(0.995*x(end), 0.8*y(end), num2str(tau_c(tt)),'Interpreter','latex',"FontSize",20, "FontWeight","bold")
+            hold on
+        else
+            text(0.995*x(end), 0.8*y(end), num2str(tau_c(tt)),'Interpreter','latex',"FontSize",20, "FontWeight","bold")
+            hold on
+        end
+
+        % place the dotted line below the lines of constant radius
+        uistack(t, 'bottom');
+
+    end
+
+    % Add text to indicate the black lines are lines of constant optical
+    % thickness
+    text(1.05*x(end), 0.85*y(end), '$\tau_c$','Interpreter','latex',"FontSize",20, "FontWeight","bold")
 
 
+
+    % set up plot stuff
     grid on; grid minor
-    legend(legendStr1,'location','best')
-    
-    title(['\theta_{0} = ',num2str(modis.solar.zenith(pixel_row,pixel_col)),'  \phi_{0} = ',...
-        num2str(modis.solar.azimuth(pixel_row,pixel_col)),'  \theta = ',num2str(modis.sensor.zenith(pixel_row,pixel_col)),...
-        '  \phi = ',num2str(modis.sensor.azimuth(pixel_row,pixel_col))]);
-    
-    
+    xlabel(['Reflectance ', num2str(modis_band_vals(1,1)), ' $nm$'],Interpreter='latex')
+    ylabel(['Reflectance ', num2str(modis_band_vals(2,1)), ' $nm$'],Interpreter='latex')
+
+    % set the last string entry to be MODIS value
+    legend_str{end} = 'MODIS';
+
+    legend(legend_str, 'Interpreter','latex','Location','best' , 'FontSize', 20, 'FontWeight','bold')
+    title('Simulated Reflectance','Interpreter','latex')
+    set(gcf,"Position", [0 0 1200 800])
+
+
+end
+
+
+
 end
 
 

@@ -45,7 +45,8 @@ errorbar(est_R17,modis_R17,modis_R17_uncert,'vertical','m.','MarkerSize',20)
 xlabel('My Estimate: $r_{e}$ $(\mu m)$','Interpreter','latex')
 ylabel('MODIS Estimate: $r_{e}$ $(\mu m)$','Interpreter','latex')
 title(['Bands $1\& 7$ - RMS: ',num2str(rms_diff_R17),' $\mu m$'],'Interpreter','latex')
-set(f, 'Position', [0 0 1000 400])
+set(f, 'Position', [0 0 500 500])
+axis square
 
 % ---------------------------------------------
 % ----------- Plot Bands 2 and 7 --------------

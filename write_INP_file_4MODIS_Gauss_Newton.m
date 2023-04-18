@@ -75,7 +75,7 @@ wc_parameterization = modisInputs.flags.wc_properties;
 
 if strcmp(modisInputs.modisDataFolder(96:end), '/2008_11_11_1850/')==true
 
-    % For 11/11/2008 - 14:30 data
+    % For 11/11/2008 - 18:50 data
     cloud_cover = 0.795;
 
 elseif strcmp(modisInputs.modisDataFolder(96:end), '/2008_11_11_1430/')==true
