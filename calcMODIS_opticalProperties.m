@@ -20,7 +20,7 @@ clear variables;
 
 % define the files names
 
-folderName = './MODIS_data/2021_08_25/';
+folderName = './MODIS_data/2023_04_13/';
 
 
 [modis,L1B_500m_fileName] = retrieveMODIS_data(folderName);
@@ -70,6 +70,21 @@ elseif pixels_file_flag == true && inputs.flags.loadPixelSet == true
     load('uvspec_CALCS_23-Nov-2021.mat','pixels2use');  
 end
 
+%% Plot MODIS measured relfectance at 650nm with selected pixels
+
+figure; geoscatter(modis.geo.lat(:), modis.geo.long(:), 10, reshape(modis.EV1km.reflectance(:,:,1),[],1),'.');
+cb = colorbar;
+set(get(cb, 'label'), 'string', 'Reflectance $(1/sr)$','Interpreter','latex', 'Fontsize',22)
+set(gca, 'FontSize',25)
+set(gca, 'FontWeight', 'bold')
+set(gcf, 'Position', [0 0 800 800])
+title('Reflectance $650 \; nm$ band','Interpreter','latex', 'FontSize', 40)
+hold on
+
+% convert row column into index
+pixels2use.res1km.index = sub2ind(pixels2use.res1km.size, pixels2use.res1km.row, pixels2use.res1km.col);
+geoscatter(modis.geo.lat(pixels2use.res1km.index),modis.geo.long(pixels2use.res1km.index),...
+    500,"red", '.')
 
 
 

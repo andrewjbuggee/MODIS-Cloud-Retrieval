@@ -31,8 +31,8 @@ inputs.modisDataFolder = folderName;
 % These are the values that the forward model will use to create a
 % pre-computed table of reflectances for the specfic geometry of each pixel
 
-inputs.re = [4:4:24]; % - microns - effective radius - value is in the file name
-inputs.tau_c = [1,5:5:40]; % cloud optical thickness - value is in the file name
+inputs.re = [1:3:25]; % - microns - effective radius - value is in the file name
+inputs.tau_c = [1,5:5:80]; % cloud optical thickness - value is in the file name
 
 
 
@@ -55,13 +55,13 @@ inputs.INP_folderName = ['MODIS_day_',L1B_fileNames{1}(15:17),'_year_',L1B_fileN
 
 % only find pixels in the modis data that is greater than or equal to a tau 
 % defined by the value below
-inputs.pixels.tauThreshold = 3; 
+inputs.pixels.tauThreshold = 2; 
  
 % we will randomly select this many pixels from the set of suitable pixels
 % found to create .INP files Each pixel and its associated geometry will
 % have an INP file of its own that will solve the equation of radiative
 % transfer
-inputs.pixels.num_2calculate = 10;
+inputs.pixels.num_2calculate = 100;
 
 
 % ------------------
@@ -85,10 +85,11 @@ inputs.flags.plotMLS_figures = false; % this will tell the leasSquaresGridSearch
 % ----- Stuff for writing water cloud files! -----
 % ------------------
 % can be 'hu' or 'mie interpolate'
-inputs.flags.wc_properties = 'hu';        % use the hu and stamnes parameterization for converting cloud properties to optical properties
+inputs.flags.wc_properties = 'mie interpolate';        % use the hu and stamnes parameterization for converting cloud properties to optical properties
 % can either be 'mie' or '2limit'
-inputs.flags.wc_parameterization = '2limit';        % This string is used to compute the LWC from optical depth and effective radius
-
+inputs.flags.wc_parameterization = 'mie';        % This string is used to compute the LWC from optical depth and effective radius
+% can either be 'mono' or 'gamma'
+inputs.flags.distribution_type = 'gamma';        % This string is used to compute the LWC from optical depth and effective radius
 
 % ----- ISSUE A WARNING! SETTINGS SHOULD BE CHECKED -----
 

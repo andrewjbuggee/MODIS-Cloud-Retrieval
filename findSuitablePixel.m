@@ -62,7 +62,7 @@ combined_mask = combined_mask .* border_mask;
 % set up a distance threshold, which is the number of pixels from a boundry
 % where the phase changes
 
-dist_threshold = 40; % this defines the closest possible distance to a 0 pixel in the combined mask 
+dist_threshold = 3; % this defines the closest possible distance to a 0 pixel in the combined mask 
 
 index_ones = find(combined_mask); % finds the indices of the non-zero elements
 index_zeros = find(~logical(combined_mask)); % finds the indices of the zero elements
