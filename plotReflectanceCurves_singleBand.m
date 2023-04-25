@@ -35,19 +35,19 @@ if num_pixels <=3
                 % find indices for bands 2 plot
                 bands2plot_index = bands2plot(ii,jj) == bands2run;
                 
-                subplot(1,size(bands2plot,2),jj)
+                subplot(1,size(bands2plot,2),jj);
                 
                 bandVals = modisBands(bands2plot(ii,jj));
                 
                 lgnd_str = cell(1,length(re));
                 
-                for kk = 1:length(re)
+                for rr = 1:length(re)
                     
                     
-                    reflectance = R(pp,kk,:,bands2plot_index);
+                    reflectance = R(pp,rr,:,bands2plot_index);
                     plot(tau_c,reflectance(:));
                     hold on
-                    lgnd_str{kk} = ['r_{e} = ',num2str(re(kk)),' \mum'];
+                    lgnd_str{rr} = ['r_{e} = ',num2str(re(rr)),' \mum'];
                     set(gcf, 'Position', [0 0 1500 600])
 
                 end
@@ -81,6 +81,9 @@ elseif num_pixels > 3
     % if there are a bunch of pixels, we will just grab a random subset of
     % 3 to plot
     rand_index = randsample(num_pixels,3); % random sampling without replacement
+
+    % define set of colors
+    C = mySavedColors(1:length(re), 'fixed');
     
     for pp = 1:length(rand_index)
         
@@ -93,18 +96,18 @@ elseif num_pixels > 3
                  % find indices for bands 2 plot
                 bands2plot_index = bands2plot(ii,jj) == bands2run;
                 
-                subplot(1,size(bands2plot,2),jj)
+                subplot(1,size(bands2plot,2),jj);
                 
                 bandVals = modisBands(bands2plot(ii,jj));
                 
                 lgnd_str = cell(1,length(re));
                 
-                for kk = 1:length(re)
+                for rr = 1:length(re)
                     
-                    reflectance = R(rand_index(pp),kk,:,bands2plot_index);
-                    plot(tau_c,reflectance(:));
+                    reflectance = R(rand_index(pp),rr,:,bands2plot_index);
+                    plot(tau_c,reflectance(:), 'color',C(rr,:));
                     hold on
-                    lgnd_str{kk} = ['r_{e} = ',num2str(re(kk)),' \mum'];
+                    lgnd_str{rr} = ['r_{e} = ',num2str(re(rr)),' \mum'];
                     set(gcf, 'Position', [0 0 1500 600])
 
                     

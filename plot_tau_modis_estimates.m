@@ -53,8 +53,8 @@ errorbar(est_T17,modis_T17, modis_T17_uncert,'vertical','m.','MarkerSize',20)
 xlabel('My Estimate: $\tau_{c}$','Interpreter','latex')
 ylabel('MODIS Estimate: $\tau_{c}$','Interpreter','latex')
 title(['Bands $1\& 7$ - RMS: ',num2str(rms_diff_T17)],'Interpreter','latex')
-set(f, 'Position', [0 0 1000 400])
-
+set(f, 'Position', [0 0 500 500])
+axis square
 
 % ---------------------------------------------
 % ----------- Plot Bands 2 and 7 --------------

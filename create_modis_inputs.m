@@ -81,15 +81,21 @@ inputs.flags.runUVSPEC = true; % if true, this will run all of the inp files cre
 inputs.flags.plotMLS_figures = false; % this will tell the leasSquaresGridSearch code to plot the 
 
 
-% ------------------
+% -------------------------------------------------
 % ----- Stuff for writing water cloud files! -----
-% ------------------
+% -------------------------------------------------
 % can be 'hu' or 'mie interpolate'
-inputs.flags.wc_properties = 'mie interpolate';        % use the hu and stamnes parameterization for converting cloud properties to optical properties
+inputs.clouds.wc_properties = 'mie interpolate';        % use the hu and stamnes parameterization for converting cloud properties to optical properties
 % can either be 'mie' or '2limit'
-inputs.flags.wc_parameterization = 'mie';        % This string is used to compute the LWC from optical depth and effective radius
+inputs.clouds.wc_parameterization = 'mie';        % This string is used to compute the LWC from optical depth and effective radius
 % can either be 'mono' or 'gamma'
-inputs.flags.distribution_type = 'gamma';        % This string is used to compute the LWC from optical depth and effective radius
+inputs.clouds.distribution_type = 'gamma';        % This string is used to compute the LWC from optical depth and effective radius
+% Define the distribution. If the distribution is mono-dispersed, this
+% value can be anything because it will be ignored
+inputs.clouds.distribution_variance = 7;            % 7 is the value libRadTran uses for liquid water clouds
+% Is the cloud vertically homogeneous? It should be since this is for the
+% MODIS retrieval
+inputs.clouds.vert_homogeneity = 'vert-homogeneous';
 
 % ----- ISSUE A WARNING! SETTINGS SHOULD BE CHECKED -----
 

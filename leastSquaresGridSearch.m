@@ -8,7 +8,7 @@
 
 %%
 
-function [minVals] = leastSquaresGridSearch(modisRefl,modelData,inputs,pixels2use)
+function [minVals] = leastSquaresGridSearch(modisRefl,modelRefl,inputs)
 
 
 
@@ -22,6 +22,8 @@ bands2run = inputs.bands2run; % bands to run through uvspec
 % save calculations
 saveCalcs_filename = inputs.saveCalculations_fileName;
 
+% create an index that uses the correct pairs of bands used to perform the
+% two-wavelength retrieval
 index = zeros(size(bands2search,1),length(bands2run));
 
 for ii = 1:size(bands2search,1)
@@ -33,7 +35,7 @@ end
 
 band_index = logical(index);
 
-numPixels = size(modelData,1); % number of pixels to preform grid search on
+numPixels = size(modelRefl,1); % number of pixels to preform grid search on
 
 
 
@@ -42,7 +44,7 @@ bandVals = modisBands(bands2search);
 
 % lets interpolate the model data to increase our grid
 
-% in our model data, the column space, whixh spans the x direction, varies
+% in our model data, the column space, which spans the x direction, varies
 % with tau. The row space, which spans the y direction, vaires with re
 
 [T0,Re0] = meshgrid(tau_c,re);
@@ -74,42 +76,45 @@ for pp = 1:numPixels
     % have to use the 500 meter pixel indexes
     for bb = 1:size(bands2search,1)
         
-        observations = modisRefl(pixels2use.res1km.row(pp),pixels2use.res1km.col(pp),band_index(bb,:));
+        % grab the observations for the pair of bands desired for the
+        % retrieval
+        observations = modisRefl(pp,band_index(bb,:));
         
-        if iscell(modelData) == true
+        if iscell(modelRefl) == true
             
-            modelData_vec = [modelData{pp,:,:,band_index(bb,:)}];
-            modelData_vec = reshape(modelData_vec,size(modelData,2),size(modelData,3),length(bands2search));
+            modelRefl_vec = [modelRefl{pp,:,:,band_index(bb,:)}];
+            modelRefl_vec = reshape(modelRefl_vec,size(modelRefl,2),size(modelRefl,3),length(bands2search));
             
             
             
-        elseif isnumeric(modelData) == true
+        elseif isnumeric(modelRefl) == true
             
-            modelData_vec = modelData(pp,:,:,band_index(bb,:));
-            modelData_vec = reshape(modelData_vec,size(modelData,2),size(modelData,3),size(bands2search,2));
+            modelRefl_vec = modelRefl(pp,:,:,band_index(bb,:));
+            modelRefl_vec = reshape(modelRefl_vec,size(modelRefl,2),size(modelRefl,3),size(bands2search,2));
             
             
         end
         
         % preform 2D interpolation
-        newModelData = zeros(length(new_re),length(newTau_c),size(modelData_vec,3));
+        interp_modelRefl = zeros(length(new_re),length(newTau_c),size(modelRefl_vec,3));
         
-        for ii = 1:size(modelData_vec,3)
-            newModelData(:,:,ii) = interp2(T0,Re0,modelData_vec(:,:,ii),T,Re);
+        for ii = 1:size(modelRefl_vec,3)
+            interp_modelRefl(:,:,ii) = interp2(T0,Re0,modelRefl_vec(:,:,ii),T,Re);
         end
         
         % finally, lets now rescale the observation to be on a flat plane with the
         % same dimensions as the interpolated model data
-        
-        observations_newGrid = repmat(observations,length(new_re),length(newTau_c));
-        
+        % for band 1...
+        observations_newGrid(:,:,1) = repmat(observations(1),length(new_re),length(newTau_c));
+        % for band 2...
+        observations_newGrid(:,:,2) = repmat(observations(2),length(new_re),length(newTau_c));
         
         %% ---- lets view the surfaces of the model -----
         
         band2Plot = 2;
         
         if inputs.flags.plotMLS_figures == true
-            surfPlots4modisModel_andObs(T,Re,newModelData(:,:,band2Plot),observations_newGrid(:,:,band2Plot),bandVals(band2Plot,1))
+            surfPlots4modisModel_andObs(T,Re,interp_modelRefl(:,:,band2Plot),observations_newGrid(:,:,band2Plot),bandVals(band2Plot,1))
         end
         %% ----- Least Squares Difference ------
         
@@ -117,7 +122,7 @@ for pp = 1:numPixels
         % wavelength. The we square the difference and sum along wavelenghts. Then
         % we take the sqrt
         
-        leastSquaresGrid = sqrt(sum((newModelData - observations_newGrid).^2,3));
+        leastSquaresGrid = sqrt(sum((interp_modelRefl - observations_newGrid).^2,3));
         
         % If we assume that there is a unique global minimum, we can search for it
         % using the minimum function. If we have more complicated scenario we need
@@ -128,6 +133,7 @@ for pp = 1:numPixels
         
         minVals.minR(bb,pp) = Re(row,col);
         minVals.minT(bb,pp) = T(row,col);
+        %minVals.minRefl(2,pp,bb) = [interp_modelRefl(row, col,1), interp_modelRefl(row, col, 2)]';
         
         % lets look at the least squares grid
         if inputs.flags.plotMLS_figures == true
@@ -137,8 +143,9 @@ for pp = 1:numPixels
             ylabel('Effective Radius (\mum)')
             zlabel(['Least Squares Difference'])
             s.EdgeColor = 'k';
-            s.EdgeAlpha = 0.2;
+            s.EdgeAlpha = 0.1;
             colorbar
+            set(gcf,"Position", [0 0 1000 700])
             title('Error Function')
         end
         

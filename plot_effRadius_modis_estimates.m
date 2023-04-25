@@ -19,6 +19,7 @@ modis_R17 = truth_estimate_table.modisR17;
 % microns
 modis_R17_uncert = modis_R17.*(truth_estimate_table.modisR17_uncert./100);          % microns
 
+% Grab my estimates
 est_R17 = truth_estimate_table.estR17;
 
 square_diffR17 = truth_estimate_table.squareDiffR17; % the absolute difference between my estimate and the modis estimate

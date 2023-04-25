@@ -97,7 +97,9 @@ cloudPhase_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(105).Attributes(6).Value
 
 % -----------------------------------------------------
 % ---------------- PULL THE DATA SET ------------------
-% -----------------------------------------------------inties are listed as percents
+% -----------------------------------------------------
+
+% uncertainties are listed as percents
 
 
 % extract the effective radius data using bands 1 and 7

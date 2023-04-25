@@ -23,7 +23,8 @@ colorbar
 hold on
 s2 = surf(X,Y,observation_data);
 s2.EdgeColor = 'k';
-s2.EdgeAlpha = 0.2;
+s2.EdgeAlpha = 0;
+set(gcf,"Position", [0 0 1000 700])
 
 legend('Model Reflectance','Measured Reflectance','Location','best')
 

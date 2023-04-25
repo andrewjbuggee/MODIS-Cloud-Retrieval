@@ -52,8 +52,25 @@ end
 
 % Plot values with constant particle radius, and vary the optical thickness
 
+% Only plot 3 pixels at a time
+if size(R,1)>3
+
+    % if there are a bunch of pixels, we will just grab a random subset of
+    % 3 to plot
+    index_2plot = randsample(size(R,1),3); % random sampling without replacement
+
+    % 3 examples will be run
+    num_pixels_2run = 3;
+
+else
+    
+    index_2plot = 1:size(R,1);
+    num_pixels_2run = size(R,1);
+
+end
+
 % Plot across pixels
-for pp = 1:size(R,1)
+for pp = 1:num_pixels_2run
 
     figure;
 
@@ -61,7 +78,7 @@ for pp = 1:size(R,1)
     % at a constant droplet size, with varrying optical thickness.
     for rr = 1:length(re)
 
-        plot(reshape(R(pp,rr,:,index_bands(1)),1,[]), reshape(R(pp,rr,:,index_bands(2)),1,[]),...
+        plot(reshape(R(index_2plot(pp),rr,:,index_bands(1)),1,[]), reshape(R(index_2plot(pp),rr,:,index_bands(2)),1,[]),...
             '.-', 'MarkerSize',50,'LineWidth',1.5);
         hold on
 
@@ -74,8 +91,8 @@ for pp = 1:size(R,1)
     colororder(mySavedColors(1:length(re),'fixed'));
 
     % Now plot the MODIS measurement on top
-    plot(modis.EV1km.reflectance(pixel_row(pp), pixel_col(pp),modisInputs.bands2run(index_bands(1))),...
-        modis.EV1km.reflectance(pixel_row(pp), pixel_col(pp),modisInputs.bands2run(index_bands(2))), 'diamond',...
+    plot(modis.EV1km.reflectance(pixel_row(index_2plot(pp)), pixel_col(index_2plot(pp)),modisInputs.bands2run(index_bands(1))),...
+        modis.EV1km.reflectance(pixel_row(index_2plot(pp)), pixel_col(index_2plot(pp)),modisInputs.bands2run(index_bands(2))), 'diamond',...
         'MarkerSize',15, 'Color',mySavedColors(length(re)+1, 'fixed'), 'MarkerFaceColor','none');
 
 
@@ -84,8 +101,8 @@ for pp = 1:size(R,1)
     % at a constant optical depth, with varrying effective radius.
     for tt = 1:length(tau_c)
 
-        x = reshape(R(pp,:,tt,index_bands(1)),1,[]);
-        y = reshape(R(pp,:,tt,index_bands(2)),1,[]);
+        x = reshape(R(index_2plot(pp),:,tt,index_bands(1)),1,[]);
+        y = reshape(R(index_2plot(pp),:,tt,index_bands(2)),1,[]);
 
         t = plot(x, y, 'LineStyle','--', 'Color','k');
 

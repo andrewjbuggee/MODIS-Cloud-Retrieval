@@ -95,7 +95,8 @@ if inputs.flags.writeINPfiles == true
     % which pixels on the MODIS array are we using for the gemoetry of the
     % problem? The pixels that we found to be suitable!
     
-    names.inp = write_INP_4_MODIS_hdf(inputs,pixels2use,modis);
+    %names.inp = write_INP_4_MODIS_hdf(inputs,pixels2use,modis);
+    names.inp = write_INP_file_4MODIS_homogenous(inputs, pixels2use, modis);
     
     % now lets write the output names
     
@@ -130,7 +131,7 @@ end
 
 % We want to grab modis reflectances at 1km!!
 
-modisR = grab_modis_reflectance(modis,inputs);
+modisR = grab_modis_reflectance(modis,inputs, pixels2use);
 
 
 %% ----- Compare Reflectance Fucntion of MODIS with Theoretical Calculations (Grid Search) -----
@@ -141,7 +142,7 @@ modisR = grab_modis_reflectance(modis,inputs);
 % if interpGridScalFactor is 10, then 9 rows will be interpolated to be 90
 % rows, and 10 columns will be interpolated to be 100 columns
 
-minVals = leastSquaresGridSearch(modisR, R, inputs, pixels2use);
+minVals = leastSquaresGridSearch(modisR, R, inputs);
 
 [truth_estimate_table] = gatherTruthEstimateVals(modis, minVals, inputs, pixels2use); % containts truth ad estimates and difference
 
@@ -165,15 +166,12 @@ plot_effRadius_modis_estimates(truth_estimate_table)
 
 plot_tau_modis_estimates(truth_estimate_table)
 
-
-% plot2ReflectanceFuncBands(modis,R,inputs)
-
-%%
+% Plot both re and tau on two panels within the same figure
+plot_re_tau_modis_vs_myEstimates(truth_estimate_table)
 
 
+plot2ReflectanceFuncBands(modis,R, inputs, pixels2use)
 
-
-
-
-
-
+% Plot and compare the MODIS measured reflectance and my estiamte of
+% reflectance using LibRadTran
+compare_my_reflectance_with_MODIS(modisR,R,modisInputs, pixels2use)

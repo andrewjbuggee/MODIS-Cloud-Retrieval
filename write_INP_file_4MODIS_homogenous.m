@@ -101,25 +101,35 @@ cloud_cover = 1;
 % ---------------------------------------
 % For now lets hard code the cloud height
 % ---------------------------------------
-% ---------------------------------------
-% Using the VOCALS-REx insitu data
-z_topBottom = [1.150, 0.95];         % km - altitude above surface for the cloud top and cloud bottom
+% cloud top height and thickness is set to be the same values 
+% described in: "Overview of the MODIS Collection 6 Cloud Optical 
+% Property (MOD06) Retrieval Look-up Tables" Amarasinghe
+% et. al 2017
+z_topBottom = [9, 8];                     % km - altitude above surface for the cloud top and cloud bottom
 % ---------------------------------------
 % ---------------------------------------
 
-% lets only model the monodispersed clouds
-dist_str = 'mono';
-homogeneity_str = 'homogeneous';
-parameterization_str = inputs.flags.wc_parameterization;        % Tells the function how to compute LWC
+% MODIS integrates over a modified gamma droplet distribution
+dist_str = inputs.clouds.distribution_type;
+% libRadTran stats in their manual that a distribution variance value of 7
+% is adequate for liquid water clouds. The distribution variance needs to
+% be the same size as the effective radius vector
+dist_var = repmat(inputs.clouds.distribution_variance,size(re_mat,1), size(re_mat,2));
 
-wc_filename = write_wc_file(re_mat, tau_mat(:), z_topBottom, lambda_forTau, dist_str, homogeneity_str, parameterization_str);
+% Since this is writing files to do the TBLUT retrieval, 
+% we assume clouds are vertical homogeneous
+vert_homogeneity_str = 'vert-homogeneous';
+parameterization_str = inputs.clouds.wc_parameterization;        % Tells the function how to compute LWC
+
+wc_filename = write_wc_file(re_mat, tau_mat(:), z_topBottom, lambda_forTau, dist_str, dist_var,...
+    vert_homogeneity_str, parameterization_str);
 
 % rehape so we can step through values for r and tau
 wc_filename = reshape(wc_filename, length(re),length(tau_c));
 
 % define the parameterization used to convert water cloud properties to
 % optical properties
-wc_parameterization = inputs.flags.wc_properties;
+wc_parameterization = inputs.clouds.wc_properties;
 
 % we have 4 variables that can change for each INP file
 
