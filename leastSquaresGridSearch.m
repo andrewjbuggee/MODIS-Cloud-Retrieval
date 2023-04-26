@@ -111,10 +111,10 @@ for pp = 1:numPixels
         
         %% ---- lets view the surfaces of the model -----
         
-        band2Plot = 2;
+        band2Plot = 1;
         
         if inputs.flags.plotMLS_figures == true
-            surfPlots4modisModel_andObs(T,Re,interp_modelRefl(:,:,band2Plot),observations_newGrid(:,:,band2Plot),bandVals(band2Plot,1))
+            surfPlots4modisModel_andObs(T,Re,interp_modelRefl(:,:,band2Plot),observations_newGrid(:,:,band2Plot),bandVals(1,band2Plot))
         end
         %% ----- Least Squares Difference ------
         

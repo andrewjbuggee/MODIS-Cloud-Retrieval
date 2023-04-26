@@ -1,4 +1,4 @@
-%% ----- READ IN L2 MODIS DATA -----
+%% ----- READ IN L2 MODIS CLOUD DATA -----
 
 % this function will read in L2 MODIS data as .hdf files
 % will produce all necessary information into a cell array, and the data

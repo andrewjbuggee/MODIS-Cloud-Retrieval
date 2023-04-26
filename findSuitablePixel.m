@@ -140,6 +140,8 @@ end
 
 [pixels.res1km.row, pixels.res1km.col] = ind2sub(size(combined_mask),flag_index); 
 
+% save the indices
+pixels.res1km.index = flag_index;
 % save the size of each resolution swath
 %pixels.res500m.size = size(modis.EV500m.reflectance(:,:,1)); % the 500 meter resolution image swath
 pixels.res1km.size = size(modis.EV1km.reflectance(:,:,1)); % the 1km resolution image swath

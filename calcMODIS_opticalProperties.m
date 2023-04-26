@@ -117,7 +117,9 @@ if inputs.flags.runUVSPEC == true
     
     % 1st output - R is the reflectance integrated over a bandwidth
     % 2nd output - Rl is the reflectance at each spectral bin
+    tic
     [R,~] = runReflectanceFunction(inputs,names);
+    toc
     
 elseif inputs.flags.runUVSPEC == false
     
@@ -170,7 +172,10 @@ plot_tau_modis_estimates(truth_estimate_table)
 plot_re_tau_modis_vs_myEstimates(truth_estimate_table)
 
 
-plot2ReflectanceFuncBands(modis,R, inputs, pixels2use)
+% plot the reflectance for bands 1 and 7 and show the MODIS measurement
+plot2ReflectanceFuncBands(modis,R, inputs, pixels2use, 'king')
+
+
 
 % Plot and compare the MODIS measured reflectance and my estiamte of
 % reflectance using LibRadTran

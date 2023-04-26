@@ -59,6 +59,13 @@ for ii = 1:length(files)
         % Retrive the true MODIS cloud Properties
         
         modis.cloud = readMODIS_L2_data(file_ii);
+
+
+    elseif strcmp(file_ii(1:5), 'MOD05') == true || strcmp(file_ii(1:5), 'MYD05') == true
+
+        % Retrieve the water vapor column estimates
+        modis.vapor = readMODIS_L2_waterVapor_data(file_ii);
+        
         
     end
     

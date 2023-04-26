@@ -173,6 +173,9 @@ for pp = 1:length(pixel_row)
     end
     
     
+    % For each pixel, use the MODIS retrieved column water vapor and
+    % overide the US standard atmosphere profile
+    column_vapor = modis.vapor.col_nir(pixel_row(pp),pixel_col(pp))*10;         % mm - column of total precipitable water over a square mm
     
     
     % create the begining of the file name string
@@ -226,7 +229,8 @@ for pp = 1:length(pixel_row)
                 fprintf(fileID, formatSpec,'number_of_streams','6',' ', '# Number of streams');
                 
                 
-                % Define the location and filename of the atmopsheric profile to use
+                % Define the location and filename of the US standard
+                % atmosphere that will be used for this analysis
                 formatSpec = '%s %s %5s %s \n';
                 fprintf(fileID, formatSpec,'atmosphere_file','../data/atmmod/afglus.dat',' ', '# Location of atmospheric profile to use');
                 
@@ -235,8 +239,12 @@ for pp = 1:length(pixel_row)
                 fprintf(fileID, formatSpec,'source solar','../data/solar_flux/kurudz_1.0nm.dat', ' ', '# Bounds between 250 and 10000 nm');
                 
                 % Define the ozone column
+%                 formatSpec = '%s %s %s %s %5s %s \n';
+%                 fprintf(fileID, formatSpec,'mol_modify','O3', '300.','DU', ' ', '# Set ozone column');
+
+                % Define the water vapor column
                 formatSpec = '%s %s %s %s %5s %s \n';
-                fprintf(fileID, formatSpec,'mol_modify','O3', '300.','DU', ' ', '# Set ozone column');
+                fprintf(fileID, formatSpec,'mol_modify','H2O', num2str(column_vapor), 'MM', ' ', '# Total Precipitable Water');
                 
                 % Define the surface albedo
                 formatSpec = '%s %s %5s %s \n\n';

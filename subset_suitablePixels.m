@@ -71,6 +71,9 @@ end
 pixel_rows = pixels2use.res1km.row;
 pixel_cols = pixels2use.res1km.col;
 
+% save the index
+pixels2use.res1km.index = sub2ind([size(modis.EV1km.reflectance,1), size(modis.EV1km.reflectance,2)], pixel_rows, pixel_cols);
+
 for ii = 1:length(pixel_rows)
 
     pixels2use.res1km.geometry.sza(ii) = modis.solar.zenith(pixel_rows(ii),pixel_cols(ii));
