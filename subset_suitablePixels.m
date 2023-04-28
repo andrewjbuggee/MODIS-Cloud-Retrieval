@@ -14,24 +14,44 @@ numPixels2Calculate = inputs.pixels.num_2calculate; % number of pixels to use in
 
 load(suitablePixels_fileName,'pixels');
 
+% ---------- Only use Pixels within mie_interpolate range ------
+re_mask = modis.cloud.effRadius17(pixels.res1km.index)<=max(inputs.re);
+tau_mask  = modis.cloud.optThickness17(pixels.res1km.index)<=max(inputs.tau_c);
+
+combined_mask = logical(re_mask.*tau_mask);
+
+% find the overlap
+index = find(combined_mask);
+
+% convert this to the indicies we started with. Which pixels that were
+% found in suitable_pixels also meet to requirements above?
+index_suit_pix = pixels.res1km.index(index);
+
+[row, col] = ind2sub(pixels.res1km.size, index_suit_pix);
+
+% ------------------------------------------------------------
+pixels_available.res1km.index = index_suit_pix;
+pixels_available.res1km.row = row;
+pixels_available.res1km.col = col;
+
 
 % for all calculations, we need the 1km resolution pixel locations. So that
 % is what we will use. We only use the 500 meter resolution pixel locaiton
 % to show which pixels in the EV data set we used.
 
-numSuitablePixels = length(pixels.res1km.row);
+numSuitablePixels = length(pixels_available.res1km.row);
 
 
 if numSuitablePixels > numPixels2Calculate
     
     rand_indices = randi(numSuitablePixels,numPixels2Calculate,1); % generate random numbers to choose pixels
     
-    pixels2use.res1km.row = pixels.res1km.row(rand_indices); % row positions
-    pixels2use.res1km.col = pixels.res1km.col(rand_indices); % column positions
+    pixels2use.res1km.row = pixels_available.res1km.row(rand_indices); % row positions
+    pixels2use.res1km.col = pixels_available.res1km.col(rand_indices); % column positions
     
     
 
-    pixels2use.res1km.size = pixels.res1km.size;
+    pixels2use.res1km.size = pixels_available.res1km.size;
     %pixels2use.res500m.size = pixels.res500m.size;
     
     % lets map 1 km pixels to 500 meter pixels location
@@ -47,14 +67,14 @@ elseif numSuitablePixels < numPixels2Calculate
     disp(['Number of Suitable Pixels is less than what you asked for.',...
         'Writing INP files for all suitabl epixels...']);
     
-    pixels2use = pixels;
+    pixels2use = pixels_available;
     
 
     
     
 elseif numSuitablePixels == numPixels2Calculate
     
-    pixels2use = pixels;
+    pixels2use = pixels_available;
     
     
     

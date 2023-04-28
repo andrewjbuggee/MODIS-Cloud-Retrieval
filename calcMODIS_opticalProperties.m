@@ -155,7 +155,7 @@ minVals = leastSquaresGridSearch(modisR, R, inputs);
 % plot relfectance curves with lines of constant radius
 % if there are more than 3 pixels, this function will plot three random
 % pixels from the set
-plotReflectanceCurves_singleBand(R,inputs,pixels2use)
+plotReflectanceCurves_singleBand(R,inputs,pixels2use, modis);
 
 % plot reflectance contours where x and y are tau and r
 
