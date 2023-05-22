@@ -12,7 +12,7 @@
 % By Andrew J. Buggee
 %% ------ Read input settings and output data from uv_spec -----
 
-function [R,R_lambda] = reflectanceFunction(inputSettings,ds)
+function [R,R_lambda] = reflectanceFunction(inputSettings,ds, spec_response)
 
 % Geometry values from input Settings -
 mu = inputSettings{2}; % cosine of the viewing zenith angle
@@ -31,8 +31,7 @@ irrad0 = source(:,2); % - mW/(m^2 nm) -  source irradiance
 mu0 = cosd(sza); % cosine of the solar zenith angle
 geomSets = length(mu)*length(phi);
 
-% introduce the spectral response function
-specRep = ones(size(wavelength)); % perfect spectral response
+
 
 %% ----- CALCULATE REFLECTANCE FUNCTION -----
 
@@ -60,7 +59,7 @@ elseif length(wavelength)>1
         % First calculate the reflectance function at each discrete
         % wavelength within the wavelength band
         R_lambda(:,ii) = pi*ds.radiance(ii).rad_umu_phi./(mu0*irrad0); % - 1/sr/nm - reflectance function for monochromatic calculation
-        R(ii) = trapz(wavelength,R_lambda(:,ii).*specRep.*irrad0)./trapz(wavelength,specRep.*irrad0); % - 1/sr - reflectance function over a finite bandwidth
+        R(ii) = trapz(wavelength,R_lambda(:,ii).*spec_response.*irrad0)./trapz(wavelength,spec_response.*irrad0); % - 1/sr - reflectance function over a finite bandwidth
         
     end
     

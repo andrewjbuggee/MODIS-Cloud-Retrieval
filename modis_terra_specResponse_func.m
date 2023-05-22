@@ -48,6 +48,12 @@ data = readtable(filename, file_prop);
 % reset the variable names
 data.Properties.VariableNames = var_names;
 
+
+% The last column needs to be fixed. It's read in as a cell vector of
+% string characters
+
+
+
 % % open the file for reading
 % file_id = fopen(filename, 'r');   % 'r' tells the function to open the file for reading
 % 
@@ -56,6 +62,36 @@ data.Properties.VariableNames = var_names;
 % 'MultipleDelimsAsOne',1, 'CommentStyle','/', 'EndOfLine','\');
 
 %% Read in the correct response function
+
+% Store the wavelength data in a vector. Values associated with non-zero
+% responses will be thrown out
+
+wavelength = data.("Wavelength (nm)");
+
+% define an empty cell aray 
+spec_response = cell(1, length(band_number));
+
+
+for nn = 1:length(band_number)
+
+    for bb = 1:(length(data.Properties.VariableNames)-1)
+
+        if strcmp(['Band ',num2str(band_number(nn))], data.Properties.VariableNames{bb+1})==true
+
+            % Select this spectral response function
+            data2keep = data{:,bb+1};
+
+            % only keep the non-zero values
+            index_nonZero = find(data2keep);
+
+            spec_response{nn}(:,1) = wavelength(index_nonZero);
+            spec_response{nn}(:,2) = data2keep(index_nonZero);
+
+
+        end
+    end
+
+end
 
 
 end

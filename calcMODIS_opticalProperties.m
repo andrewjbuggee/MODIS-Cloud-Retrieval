@@ -32,6 +32,11 @@ inputs = create_modis_inputs(folderName, L1B_500m_fileName);
 
 disp('Check inputs to make sure they are what you want!!')
 
+%% ----- Read in the Spectral Response Functions for MODIS ----
+
+% first, lets read in the spectral response functions
+modis.spec_response = modis_terra_specResponse_func(inputs.bands2run);
+
 %% ----- Find suitable Pixels! -----
 
 % find pixels within the modis data set that fit our needs
@@ -118,7 +123,7 @@ if inputs.flags.runUVSPEC == true
     % 1st output - R is the reflectance integrated over a bandwidth
     % 2nd output - Rl is the reflectance at each spectral bin
     tic
-    [R,~] = runReflectanceFunction(inputs,names);
+    [R,~] = runReflectanceFunction(inputs,names, modis.spec_response);
     toc
     
 elseif inputs.flags.runUVSPEC == false

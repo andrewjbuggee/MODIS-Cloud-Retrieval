@@ -20,8 +20,19 @@ function [sensor,solar,geo] = readMODIS_geolocation(fileName)
     geo.lat(geo.lat<-90) = nan;
     geo.long(geo.long<-180) = nan;
 
-    
-    
+    % --------------------------------------------------------------------
+    % -----------*******------------ NOTE -----------*********------------
+    % --------------------------------------------------------------------
+    % The azimuth angles are relative to local geodetic north. This is how
+    % 0 degrees is defined. Azimuth values range from [-180, 180]. If the
+    % measurement is made in the northern hemisphere, the the positive
+    % azimuth values range from due north (0 deg) to due East (90 deg) to
+    % due south (180 deg). And moving from due north towards the west would
+    % result in negative values from 0 to -180. The same goes for the
+    % southern hemisphere. Local geodetic north defines the 0 degree
+    % azimuth location. Negative azimuth values are towards local west, and
+    % positive azimuth values are towards local east.
+
     % Read the scale factors for the solar geometry
     solarZenith_scale = info.Vgroup.Vgroup(2).SDS(8).Attributes(4).Value;
     solarAzimuth_scale = info.Vgroup.Vgroup(2).SDS(9).Attributes(4).Value;

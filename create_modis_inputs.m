@@ -47,6 +47,15 @@ inputs.interpGridScaleFactor = 150; % scale factor the will be used to increase 
 inputs.savedCalculations_folderName = folderName; % this is the folder that all the saved calculations will go
 inputs.saveCalculations_fileName = ['uvspec_CALCS_',date,'.mat'];
 
+% save the day of the year
+if L1B_fileNames{1}(15)==0
+    inputs.day_of_year = L1B_fileNames{1}(16:17);           % day of year of the MODIS measurement
+
+else
+    inputs.day_of_year = L1B_fileNames{1}(15:17);           % day of year of the MODIS measurement
+end
+
+
 inputs.INP_folderName = ['MODIS_day_',L1B_fileNames{1}(15:17),'_year_',L1B_fileNames{1}(11:14),...
     '_time_',L1B_fileNames{1}(19:22),'/']; % this is the folder name that the INP files will be written to 
 
@@ -63,6 +72,12 @@ inputs.pixels.tauThreshold = 2;
 % transfer
 inputs.pixels.num_2calculate = 100;
 
+
+% ---------------------------------------------------------
+% ------ Define the resolution of the Solar Flux file -----
+% ---------------------------------------------------------
+% options are 1 or 0.1 nm
+inputs.solarFlux_resolution = 0.1;                  % nm
 
 % ------------------
 % ----- FLAGS! -----

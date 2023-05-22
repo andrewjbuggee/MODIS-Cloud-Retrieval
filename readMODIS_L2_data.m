@@ -81,6 +81,10 @@ cloudTopPressure_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(57).Attributes(6).
 cloudTopTemperature_scales = cloudProp_info.Vgroup.Vgroup(2).SDS(59).Attributes(5).Value; %  output will be a cell array
 cloudTopTemperature_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(59).Attributes(6).Value;
 
+% extract the liquid water path at 1km resolution scales and offset
+columnWaterPath_scales = cloudProp_info.Vgroup.Vgroup(2).SDS(83).Attributes(5).Value; %  output will be a cell array
+columnWaterPath_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(83).Attributes(6).Value;
+
 % extract the cloud phase used in Optical Thickness/Effective Radius determination -  scales and offset
 % The values in this SDS are set to mean the following:                              
 % 0 -- cloud mask undetermined                                                       
@@ -151,6 +155,9 @@ cloudTop_pressure = hdfread(fileName,'cloud_top_pressure_1km');
 % extract the cloud top temperature - units (k)
 cloudTop_temperature = hdfread(fileName,'cloud_top_temperature_1km');
 
+% extract the cloud water height for band 7 and either 1 or 2 or 5
+columnWaterPath = hdfread(fileName, 'Cloud_Water_Path');            % g/m^2
+
 % extract the cloud phase - 
 % The values are:
 %   0 - no phase result
@@ -189,6 +196,8 @@ cloud.topPressure = scalesOffsets2Matrix(cloudTop_pressure,cloudTopPressure_scal
 cloud.topTemperature = scalesOffsets2Matrix(cloudTop_temperature,cloudTopTemperature_scales,cloudTopTemperature_offset);
 
 cloud.phase = scalesOffsets2Matrix(cloudPhase,cloudPhase_scales,cloudPhase_offset);
+
+cloud.lwp = scalesOffsets2Matrix(columnWaterPath, columnWaterPath_scales, columnWaterPath_offset);
 
 cloud.SPI = scalesOffsets2Matrix(subPix_heteroIndex,subPix_heteroIndex_scales,subPix_heterIndex_offset);
 

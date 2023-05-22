@@ -33,7 +33,26 @@ end
 
 addpath(libRadTran_path);
 
-%%
+%% DEFINE UVSPEC INP FILE INPUTS
+
+
+% ---------------------------------------------------
+% -------- Define the solar flux file to use --------
+% ---------------------------------------------------
+if inputs.solarFlux_resolution==1
+    % use 1nm resolution
+    solarFlux_file = 'kurudz_1.0nm.dat';
+
+elseif inputs.solarFlux_resolution==0.1
+    % use 0.1nm resoltion file
+    solarFlux_file = 'kurudz_0.1nm.dat';
+
+else
+    error([newline, 'I dont recognize the solar flux file. Only options are the 1nm and 0.1nm Kuruz files',newline])
+    
+end
+
+
 
 % for each spectral bin, we have an image on the ground composed of 2030 *
 % 1354 pixels. The swath on the ground is large enough that the solar
@@ -52,8 +71,44 @@ if ~exist(newFolder, 'dir')
 end
 
 
-% define the MODIS bands of interest
-lambda = modisBands(inputs.bands2run);      % nm - midpoint and boundaries for each MODIS band we wish to model
+% define the MODIS bands to run using the spectral response functions
+lambda = zeros(length(inputs.bands2run), 2);
+
+% now, we need to may need to interpolate these curves, depending on the
+% resolution of the solar flux file that we chose
+% place it on the same wavelength grid as the solar file setting
+% do this using interpolation
+if inputs.solarFlux_resolution==0.1
+
+    % interpolate over all bands that are being run
+    for bb = 1:length(inputs.bands2run)
+        % define the new wavelength vector
+        new_wl_vec = modis.spec_response{bb}(1,1):0.1:modis.spec_response{bb}(end,1);
+
+        interp_spec_response = interp1(modis.spec_response{bb}(:,1), modis.spec_response{bb}(:,2),new_wl_vec);
+
+        % rewrite the spec_response cell array
+        modis.spec_response{bb} = [new_wl_vec', interp_spec_response'];
+
+        % Now we can define the wavelength bounds for each band
+        % The wavelength grid and step size is defined by the solar file
+        lambda(bb,:) = [new_wl_vec(1), new_wl_vec(end)];      % nm - midpoint and boundaries for each MODIS band we wish to model
+
+    end
+
+elseif inputs.solarFlux_resolution==1
+
+    % in this case, the solar file jumps every nm and we don't need to
+    % interpoalte the spectral response functions
+    for bb = 1:length(inputs.bands2run)
+
+        lambda(bb,:) = [modis.spec_response{bb}(1,1), modis.spec_response{bb}(end,1)];      % nm - midpoint and boundaries for each MODIS band we wish to model
+
+    end
+
+end
+
+
 
 
 % MODIS only considers homogenous plane parallel clouds. Lets construct the
@@ -73,8 +128,11 @@ tau_mat = repmat(inputs.tau_c,length(inputs.re),1);  % we need to run every re a
 % for the write_wc_file function we need to define the wavelength that is
 % used to compute the optical depth. It should be bands 1 3 or 4.
 
-% For now, lets only use MODIS band 1
-lambda_forTau = lambda(1,1);                % nm
+% For now, lets only use the midpoint of MODIS band 1
+lambda_forTau = round((lambda(1,2) - lambda(1,1))/2 + lambda(1,1));                % nm
+
+% define the day of the year and correct the Earth sun distance
+day_of_year = inputs.day_of_year;
 
 
 % ------------------------------------------------------
@@ -149,12 +207,26 @@ inpNames = cell(length(pixel_row), length(re),length(tau_c),length(inputs.bands2
 
 for pp = 1:length(pixel_row)
     
+    % ----- Define the Solar Geometry -------
     sza = modis.solar.zenith(pixel_row(pp),pixel_col(pp));
-    phi0 = modis.solar.azimuth(pixel_row(pp),pixel_col(pp));
+    phi0 = 180 + modis.solar.azimuth(pixel_row(pp),pixel_col(pp));      % degree - this is how we map MODIS azimuth of the sun to the LibRadTran measurement
     
+
+    % ------ Define the Viewing Geometry ------
     % we need the cosine of the zenith viewing angle
-    umu = round(cosd(double(modis.sensor.zenith(pixel_row(pp),pixel_col(pp)))),3); % values are in degrees
-    phi = modis.sensor.azimuth(pixel_row(pp),pixel_col(pp));
+    % positive values solve for upwelling radiance, where the sensor is
+    % defined to be looking down towrads the Earth's surface. negative
+    % values solve for downwelling radiance, where the sensor is looking
+    % upwards towards the sky
+    umu = round(cosd(double(modis.sensor.zenith(pixel_row(pp),pixel_col(pp)))),4); % values are in degrees
+
+    % to properly map the azimuth angle onto the reference plane used by
+    % libRadTran, we need an if statement
+    if modis.sensor.azimuth(r,c)<0
+        phi = 360 + modis.sensor.azimuth(pixel_row(pp),pixel_col(pp));
+    else
+        phi = modis.sensor.azimuth(pixel_row(pp),pixel_col(pp));
+    end
     
     % Modis defines the azimuth viewing angle as [0,180] 
     % and [-180,0], whereas libradtran defines the azimuth
@@ -236,8 +308,12 @@ for pp = 1:length(pixel_row)
                 
                 % Define the location and filename of the extraterrestrial solar source
                 formatSpec = '%s %s %5s %s \n\n';
-                fprintf(fileID, formatSpec,'source solar','../data/solar_flux/kurudz_1.0nm.dat', ' ', '# Bounds between 250 and 10000 nm');
+                fprintf(fileID, formatSpec,'source solar',['../data/solar_flux/',solarFlux_file], ' ', '# Bounds between 250 and 10000 nm');
                 
+                % Define the location and filename of the extraterrestrial solar source
+                formatSpec = '%s %f %5s %s \n\n';
+                fprintf(fileID, formatSpec,'day_of_year', day_of_year, ' ', '# accounts for changing Earth-Sun distance');
+
                 % Define the ozone column
 %                 formatSpec = '%s %s %s %s %5s %s \n';
 %                 fprintf(fileID, formatSpec,'mol_modify','O3', '300.','DU', ' ', '# Set ozone column');
@@ -269,7 +345,7 @@ for pp = 1:length(pixel_row)
                 % Define the wavelengths for which the equation of radiative transfer will
                 % be solve
                 formatSpec = '%s %f %f %5s %s \n\n';
-                fprintf(fileID, formatSpec,'wavelength', lambda(bb,2), lambda(bb,3), ' ', '# Wavelength range');
+                fprintf(fileID, formatSpec,'wavelength', lambda(bb,1), lambda(bb,2), ' ', '# Wavelength range');
                 
                 
                 % Define the sensor altitude
