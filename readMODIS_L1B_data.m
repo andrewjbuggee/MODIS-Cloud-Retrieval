@@ -27,6 +27,20 @@ info = hdfinfo(fileName);
 
 %% --- Read in a data set at a specifc resolution ---
 
+% First, let's grab two global attributes
+% These can be used, along with reflectance, to derive the most precise
+% version of radiance (see page 33 of the MODIS L1B user guide)
+% Let's read in the Earth-Sun distance as a ratio of 1 AU at the middle
+% time of the data granule
+earth_sun_distance = hdfread(fileName, 'Earth-Sun Distance');
+
+% Let's read in the Solar irradiances at 1 AU divided by pi, weighted by a
+% detectors relative spectral response for EACH reflective detector
+% For each of the 15 1km resolution bands, there are 10 detectors
+% For each of the 5 500m resolution bands, there are 20 detectors
+% For each of the 2 250m resolution bands, there are 40 detectors
+weighted_solar_irradiance = hdfread(fileName, 'Solar Irradiance on RSB Detectors over pi');
+
 % Check to see what product we are reading in
 
 if strcmp(fileName(6:8),'QKM')
@@ -116,6 +130,11 @@ elseif strcmp(fileName(6:8),'1KM')
     % --- Radiance scales for the first two bands ---
     radianceScales_250m = info.Vgroup.Vgroup(2).SDS(5).Attributes(6).Value; % output should be a vector with 2 entires for the first two bands
     radianceOffset_250m = info.Vgroup.Vgroup(2).SDS(5).Attributes(7).Value; % output should be a vector with 2 entires for the first two bands
+
+    % --- Radiance Uncertainty scales for the first two bands ---
+    radianceUncertaintyScales_250m = info.Vgroup.Vgroup(2).SDS(6).Attributes(5).Value; % specfied uncertainty for relfectance in the first two bands
+    radianceUncertaintyOffset_250m = info.Vgroup.Vgroup(2).SDS(6).Attributes(6).Value; % specfied uncertainty for relfectance in the first two bands
+
     
     % --- Reflectance scales for the first two bands ---
     reflectanceScales_250m = info.Vgroup.Vgroup(2).SDS(5).Attributes(9).Value; % output should be a vector with 2 entires for the first two bands
@@ -129,6 +148,11 @@ elseif strcmp(fileName(6:8),'1KM')
     % --- Radiance scales for bands 3-7 ---
     radianceScales_500m = info.Vgroup.Vgroup(2).SDS(8).Attributes(6).Value; % output should be a vector with 5 entries for the bands 3-7
     radianceOffsets_500m = info.Vgroup.Vgroup(2).SDS(8).Attributes(7).Value; % output should be a vector with 5 entries for the bands 3-7
+
+
+    % --- Radiance Uncertainty Scales and Offsets for bands 3-7 ---
+    radianceUncertainty_specified_500m = info.Vgroup.Vgroup(2).SDS(9).Attributes(5).Value; % specfied uncertainty for relfectance in the first two bands
+    radianceUncertainty_scale_500m = info.Vgroup.Vgroup(2).SDS(9).Attributes(6).Value; % specfied uncertainty for relfectance in the first two bands
     
     % --- Reflectance scales for bands 3-7 ---
     reflectanceScales_500m = info.Vgroup.Vgroup(2).SDS(8).Attributes(9).Value; % output should be a vector with 5 entries for the bands 3-7

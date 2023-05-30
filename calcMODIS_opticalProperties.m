@@ -23,19 +23,15 @@ clear variables;
 folderName = './MODIS_data/2023_04_13/';
 
 
-[modis,L1B_500m_fileName] = retrieveMODIS_data(folderName);
+[modis,L1B_1km_fileName] = retrieveMODIS_data(folderName);
 
 %% ----- Create a structure defining inputs of the problem -----
 
 % this is a built-in function that is defined at the bottom of this script
-inputs = create_modis_inputs(folderName, L1B_500m_fileName);
+inputs = create_modis_inputs(folderName, L1B_1km_fileName);
 
 disp('Check inputs to make sure they are what you want!!')
 
-%% ----- Read in the Spectral Response Functions for MODIS ----
-
-% first, lets read in the spectral response functions
-modis.spec_response = modis_terra_specResponse_func(inputs.bands2run);
 
 %% ----- Find suitable Pixels! -----
 

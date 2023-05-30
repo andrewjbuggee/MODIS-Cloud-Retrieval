@@ -54,7 +54,7 @@ optThickness17_scales = cloudProp_info.Vgroup.Vgroup(2).SDS(73).Attributes(5).Va
 optThickness17_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(73).Attributes(6).Value;
 
 
-% optical thicknee uncertainty for bands 1 and 7
+% optical thickness uncertainty for bands 1 and 7
 % uncertainties are listed as percents
 optThickness_uncertainty_17_scales = cloudProp_info.Vgroup.Vgroup(2).SDS(94).Attributes(5).Value;
 optThickness_uncertainty_17_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(94).Attributes(6).Value;
@@ -64,7 +64,7 @@ optThickness_uncertainty_17_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(94).Att
 optThickness16_scales = cloudProp_info.Vgroup.Vgroup(2).SDS(75).Attributes(5).Value; %  output will be a cell array
 optThickness16_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(75).Attributes(6).Value;
 
-% optical thicknee uncertainty for bands 1 and 6
+% optical thickness uncertainty for bands 1 and 6
 % uncertainties are listed as percents
 optThickness_uncertainty_16_scales = cloudProp_info.Vgroup.Vgroup(2).SDS(95).Attributes(5).Value;
 optThickness_uncertainty_16_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(95).Attributes(6).Value;
@@ -95,6 +95,22 @@ columnWaterPath_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(83).Attributes(6).V
 
 cloudPhase_scales = cloudProp_info.Vgroup.Vgroup(2).SDS(105).Attributes(5).Value; %  output will be a cell array
 cloudPhase_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(105).Attributes(6).Value;
+
+
+% extract the cloud fraction
+cloudFraction_scales = cloudProp_info.Vgroup.Vgroup(2).SDS(35).Attributes(5).Value; %  output will be a cell array
+cloudFraction_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(35).Attributes(6).Value;
+
+
+% extract the cloud fraction - day time only
+cloudFractionDay_scales = cloudProp_info.Vgroup.Vgroup(2).SDS(39).Attributes(5).Value; %  output will be a cell array
+cloudFractionDay_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(39).Attributes(6).Value;
+
+% extract the above cloud water vapor
+% determined by the 0.94 micron channel
+% only applies to pixels above ocean with an optical thickness greater>5
+aboveCloudWaterVapor_scales = cloudProp_info.Vgroup.Vgroup(2).SDS(103).Attributes(5).Value; %  output will be a cell array
+aboveCloudWaterVapor_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(103).Attributes(6).Value;
 
 
 
@@ -178,6 +194,25 @@ subPix_heteroIndex = hdfread(fileName, 'Cloud_Mask_SPI');
 subPix_heteroIndex_scales = cloudProp_info.Vgroup.Vgroup(2).SDS(118).Attributes(5).Value;
 subPix_heterIndex_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(118).Attributes(6).Value;
 
+
+% extract the cloud fraction data
+% values are listed as a percent between 0 and 100
+cloudFraction = hdfread(fileName, 'Cloud_Fraction');
+
+% extract the cloud fraction data for day time only
+% values are listed as a percent between 0 and 100
+cloudFractionDay = hdfread(fileName, 'Cloud_Fraction_Day');
+
+
+% extract the above cloud water vapor
+% values in units of cm - the column water vapor if condensed to a square
+% cm, this is the height of the column of condensed water
+aboveCloudWaterVapor = hdfread(fileName, 'Above_Cloud_Water_Vapor_094');
+
+
+
+
+
 %% --- Convert Data ---
 
 
@@ -201,6 +236,12 @@ cloud.lwp = scalesOffsets2Matrix(columnWaterPath, columnWaterPath_scales, column
 
 cloud.SPI = scalesOffsets2Matrix(subPix_heteroIndex,subPix_heteroIndex_scales,subPix_heterIndex_offset);
 
+cloud.fraction = scalesOffsets2Matrix(cloudFraction,cloudFraction_scales,cloudFraction_offset);
+
+cloud.fraction_day = scalesOffsets2Matrix(cloudFractionDay,cloudFractionDay_scales,cloudFractionDay_offset);
+
+
+cloud.aboveWaterVaporCol = scalesOffsets2Matrix(aboveCloudWaterVapor,aboveCloudWaterVapor_scales,aboveCloudWaterVapor_offset);
 
 
 %% ---- Convert null results to nan's -----
@@ -218,6 +259,12 @@ cloud.effRadius16(cloud.effRadius16<-99) = nan;
 
 cloud.optThickness17(cloud.optThickness17<-99) = nan;
 cloud.optThickness16(cloud.optThickness16<-99) = nan; 
+
+% Above cloud water vapor is measured in cm and can only be greater than 0.
+% All values less than 0 represent a retrieval for a cloud with an optical
+% thickness less than 5 or a pixel over ocean
+
+cloud.aboveWaterVaporCol(cloud.aboveWaterVaporCol<0) = nan;
 
 
 

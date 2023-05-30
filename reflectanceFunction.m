@@ -1,5 +1,13 @@
 %% ----- CALCULATE THE REFLECTANCE FUNCTION -----
 
+% INPUTS:
+%   (1) inputSettings
+
+%   (2) dataStructure  - output results from uvspec
+
+%   (3) spec_response - spectral response function
+
+
 % OUTPUTS:
 %   (1) R - This is the reflectance over a finite bandwidth. R integrates
 %   the monochromatic reflectance, R_lambda, over the wavelength range
@@ -23,7 +31,7 @@ sensorAlt = inputSettings{6}; % sensor altitude in km
 source = inputSettings{7}; % - mW/(m^2 nm) - source irradiance
 
 % radiative transfer solutions
-wavelength = ds.wavelength;
+wavelength = ds.wavelength;     % nm
 irrad0 = source(:,2); % - mW/(m^2 nm) -  source irradiance
 
 
@@ -40,6 +48,8 @@ geomSets = length(mu)*length(phi);
 % viewing azimuth and viewing zenith angle for a given file. So we will
 % create a 3D array that varies these three parameters per file
 
+% ***** Radiance has units of mW/m^2/nm/sr *****
+
 R_lambda = zeros(length(wavelength),geomSets); % phi (azimuth) changes first, then mu (cos(sza))
 R = zeros(length(mu),length(phi));
 % if there is a single monochromatic wavelength then we don't need to
@@ -48,7 +58,7 @@ if length(wavelength)==1
     
     for ii = 1:geomSets
         
-        R_lambda(ii) = pi*ds.radiance(ii).rad_umu_phi./(mu0*irrad0); % - 1/sr - reflectance function for monochromatic calculation
+        R_lambda(ii) = pi*ds.radiance(ii).value./(mu0*irrad0); % - 1/sr - reflectance function for monochromatic calculation
         
     end
     
@@ -58,7 +68,7 @@ elseif length(wavelength)>1
         
         % First calculate the reflectance function at each discrete
         % wavelength within the wavelength band
-        R_lambda(:,ii) = pi*ds.radiance(ii).rad_umu_phi./(mu0*irrad0); % - 1/sr/nm - reflectance function for monochromatic calculation
+        R_lambda(:,ii) = pi*ds.radiance(ii).value./(mu0*irrad0); % - 1/sr/nm - reflectance function for monochromatic calculation
         R(ii) = trapz(wavelength,R_lambda(:,ii).*spec_response.*irrad0)./trapz(wavelength,spec_response.*irrad0); % - 1/sr - reflectance function over a finite bandwidth
         
     end

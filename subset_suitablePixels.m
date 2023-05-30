@@ -18,14 +18,21 @@ load(suitablePixels_fileName,'pixels');
 re_mask = modis.cloud.effRadius17(pixels.res1km.index)<=max(inputs.re);
 tau_mask  = modis.cloud.optThickness17(pixels.res1km.index)<=max(inputs.tau_c);
 
-combined_mask = logical(re_mask.*tau_mask);
+% ---------- Only use Pixels with <10% uncertainty in retrieval ------
+re_uncert_mask = modis.cloud.effRad_uncert_17(pixels.res1km.index)<=10;
+tau_uncert_mask = modis.cloud.optThickness_uncert_17(pixels.res1km.index)<=10;
 
-% find the overlap
-index = find(combined_mask);
+combined_mask = re_mask & tau_mask & re_uncert_mask & tau_uncert_mask;
 
-% convert this to the indicies we started with. Which pixels that were
-% found in suitable_pixels also meet to requirements above?
-index_suit_pix = pixels.res1km.index(index);
+% % find the index value of all the ones!
+% index = find(combined_mask);
+% 
+% % convert this to the indicies we started with. Which pixels that were
+% % found in suitable_pixels also meet to requirements above?
+% index_suit_pix = pixels.res1km.index(index);
+
+index_suit_pix = pixels.res1km.index(combined_mask);
+
 
 [row, col] = ind2sub(pixels.res1km.size, index_suit_pix);
 
@@ -39,19 +46,19 @@ pixels_available.res1km.col = col;
 % is what we will use. We only use the 500 meter resolution pixel locaiton
 % to show which pixels in the EV data set we used.
 
-numSuitablePixels = length(pixels_available.res1km.row);
+numSuitablePixels = length(pixels_available.res1km.index);
 
 
 if numSuitablePixels > numPixels2Calculate
     
-    rand_indices = randi(numSuitablePixels,numPixels2Calculate,1); % generate random numbers to choose pixels
+    rand_indices = randi([1, numSuitablePixels],numPixels2Calculate,1); % generate random numbers to choose pixels
     
     pixels2use.res1km.row = pixels_available.res1km.row(rand_indices); % row positions
     pixels2use.res1km.col = pixels_available.res1km.col(rand_indices); % column positions
     
     
 
-    pixels2use.res1km.size = pixels_available.res1km.size;
+    pixels2use.res1km.size = [size(modis.EV1km.radiance(:,:,1),1), size(modis.EV1km.radiance(:,:,1),2)];
     %pixels2use.res500m.size = pixels.res500m.size;
     
     % lets map 1 km pixels to 500 meter pixels location

@@ -18,7 +18,7 @@ load('/Users/anbu8374/Documents/MATLAB/HyperSpectral_Cloud_Retrieval/MODIS_Cloud
 n_pixels = 300;
 
 % --- We only want pixles with a droplet size less than 25 ---
-index_25 = modis.cloud.effRadius17(pixels.res1km.index)<25;
+index_25 = modis.cloud.effRadius17(pixels.res1km.index)<25 & modis.cloud.effRad_uncert_17(pixels.res1km.index)<=10;
 % --- Let's only look at pixels within a narrow reflectance range ---
 % modis_reflectance = modis.EV1km.reflectance(:, :, 1);
 % index_refl = modis_reflectance(pixels.res1km.index)>=0.24 & modis_reflectance(pixels.res1km.index)<=0.26;
@@ -35,21 +35,71 @@ clear('pixels');
 %% Define the parameters of the INP file
 
 
+% Define the MODIs spectral band you wish to run
+% ------------------------------------------------------------------------
+band_num = 1;
+% ------------------------------------------------------------------------
+
+
+
 % Define the number of streams to use in your radiative transfer model
 num_streams = 16;
 % ------------------------------------------------------------------------
 
 
+
+% Define the spectral response function
+% ------------------------------------------------------------------------
+spec_response = modis_terra_specResponse_func(band_num);
+
+
+% Trying a different spectral response function  - 05/26/2023
+
+
+% file_id = fopen(['/Users/anbu8374/Documents/LibRadTran/libRadtran-2.0.4/data/filter/modis/',...
+%     'modis_terra_b07'], 'r');   % 'r' tells the function to open the file for reading
+% 
+% format_spec = '%f %f';                                  % two floating point numbers
+% spec_resp = textscan(file_id, format_spec, 'Delimiter',' ',...
+% 'MultipleDelimsAsOne',1, 'CommentStyle','#');
+% 
+% % wavelength grid needs to step in intervals of 1nm
+% spec_response{1}(:,1) = ceil(spec_resp{1}(1)):1:floor(spec_resp{1}(end));
+% spec_response{1}(:,2) = interp1(spec_resp{1}, spec_resp{2}, spec_response{1}(:,1));
+% ------------------------------------------------------------------------
+% ------------------------------------------------------------------------
+
+
+
+
 % define the wavelength range. If monochromatic, enter the same number
 % twice
-band1 = modisBands(1);
-wavelength = [band1(2), band1(3)];              % nm - monochromatic wavelength calcualtion
+% ------------------------------------------------------------------------
+% band7 = modisBands(band_num);
+% wavelength = [band7(2), band7(3)];              % nm - monochromatic wavelength calcualtion
+wavelength = [spec_response{1}(1,1), spec_response{1}(end,1)];
 
 
 % ------------------------------------------------------------------------
 % --- Do you want to use the Nakajima and Tanka radiance correction? -----
 use_nakajima_phaseCorrection = true;
 % ------------------------------------------------------------------------
+
+
+% ------------------------------------------------------------------------
+% ----------------- What band model do you want to use? ------------------
+
+% reptran coarse is the default
+% if using reptran, provide one of the following: coarse (default), medium
+% or fine
+band_parameterization = 'reptran coarse';
+%band_parameterization = 'reptran_channel modis_terra_b07';
+% ------------------------------------------------------------------------
+
+
+% Define the source file
+source_file = '../data/solar_flux/kurudz_1.0nm.dat';
+%source_file = '';
 
 % define the atmospheric data file
 atm_file = 'afglus.dat';
@@ -71,7 +121,7 @@ use_MODIS_cloudTopHeight = true;
 yesCloud = true;
 
 % ---- Do you want a linear adjustment to the cloud pixel fraction? ------
-linear_cloudFraction = true;
+linear_cloudFraction = false;
 % if false, define the cloud cover percentage
 cloud_cover = 1;
 % ------------------------------------------------------------------------
@@ -92,8 +142,9 @@ vert_homogeneous_str = 'vert-homogeneous';
 % define how liquid water content will be computed
 parameterization_str = 'mie';
 
-% define the wavelength used for the optical depth
-lambda_forTau = (wavelength(2) - wavelength(1))/2 + wavelength(1);            % nm
+% define the wavelength used for the optical depth as the 650 nm
+band1 = modisBands(1);
+lambda_forTau = band1(1);            % nm
 
 
 
@@ -127,6 +178,14 @@ aerosol_opticalDepth = 0.1;     % MODIS algorithm always set to 0.1
 
 
 
+% --------------------------------------------------------------
+% --- Do you want to uvSpec to compute reflectivity for you? ---
+compute_reflectivity_uvSpec = false;
+% --------------------------------------------------------------
+
+
+
+
 
 
 
@@ -143,6 +202,9 @@ wc_filename = cell(1, length(idx));
 % save the modis droplet size and optical depth
 re = zeros(1, length(idx));
 tau_c = zeros(1, length(idx));
+
+% save the solar zenith angle
+sza = zeros(1, length(idx));
 
 % save the cloud cover percentage
 percent_cloud_cover = zeros(1, length(idx));
@@ -240,6 +302,13 @@ for nn = 1:length(idx)
     end
 
 
+    % Define the band model to use
+    % of radiative transfer
+    % ------------------------------------------------
+    formatSpec = '%s %s %5s %s \n\n';
+    fprintf(fileID, formatSpec,'mol_abs_param', band_parameterization,' ', '# Band model');
+
+
     % Define the location and filename of the atmopsheric profile to use
     % ------------------------------------------------
     formatSpec = '%s %5s %s \n';
@@ -248,7 +317,7 @@ for nn = 1:length(idx)
     % Define the location and filename of the extraterrestrial solar source
     % ---------------------------------------------------------------------
     formatSpec = '%s %s %5s %s \n\n';
-    fprintf(fileID, formatSpec,'source solar','../data/solar_flux/kurudz_1.0nm.dat', ' ', '# Bounds between 250 and 10000 nm');
+    fprintf(fileID, formatSpec,'source solar', source_file, ' ', '# Bounds between 250 and 10000 nm');
 
 
     % Define the location and filename of the extraterrestrial solar source
@@ -289,7 +358,7 @@ for nn = 1:length(idx)
         % This is a number between 0 and 1
         % ------------------------------------------------
         if linear_cloudFraction==true
-            percent_cloud_cover(nn) = -0.1082 * modis.EV1km.reflectance(row(nn), col(nn),1) + 0.92164;      % custom linear fit 1 (seventh pass figure)
+            %percent_cloud_cover(nn) = -0.1082 * modis.EV1km.reflectance(row(nn), col(nn),1) + 0.92164;      % custom linear fit 1 (seventh pass figure)
             percent_cloud_cover(nn) = (0.89 - 0.8459)/(0.2 - 0.7) * modis.EV1km.reflectance(row(nn), col(nn),1) +...
                                         (0.8459 - 0.7*(0.89 - 0.8459)/(0.2 - 0.7));      % custom linear fit 2 (Ninth pass figure)
         else
@@ -307,11 +376,15 @@ for nn = 1:length(idx)
 
     end
 
+
+
     % Define the wavelengths for which the equation of radiative transfer will
     % be solve
     % -------------------------------------------------------------------------
     formatSpec = '%s %f %f %5s %s \n\n';
     fprintf(fileID, formatSpec,'wavelength', wavelength(1), wavelength(2), ' ', '# Wavelength range');
+
+
 
 
     if use_coxMunk==true
@@ -362,9 +435,9 @@ for nn = 1:length(idx)
     % Define the solar zenith angle
     % ------------------------------------------------
     % define the solar zenith angle
-    sza = modis.solar.zenith(row(nn),col(nn));           % degree
+    sza(nn) = modis.solar.zenith(row(nn),col(nn));           % degree
     formatSpec = '%s %f %5s %s \n';
-    fprintf(fileID, formatSpec,'sza', sza, ' ', '# Solar zenith angle');
+    fprintf(fileID, formatSpec,'sza', sza(nn), ' ', '# Solar zenith angle');
 
     % Define the solar azimuth angle
     % -------------------------------------------------------
@@ -394,6 +467,24 @@ for nn = 1:length(idx)
     fprintf(fileID, formatSpec,'phi', vaz, ' ', '# Azimuthal viewing angle');
 
 
+    
+    if compute_reflectivity_uvSpec==true
+        % Set the output quantity to be reflectivity
+        % ------------------------------------------------
+        formatSpec = '%s %s %5s %s \n\n';
+        fprintf(fileID, formatSpec,'output_quantity', 'reflectivity', ' ', '# Output is reflectance');
+    end
+
+
+%     % Set the outputs
+%     % ------------------------------------------------
+%     formatSpec = '%s %s %5s %s \n\n';
+%     fprintf(fileID, formatSpec,'output_user', 'lambda edir edn eup uavgdir uavgdn uavgup uu', ' ', '# Output quantities');
+
+
+
+
+
     % Set the error message to quiet of verbose
     % ------------------------------------------------
     formatSpec = '%s';
@@ -412,15 +503,22 @@ end
 
 %% Run INP files
 
+L_model = zeros(numel(spec_response{1}(:,1)), length(idx));
 R_model = zeros(1, length(idx));
+
 R_modis = zeros(1, length(idx));
-uncertainty = zeros(1, length(idx));
+L_modis = zeros(1, length(idx));
+R_uncertainty = zeros(1, length(idx));
+%L_uncertainty = zeros(1, length(idx));
 
 % store the modis reflectance and uncertainties in a standalone array to
 % avoid unecessary communication during the parallel for loop
 
-modis_reflectance = modis.EV1km.reflectance(:, :, 1);
-modis_reflectance_uncertainty = modis.EV1km.reflectanceUncert(:,:,1);
+modis_reflectance = modis.EV1km.reflectance(:, :, band_num);
+modis_reflectance_uncertainty = modis.EV1km.reflectanceUncert(:,:,band_num);
+
+modis_radiance = modis.EV1km.radiance(:, :, band_num);
+%modis_radiance_uncertainty = modis.EV1km.radiance(:,:,band_num);
 
 tic
 parfor nn = 1:length(idx)
@@ -429,16 +527,31 @@ parfor nn = 1:length(idx)
      R_modis(nn) =  modis_reflectance(row(nn), col(nn));
 
      % store the MODIS reflectance uncertainty
-     uncertainty(nn) = 0.01*modis_reflectance_uncertainty(row(nn), col(nn)) *  R_modis(nn);
+     R_uncertainty(nn) = 0.01*modis_reflectance_uncertainty(row(nn), col(nn)) *  R_modis(nn);
+
+    % Store the modis radiance value
+     L_modis(nn) =  modis_radiance(row(nn), col(nn));
+
+     % store the MODIS reflectance uncertainty
+     %L_uncertainty(nn) = 0.01*modis_reflectance_uncertainty(row(nn), col(nn)) *  R_modis(nn);
 
     % compute INP file
     [inputSettings] = runUVSPEC(folder2save,inputName{nn},outputName{nn});
 
     % read .OUT file
-    [ds,~,~] = readUVSPEC(folder2save,outputName{nn},inputSettings(2,:));
+    [ds,~,~] = readUVSPEC(folder2save,outputName{nn},inputSettings(2,:), compute_reflectivity_uvSpec);
 
-    % save reflectance
-    R_model(nn) = reflectanceFunction(inputSettings(2,:), ds, ones(length(ds.wavelength),1));
+    if compute_reflectivity_uvSpec==false
+        % save reflectance
+        R_model(nn) = reflectanceFunction(inputSettings(2,:), ds, spec_response{1}(:,2));
+
+    else
+
+        R_model(nn) = ds.reflectivity.value;
+    end
+
+    % save the radiance calculation 
+    L_model(:,nn) = ds.radiance.value;          % (mW/m^2/nm/sr) - 
 
 end
 toc
@@ -484,13 +597,18 @@ axis square
 
 
 
-%% Sub Plot comparing modeled and measured reflectance, re, tau_c, and a histogram
+%% Sub Plot comparing modeled and measured REFLECTANCE, re, tau_c, and a histogram
 
 label_fontSize = 20;
 % ------------------------ SUBPLOT 1 ----------------------------------
 % First make a scatter plot comparing the modeled and measured
 % reflectance and have the color of each marker represent the retrieved
 % droplet size
+% ---------------------------------------------------------------------
+
+% ---------------------------------------------------------------------
+% Is the MODIS reflectance not divided by cos(solar zenith angle)??
+R_modis = R_modis./cosd(double(sza));
 % ---------------------------------------------------------------------
 
 
@@ -522,7 +640,7 @@ hold on
 
 for nn = 1:length(re_sort)
     
-   errorbar(R_model(idx_sort(nn)), R_modis(idx_sort(nn)), uncertainty(idx_sort(nn)),'vertical','Marker','.','Color',C(nn,:),'MarkerSize',25)
+   errorbar(R_model(idx_sort(nn)), R_modis(idx_sort(nn)), R_uncertainty(idx_sort(nn)),'vertical','Marker','.','Color',C(nn,:),'MarkerSize',25)
 
    hold on
 
@@ -567,7 +685,7 @@ hold on
 
 for nn = 1:length(tau_c_sort)
     
-   errorbar(R_model(idx_sort(nn)), R_modis(idx_sort(nn)), uncertainty(idx_sort(nn)),'vertical','Marker','.','Color',C(nn,:),'MarkerSize',25)
+   errorbar(R_model(idx_sort(nn)), R_modis(idx_sort(nn)), R_uncertainty(idx_sort(nn)),'vertical','Marker','.','Color',C(nn,:),'MarkerSize',25)
 
    hold on
 
@@ -588,6 +706,20 @@ ylim([x_r(1), x_r(end)])
 xlabel('My Estimate of Reflectance $(1/sr)$','Interpreter','latex', 'FontSize',label_fontSize)
 ylabel('MODIS Measured Reflectance $(1/sr)$','Interpreter','latex', 'FontSize',label_fontSize)
 axis square
+
+% inset title
+if linear_cloudFraction==false
+    title(['Band ', num2str(band_num), ' - X pass: ', num2str(n_pixels), ' pixels, ', num2str(num_streams), ' streams, ',...
+        distribution_str, ' droplet distribution, cloud cover = ',num2str(cloud_cover), newline,...
+        'used ',band_parameterization, ' band model']);
+
+else
+    title(['Band ', num2str(band_num), ' - X pass: ', num2str(n_pixels), ' pixels', num2str(num_streams), ' streams',...
+        distribution_str, ' droplet distribution, linear function to define cloud cover ', newline,...
+        'used ',band_parameterization, ' band model']);
+
+end
+
 
 
 
@@ -619,5 +751,203 @@ xline(mode_val,'Label',['W-Mean = ',num2str(round(avg_weighted,2))], 'FontSize',
 hold on; grid on; grid minor
 
 xlabel('$\frac{R_{est}}{R_{modis}}$','Interpreter','latex', 'FontSize',30)
+ylabel('Counts','Interpreter','latex', 'FontSize',label_fontSize)
+axis square
+
+
+
+
+
+
+%% Sub Plot comparing modeled and measured radiance, re, tau_c, and a histogram
+
+label_fontSize = 20;
+% ------------------------ SUBPLOT 1 ----------------------------------
+% First make a scatter plot comparing the modeled and measured
+% reflectance and have the color of each marker represent the retrieved
+% droplet size
+% ---------------------------------------------------------------------
+
+
+
+L_int = zeros(1, n_pixels);
+
+for nn = 1:n_pixels
+    % L_model has units of W/m^2/micron/sr
+
+    % units of W/m^2/sr
+%     L_int(nn) = trapz(spec_response{1}(:,1)./1e3, L_model(:,nn) .* spec_response{1}(:,2));
+
+    % units of mW/m^2/nm/sr (same as W/m^2/micron/sr)
+%     L_int(nn) = trapz(spec_response{1}(:,1), L_model(:,nn) .* spec_response{1}(:,2))/...
+%                 ((spec_response{1}(end,1) - spec_response{1}(1,1)));
+
+    
+    % Perfect Spectral Response Function
+    % units of mW/m^2/nm/sr (same as W/m^2/micron/sr)
+    L_int(nn) = trapz(spec_response{1}(:,1), L_model(:,nn) .* ones(numel(spec_response{1}(:,2)),1))/...
+                ((spec_response{1}(end,1) - spec_response{1}(1,1)));
+
+    % Using just the bands listed on their website for band 7 (2105 -
+    % 2155)nm
+    % units of mW/m^2/nm/sr (same as W/m^2/micron/sr)
+%     L_int(nn) = trapz(spec_response{1}(48:end-20,1), L_model(48:end-20,nn) .* spec_response{1}(48:end-20,2))/...
+%                 ((spec_response{1}(end-20,1) - spec_response{1}(48,1)));
+
+
+    % Correcting the channel radiance for band 1
+%     L_int(nn) = trapz(spec_response{1}(:,1), L_model(:,nn) .* spec_response{1}(:,2))/...
+%                 (50);
+
+
+    
+
+%     L_int(nn) = trapz(spec_response2.wl./1e3, L_model(:,nn) .* spec_response2.val)/...
+%                 ((spec_response2.wl(1) - spec_response2.wl(end))/1e3);
+end
+
+
+
+
+
+% create 1 to 1 line
+% find the minimum and maximum values to create a y=x line
+
+min_L_est = min(L_int);
+min_L_modis = min(L_modis);
+
+max_L_est = max(L_int);
+max_L_modis = max(L_modis);
+
+min_L_global = min([min_L_est,min_L_modis]);
+
+max_L_global = max([max_L_est,max_L_modis]);
+
+x_r = linspace((0.9 * min_L_global),(1.1*max_L_global),150);
+
+% Lets define the color of each marker to be associated with the droplet
+% size
+% set the number of colors to be the length of the data to plot
+C = colormap(parula(length(L_int)));
+% sort the droplet size values
+[re_sort, idx_sort] = sort(re, 'ascend');
+
+figure; subplot(1,3,1)
+plot(x_r, x_r, 'k', 'LineWidth',1)
+hold on
+
+for nn = 1:length(re_sort)
+    
+   plot(L_int(idx_sort(nn)), L_modis(idx_sort(nn)),'Marker','.','Color',C(nn,:),'MarkerSize',25)
+
+   hold on
+
+end
+
+% set the colorbar limits
+% set the limits of the colormap to be the min and max value
+cb = colorbar;
+clim([min(re), max(re)]);
+% set colorbar title
+cb.Label.String = '$r_e$ ($\mu m$)';
+cb.Label.Interpreter = 'latex';
+cb.Label.FontSize = 25;
+
+hold on; grid on; grid minor
+xlim([x_r(1), x_r(end)])
+ylim([x_r(1), x_r(end)])
+xlabel('Radiance Estimate $(W/m^2/\mu m/sr)$','Interpreter','latex', 'FontSize',label_fontSize)
+ylabel('MODIS Measured Radiance $(W/m^2/\mu m/sr)$','Interpreter','latex', 'FontSize',label_fontSize)
+set(gcf, 'Position', [0 0 1800 900])
+axis square
+
+
+% ------------------------ SUBPLOT 2 ----------------------------------
+% Next make a scatter plot comparing the modeled and measured
+% reflectance and have the color of each marker represent the retrieved
+% optical depth
+% ---------------------------------------------------------------------
+
+
+
+% Lets define the color of each marker to be associated with the droplet
+% size
+% set the number of colors to be the length of the data to plot
+C = colormap(parula(length(tau_c)));
+% sort the droplet size values
+[tau_c_sort, idx_sort] = sort(tau_c, 'ascend');
+
+subplot(1,3,2)
+plot(x_r, x_r, 'k', 'LineWidth',1)
+hold on
+
+for nn = 1:length(tau_c_sort)
+    
+   plot(L_int(idx_sort(nn)), L_modis(idx_sort(nn)),'Marker','.','Color',C(nn,:),'MarkerSize',25)
+
+   hold on
+
+end
+
+% set the colorbar limits
+% set the limits of the colormap to be the min and max value
+cb = colorbar;
+clim([min(tau_c), max(tau_c)]);
+% set colorbar title
+cb.Label.String = '$\tau_c$ ($\mu m$)';
+cb.Label.Interpreter = 'latex';
+cb.Label.FontSize = 25;
+
+hold on; grid on; grid minor
+xlim([x_r(1), x_r(end)])
+ylim([x_r(1), x_r(end)])
+xlabel('Radiance Estimate $(W/m^2/\mu m/sr)$','Interpreter','latex', 'FontSize',label_fontSize)
+ylabel('MODIS Measured Radiance $(W/m^2/\mu m/sr)$','Interpreter','latex', 'FontSize',label_fontSize)
+axis square
+
+% inset title
+if linear_cloudFraction==false
+    title(['Band ', num2str(band_num), ' - X pass: ', num2str(n_pixels), ' pixels, ', num2str(num_streams), ' streams, ',...
+        distribution_str, ' droplet distribution, cloud cover = ',num2str(cloud_cover), newline,...
+        'used ',band_parameterization, ' band model']);
+
+else
+    title(['Band ', num2str(band_num), ' - X pass: ', num2str(n_pixels), ' pixels', num2str(num_streams), ' streams',...
+        distribution_str, ' droplet distribution, linear function to define cloud cover ', newline,...
+        'used ',band_parameterization, ' band model']);
+
+end
+
+
+
+
+% ------------------------ SUBPLOT 3 ----------------------------------
+% Make a histogram of the ratio between my reflectance estiamte and the
+% true measured reflectance
+% ---------------------------------------------------------------------
+
+
+subplot(1,3,3)
+
+h = histogram(L_int./L_modis, 'NumBins',50);
+% find the bin with the most counts - the mode
+[max_count, idx_max] = max(h.BinCounts);
+mode_val = h.BinEdges(idx_max) + h.BinWidth/2;
+% let's also compute the weighted average
+avg_weighted = sum((h.BinCounts./sum(h.BinCounts)) .* (h.BinEdges(1:end-1) + h.BinWidth/2))...
+                / sum((h.BinCounts./sum(h.BinCounts)));
+
+
+hold on
+% Plot the modal value
+% xline(mode_val,'Label',['Mode = ',num2str(round(mode_val,2))], 'FontSize', 15,...
+%     'LineWidth',1)
+% Plot the weighted average
+xline(mode_val,'Label',['W-Mean = ',num2str(round(avg_weighted,2))], 'FontSize', 17,...
+    'LineWidth',1.5, 'FontWeight','bold', 'LabelVerticalAlignment','bottom')
+
+hold on; grid on; grid minor
+
+xlabel('$\frac{L_{est}}{L_{modis}}$','Interpreter','latex', 'FontSize',30)
 ylabel('Counts','Interpreter','latex', 'FontSize',label_fontSize)
 axis square

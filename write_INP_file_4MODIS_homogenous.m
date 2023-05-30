@@ -53,6 +53,15 @@ else
 end
 
 
+% Define the parameterization scheme used to comptue the optical quantities
+if inputs.RT.use_custom_mie_calcs==false
+    wc_parameterization = 'mie interpolate';
+else
+    %wc_parameterization = '../data/wc/mie/wc.mie_test.cdf interpolate';
+    wc_parameterization = '../data/wc/mie/wc.mie_test2_more_nmom.cdf interpolate';
+end
+
+
 
 % for each spectral bin, we have an image on the ground composed of 2030 *
 % 1354 pixels. The swath on the ground is large enough that the solar

@@ -96,6 +96,92 @@ inputs.flags.runUVSPEC = true; % if true, this will run all of the inp files cre
 inputs.flags.plotMLS_figures = false; % this will tell the leasSquaresGridSearch code to plot the 
 
 
+
+
+
+% ------------------------------------------------------
+% ----- Define Radiative Transfer Model Parameters -----
+% ------------------------------------------------------
+
+
+% Define the number of streams to use in your radiative transfer model
+inputs.RT.num_streams = 16;
+% ------------------------------------------------------------------------
+
+
+% ------------------------------------------------------------------------
+% --- Do you want to use the Nakajima and Tanka radiance correction? -----
+inputs.RT.use_nakajima_phaseCorrection = true;
+% ------------------------------------------------------------------------
+
+% define the atmospheric data file
+inputs.RT.atm_file = 'afglus.dat';
+
+% define the surface albedo
+inputs.RT.albedo = 0.05;
+
+% day of the year
+inputs.RT.day_of_year = str2double(L1B_fileNames{1}(15:17));
+
+
+
+
+% ------------------------------------------------------------------------
+% -------------- Do you want a cloud in your model? ----------------------
+inputs.RT.yesCloud = true;
+
+% ---- Do you want a linear adjustment to the cloud pixel fraction? ------
+inputs.RT.linear_cloudFraction = true;
+% if false, define the cloud cover percentage
+inputs.RT.cloud_cover = 1;
+% ------------------------------------------------------------------------
+
+% ------------------------------------------------------------------------
+% ------ Do you want to use the MODIS cloud top height estimate? ---------
+inputs.RT.use_MODIS_cloudTopHeight = true;
+% ------------------------------------------------------------------------
+
+
+% ------------------------------------------------------------------------
+% ---------- Do you want use your custom mie calculation file? -----------
+inputs.RT.use_custom_mie_calcs = false;
+% ------------------------------------------------------------------------
+
+
+% define the type of droplet distribution
+inputs.RT.drop_distribution_str = 'gamma';
+% define the distribution varaince
+inputs.RT.drop_distribution_var = 10;
+% define whether this is a vertically homogenous cloud or not
+inputs.RT.vert_homogeneous_str = 'vert-homogeneous';
+% define how liquid water content will be computed
+inputs.RT.parameterization_str = 'mie';
+
+
+
+% --------------------------------------------------------------
+% --------------------------------------------------------------
+
+
+
+% --------------------------------------------------------------
+% --- Do you want to use the Cox-Munk Ocean Surface Model? -----
+inputs.RT.use_coxMunk = true;
+inputs.RT.wind_speed = 3;             % m/s
+% --------------------------------------------------------------
+
+
+% ------------------------------------------------------------------------
+% --------- Do you want boundary layer aerosols in your model? -----------
+inputs.RT.yesAerosols = true;
+
+inputs.RT.aerosol_type = 4;               % 4 = maritime aerosols
+inputs.RT.aerosol_opticalDepth = 0.1;     % MODIS algorithm always set to 0.1
+% ------------------------------------------------------------------------
+
+
+
+
 % -------------------------------------------------
 % ----- Stuff for writing water cloud files! -----
 % -------------------------------------------------
