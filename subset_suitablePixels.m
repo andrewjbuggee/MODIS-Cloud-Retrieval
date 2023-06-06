@@ -14,15 +14,27 @@ numPixels2Calculate = inputs.pixels.num_2calculate; % number of pixels to use in
 
 load(suitablePixels_fileName,'pixels');
 
-% ---------- Only use Pixels within mie_interpolate range ------
-re_mask = modis.cloud.effRadius17(pixels.res1km.index)<=max(inputs.re);
-tau_mask  = modis.cloud.optThickness17(pixels.res1km.index)<=max(inputs.tau_c);
+if inputs.RT.use_custom_mie_calcs==false
+    % ---------- Only use Pixels within mie_interpolate range ------
+    % These ranges are listed in the pre-computed mie table from
+    % libradtran.org
+    re_mask = modis.cloud.effRadius17(pixels.res1km.index)>1 & modis.cloud.effRadius17(pixels.res1km.index)<25;
+    tau_mask  = modis.cloud.optThickness17(pixels.res1km.index)>1 & modis.cloud.optThickness17(pixels.res1km.index)<80;
+else
+    error([newline, 'I dont know what range to use for re',newline])
+end
 
 % ---------- Only use Pixels with <10% uncertainty in retrieval ------
-re_uncert_mask = modis.cloud.effRad_uncert_17(pixels.res1km.index)<=10;
-tau_uncert_mask = modis.cloud.optThickness_uncert_17(pixels.res1km.index)<=10;
+re_uncert_mask = modis.cloud.effRad_uncert_17(pixels.res1km.index)<10;
+tau_uncert_mask = modis.cloud.optThickness_uncert_17(pixels.res1km.index)<10;
 
-combined_mask = re_mask & tau_mask & re_uncert_mask & tau_uncert_mask;
+
+% ---------- Apply any additional tau_c constraints ------
+tau_limit_mask = modis.cloud.optThickness17(pixels.res1km.index)>inputs.pixels.tauThreshold;
+
+
+
+combined_mask = re_mask & tau_mask & re_uncert_mask & tau_uncert_mask & tau_limit_mask;
 
 % % find the index value of all the ones!
 % index = find(combined_mask);

@@ -1,7 +1,7 @@
 %% ----- read the spectral response function -----
 
 % Response functions are stored in the rich text file (.rtf) labeled
-% 'modis_spectral_response_func.rtf'
+% 'modis_terra_spectral_response_func.txt'
 
 % This file contains the spectral response functions below 3 microns
 
@@ -17,7 +17,7 @@
 
 %%
 
-function spec_response = modis_terra_specResponse_func(band_number, wavelength_resolution)
+function spec_response = modis_aqua_specResponse_func(band_number, wavelength_resolution)
 
 % Check inputs 
 
@@ -39,7 +39,7 @@ function spec_response = modis_terra_specResponse_func(band_number, wavelength_r
     
 
 % define the filename
-filename = 'modis_terra_spectral_response_func.txt';
+filename = 'modis_aqua_spectral_response_func.txt';
 
 % determine the file formatting properties
 file_prop = detectImportOptions(filename);

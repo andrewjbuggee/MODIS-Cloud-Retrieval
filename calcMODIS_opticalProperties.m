@@ -68,7 +68,7 @@ elseif pixels_file_flag == true && inputs.flags.loadPixelSet == false
 
 elseif pixels_file_flag == true && inputs.flags.loadPixelSet == true
     
-    load('uvspec_CALCS_23-Nov-2021.mat','pixels2use');  
+    error([newline, 'I dont know what you want me to do', newline]);  
 end
 
 %% Plot MODIS measured relfectance at 650nm with selected pixels
@@ -119,12 +119,12 @@ if inputs.flags.runUVSPEC == true
     % 1st output - R is the reflectance integrated over a bandwidth
     % 2nd output - Rl is the reflectance at each spectral bin
     tic
-    [R,~] = runReflectanceFunction(inputs,names, modis.spec_response);
+    [R,~] = runReflectanceFunction(inputs,names, inputs.spec_response);
     toc
     
 elseif inputs.flags.runUVSPEC == false
     
-    load('uvspec_CALCS_23-Nov-2021.mat','inputs','R');
+    load([inputs.savedCalculations_folderName,inputs.saveCalculations_fileName] ,'inputs','R');
     
 end
 %% ----- Compute the Reflectance Function for the MODIS Observations -----

@@ -15,7 +15,7 @@ modisFolder = '/Users/anbu8374/Documents/MATLAB/HyperSpectral_Cloud_Retrieval/MO
 % Grab n random pixels from the suitablePixels mat file
 load('/Users/anbu8374/Documents/MATLAB/HyperSpectral_Cloud_Retrieval/MODIS_Cloud_Retrieval/MODIS_data/2023_04_13/suitablePixels.mat', 'pixels')
 
-n_pixels = 300;
+n_pixels = 50;
 
 % --- We only want pixles with a droplet size less than 25 ---
 index_25 = modis.cloud.effRadius17(pixels.res1km.index)<25 & modis.cloud.effRad_uncert_17(pixels.res1km.index)<=10;
@@ -37,7 +37,7 @@ clear('pixels');
 
 % Define the MODIs spectral band you wish to run
 % ------------------------------------------------------------------------
-band_num = 1;
+band_num = 7;
 % ------------------------------------------------------------------------
 
 
@@ -47,29 +47,16 @@ num_streams = 16;
 % ------------------------------------------------------------------------
 
 
+% Define the source file
+%source_file = '../data/solar_flux/lasp_TSIS1_hybrid_solar_reference_p01nm_resolution.dat';
+source_file = '../data/solar_flux/kurudz_0.1nm.dat';
+source_file_resolution = 0.1;           % nm
+
+
 
 % Define the spectral response function
 % ------------------------------------------------------------------------
-spec_response = modis_terra_specResponse_func(band_num);
-
-
-% Trying a different spectral response function  - 05/26/2023
-
-
-% file_id = fopen(['/Users/anbu8374/Documents/LibRadTran/libRadtran-2.0.4/data/filter/modis/',...
-%     'modis_terra_b07'], 'r');   % 'r' tells the function to open the file for reading
-% 
-% format_spec = '%f %f';                                  % two floating point numbers
-% spec_resp = textscan(file_id, format_spec, 'Delimiter',' ',...
-% 'MultipleDelimsAsOne',1, 'CommentStyle','#');
-% 
-% % wavelength grid needs to step in intervals of 1nm
-% spec_response{1}(:,1) = ceil(spec_resp{1}(1)):1:floor(spec_resp{1}(end));
-% spec_response{1}(:,2) = interp1(spec_resp{1}, spec_resp{2}, spec_response{1}(:,1));
-% ------------------------------------------------------------------------
-% ------------------------------------------------------------------------
-
-
+spec_response = modis_terra_specResponse_func(band_num, source_file_resolution);
 
 
 % define the wavelength range. If monochromatic, enter the same number
@@ -97,9 +84,7 @@ band_parameterization = 'reptran coarse';
 % ------------------------------------------------------------------------
 
 
-% Define the source file
-source_file = '../data/solar_flux/kurudz_1.0nm.dat';
-%source_file = '';
+
 
 % define the atmospheric data file
 atm_file = 'afglus.dat';
@@ -524,7 +509,11 @@ tic
 parfor nn = 1:length(idx)
 
     % Store the modis reflectance value
-     R_modis(nn) =  modis_reflectance(row(nn), col(nn));
+    % ---------------------------------------------------------------------
+    % MODIS reflectance is not divided by cos(solar zenith angle)!!
+    R_modis(nn) =  modis_reflectance(row(nn), col(nn))./cosd(double(sza(nn)));
+    % ---------------------------------------------------------------------
+    
 
      % store the MODIS reflectance uncertainty
      R_uncertainty(nn) = 0.01*modis_reflectance_uncertainty(row(nn), col(nn)) *  R_modis(nn);
@@ -551,6 +540,7 @@ parfor nn = 1:length(idx)
     end
 
     % save the radiance calculation 
+
     L_model(:,nn) = ds.radiance.value;          % (mW/m^2/nm/sr) - 
 
 end
@@ -604,11 +594,6 @@ label_fontSize = 20;
 % First make a scatter plot comparing the modeled and measured
 % reflectance and have the color of each marker represent the retrieved
 % droplet size
-% ---------------------------------------------------------------------
-
-% ---------------------------------------------------------------------
-% Is the MODIS reflectance not divided by cos(solar zenith angle)??
-R_modis = R_modis./cosd(double(sza));
 % ---------------------------------------------------------------------
 
 

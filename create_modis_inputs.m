@@ -55,16 +55,26 @@ else
     inputs.day_of_year = L1B_fileNames{1}(15:17);           % day of year of the MODIS measurement
 end
 
+% Define the folder to save all the INP files in using the month, day and
+% year
+data_date = datetime([L1B_fileNames{1}(11:14),'-01-01'],'InputFormat','yyyy-MM-dd') + days(str2double(L1B_fileNames{1}(15:17)) -1);
+% check to see if the MODIS instrument is aboard Terra or Aqua
+if strcmp(L1B_fileNames{1}(1:3), 'MOD')==true
+    % Then read in the spectral response functions for the terra instrument
+    inputs.INP_folderName = ['MODIS_Terra_',char(data_date),'_time_',L1B_fileNames{1}(19:22),'/']; % this is the folder name that the INP files will be written to 
+elseif strcmp(L1B_fileNames{1}(1:3), 'MYD')==true
+    % Then read in the spectral response functions for the Aqua instrument
+        inputs.INP_folderName = ['MODIS_Aqua_',char(data_date),'_time_',L1B_fileNames{1}(19:22),'/']; % this is the folder name that the INP files will be written to 
 
-inputs.INP_folderName = ['MODIS_day_',L1B_fileNames{1}(15:17),'_year_',L1B_fileNames{1}(11:14),...
-    '_time_',L1B_fileNames{1}(19:22),'/']; % this is the folder name that the INP files will be written to 
+end
+
 
 
 % ----- defining what pixels to use -----
 
 % only find pixels in the modis data that is greater than or equal to a tau 
 % defined by the value below
-inputs.pixels.tauThreshold = 2; 
+inputs.pixels.tauThreshold = 3; 
  
 % we will randomly select this many pixels from the set of suitable pixels
 % found to create .INP files Each pixel and its associated geometry will
@@ -73,11 +83,7 @@ inputs.pixels.tauThreshold = 2;
 inputs.pixels.num_2calculate = 100;
 
 
-% ---------------------------------------------------------
-% ------ Define the resolution of the Solar Flux file -----
-% ---------------------------------------------------------
-% options are 1 or 0.1 nm
-inputs.solarFlux_resolution = 0.1;                  % nm
+
 
 % ------------------
 % ----- FLAGS! -----
@@ -114,11 +120,31 @@ inputs.RT.num_streams = 16;
 inputs.RT.use_nakajima_phaseCorrection = true;
 % ------------------------------------------------------------------------
 
+
+% ------------------------------------------------------------------------
+% ----------------- What band model do you want to use? ------------------
+
+% reptran coarse is the default
+% if using reptran, provide one of the following: coarse (default), medium
+% or fine
+inputs.RT.band_parameterization = 'reptran coarse';
+%band_parameterization = 'reptran_channel modis_terra_b07';
+% ------------------------------------------------------------------------
+
+
+% ---------------------------------------------------------
+% ------ Define the Solar Flux file and it's resolution ---
+% ---------------------------------------------------------
+% resolution should match the value listed in the file name
+inputs.RT.sourceFile_resolution = 1;                  % nm
+% Define the source file
+inputs.RT.source_file = '../data/solar_flux/kurudz_1.0nm.dat';
+
 % define the atmospheric data file
 inputs.RT.atm_file = 'afglus.dat';
 
 % define the surface albedo
-inputs.RT.albedo = 0.05;
+inputs.RT.surface_albedo = 0.05;
 
 % day of the year
 inputs.RT.day_of_year = str2double(L1B_fileNames{1}(15:17));
@@ -131,32 +157,42 @@ inputs.RT.day_of_year = str2double(L1B_fileNames{1}(15:17));
 inputs.RT.yesCloud = true;
 
 % ---- Do you want a linear adjustment to the cloud pixel fraction? ------
-inputs.RT.linear_cloudFraction = true;
+inputs.RT.linear_cloudFraction = false;
 % if false, define the cloud cover percentage
 inputs.RT.cloud_cover = 1;
 % ------------------------------------------------------------------------
 
+
 % ------------------------------------------------------------------------
 % ------ Do you want to use the MODIS cloud top height estimate? ---------
-inputs.RT.use_MODIS_cloudTopHeight = true;
+inputs.RT.use_MODIS_cloudTopHeight = false;
 % ------------------------------------------------------------------------
+
+
+% ------------------------------------------------------------------------
+% ------ Do you want to use the MODIS above cloud water vapor? ---------
+inputs.RT.use_MODIS_aboveCloudWaterVapor = false;
+% ------------------------------------------------------------------------
+
 
 
 % ------------------------------------------------------------------------
 % ---------- Do you want use your custom mie calculation file? -----------
 inputs.RT.use_custom_mie_calcs = false;
 % ------------------------------------------------------------------------
-
-
+% This string is used to compute the LWC from optical depth and effective radius
+% can be 'hu' or 'mie interpolate'
+inputs.RT.wc_parameterization = 'mie interpolate';        % use the hu and stamnes parameterization for converting cloud properties to optical properties
 % define the type of droplet distribution
 inputs.RT.drop_distribution_str = 'gamma';
 % define the distribution varaince
+% 7 is the value libRadTran uses for liquid water clouds
 inputs.RT.drop_distribution_var = 10;
 % define whether this is a vertically homogenous cloud or not
 inputs.RT.vert_homogeneous_str = 'vert-homogeneous';
 % define how liquid water content will be computed
-inputs.RT.parameterization_str = 'mie';
-
+% can either be 'mie' or '2limit'
+inputs.RT.parameterization_str = 'mie';     % This string is used to compute the LWC from optical depth and effective radius
 
 
 % --------------------------------------------------------------
@@ -182,21 +218,23 @@ inputs.RT.aerosol_opticalDepth = 0.1;     % MODIS algorithm always set to 0.1
 
 
 
+
 % -------------------------------------------------
-% ----- Stuff for writing water cloud files! -----
+% ----- Define the spectral response function -----
 % -------------------------------------------------
-% can be 'hu' or 'mie interpolate'
-inputs.clouds.wc_properties = 'mie interpolate';        % use the hu and stamnes parameterization for converting cloud properties to optical properties
-% can either be 'mie' or '2limit'
-inputs.clouds.wc_parameterization = 'mie';        % This string is used to compute the LWC from optical depth and effective radius
-% can either be 'mono' or 'gamma'
-inputs.clouds.distribution_type = 'gamma';        % This string is used to compute the LWC from optical depth and effective radius
-% Define the distribution. If the distribution is mono-dispersed, this
-% value can be anything because it will be ignored
-inputs.clouds.distribution_variance = 7;            % 7 is the value libRadTran uses for liquid water clouds
-% Is the cloud vertically homogeneous? It should be since this is for the
-% MODIS retrieval
-inputs.clouds.vert_homogeneity = 'vert-homogeneous';
+
+% check to see if the MODIS instrument is aboard Terra or Aqua
+if strcmp(L1B_fileNames{1}(1:3), 'MOD')==true
+    % Then read in the spectral response functions for the terra instrument
+    inputs.spec_response = modis_terra_specResponse_func(inputs.bands2run, inputs.RT.sourceFile_resolution);
+elseif strcmp(L1B_fileNames{1}(1:3), 'MYD')==true
+    % Then read in the spectral response functions for the Aqua instrument
+    inputs.spec_response = modis_aqua_specResponse_func(inputs.bands2run, source_file_resolution);
+end
+
+% ------------------------------------------------------------------------
+
+
 
 % ----- ISSUE A WARNING! SETTINGS SHOULD BE CHECKED -----
 
