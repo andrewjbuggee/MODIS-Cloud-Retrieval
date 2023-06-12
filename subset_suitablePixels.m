@@ -30,11 +30,15 @@ tau_uncert_mask = modis.cloud.optThickness_uncert_17(pixels.res1km.index)<10;
 
 
 % ---------- Apply any additional tau_c constraints ------
-tau_limit_mask = modis.cloud.optThickness17(pixels.res1km.index)>inputs.pixels.tauThreshold;
+tau_limit_mask = modis.cloud.optThickness17(pixels.res1km.index)>=inputs.pixels.tau_min_threshold & modis.cloud.optThickness17(pixels.res1km.index)<=inputs.pixels.tau_max_threshold;
+
+
+% ---------- Apply any additional re constraints ------
+re_limit_mask = modis.cloud.effRadius17(pixels.res1km.index)>=inputs.pixels.re_min_threshold & modis.cloud.effRadius17(pixels.res1km.index)<=inputs.pixels.re_max_threshold;
 
 
 
-combined_mask = re_mask & tau_mask & re_uncert_mask & tau_uncert_mask & tau_limit_mask;
+combined_mask = re_mask & tau_mask & re_uncert_mask & tau_uncert_mask & tau_limit_mask & re_limit_mask;
 
 % % find the index value of all the ones!
 % index = find(combined_mask);

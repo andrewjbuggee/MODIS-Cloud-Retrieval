@@ -20,19 +20,40 @@ function inputs = create_modis_inputs(folderName, L1B_fileNames)
 % --- SAVE THE MODIS FILE NAME ----
 inputs.modisDataFolder = folderName;
 
-% ----- what water cloud files should we use? -----
-
-% The retrieved values of re and Tau computed by the MODIS TBLUT algorithm
-% will be used to write liquid water cloud files for LibRadTran. 
 
 
-% ?? These are already written. Should probably fix this later ??
+% ----- Save the L1B file name -----
+inputs.L1B_filename = L1B_fileNames{1};
 
-% These are the values that the forward model will use to create a
-% pre-computed table of reflectances for the specfic geometry of each pixel
 
-inputs.re = [1:3:25]; % - microns - effective radius - value is in the file name
-inputs.tau_c = [1,5:5:80]; % cloud optical thickness - value is in the file name
+% ----- defining what pixels to use -----
+
+% we will randomly select this many pixels from the set of suitable pixels
+% found to create .INP files Each pixel and its associated geometry will
+% have an INP file of its own that will solve the equation of radiative
+% transfer
+inputs.pixels.num_2calculate = 10;
+
+
+
+% only find pixels in the modis data that is greater than or equal to a tau 
+% defined by the value below
+inputs.pixels.tau_min_threshold = 3; 
+
+% only find pixels in the modis data that is less than or equal to a tau 
+% defined by the value below
+inputs.pixels.tau_max_threshold = 80; 
+
+
+% only find pixels in the modis data that have an effective radius greater
+% than of equal to the value below
+inputs.pixels.re_min_threshold = 3; 
+
+
+% only find pixels in the modis data that have an effective radius less
+% than of equal to the value below
+inputs.pixels.re_max_threshold = 24;
+ 
 
 
 
@@ -70,17 +91,7 @@ end
 
 
 
-% ----- defining what pixels to use -----
 
-% only find pixels in the modis data that is greater than or equal to a tau 
-% defined by the value below
-inputs.pixels.tauThreshold = 3; 
- 
-% we will randomly select this many pixels from the set of suitable pixels
-% found to create .INP files Each pixel and its associated geometry will
-% have an INP file of its own that will solve the equation of radiative
-% transfer
-inputs.pixels.num_2calculate = 100;
 
 
 
@@ -219,20 +230,7 @@ inputs.RT.aerosol_opticalDepth = 0.1;     % MODIS algorithm always set to 0.1
 
 
 
-% -------------------------------------------------
-% ----- Define the spectral response function -----
-% -------------------------------------------------
 
-% check to see if the MODIS instrument is aboard Terra or Aqua
-if strcmp(L1B_fileNames{1}(1:3), 'MOD')==true
-    % Then read in the spectral response functions for the terra instrument
-    inputs.spec_response = modis_terra_specResponse_func(inputs.bands2run, inputs.RT.sourceFile_resolution);
-elseif strcmp(L1B_fileNames{1}(1:3), 'MYD')==true
-    % Then read in the spectral response functions for the Aqua instrument
-    inputs.spec_response = modis_aqua_specResponse_func(inputs.bands2run, source_file_resolution);
-end
-
-% ------------------------------------------------------------------------
 
 
 

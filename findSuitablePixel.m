@@ -22,7 +22,18 @@ function [pixels] = findSuitablePixel(modis,inputs)
 
 
 % find pixels above a certain optical depth
-tauThreshold = inputs.pixels.tauThreshold;
+tau_min_threshold = inputs.pixels.tau_min_threshold;
+
+% find pixels below a certain optical depth
+tau_max_threshold = inputs.pixels.tau_max_threshold;
+
+% find pixels above a certain effective radius
+re_min_threshold = inputs.pixels.re_min_threshold;
+
+% find pixels below a certain effective radius
+re_max_threshold = inputs.pixels.re_max_threshold;
+
+
 % create logical mask for phase 
 
 % find pixels that detect liquid water
@@ -37,13 +48,13 @@ liquidWater_mask = modis.cloud.phase == 2; % 2 is the value designated for liqui
 % Uncertainties are in percentages
 uncertaintyLimit = 10;                              % percentage
 
-tau_mask = modis.cloud.optThickness17 >= tauThreshold & modis.cloud.optThickness_uncert_17<uncertaintyLimit;
+tau_mask = modis.cloud.optThickness17 >= tau_min_threshold & modis.cloud.optThickness17 <= tau_max_threshold & modis.cloud.optThickness_uncert_17<uncertaintyLimit;
 
 
 % Find pixels with an effective radius of at least 0 and an uncertainty
 % less than the amount defined below. Uncertainties are in percentages
 uncertaintyLimit = 10;
-re_mask = modis.cloud.effRadius17>=0 & modis.cloud.optThickness_uncert_17<uncertaintyLimit;        % find values greater than 0
+re_mask = modis.cloud.effRadius17>=re_min_threshold & modis.cloud.effRadius17<=re_max_threshold & modis.cloud.optThickness_uncert_17<uncertaintyLimit;        % find values greater than 0
 
 % find where there is overlap
 

@@ -19,8 +19,8 @@ function [] = plot2ReflectanceFuncBands(modis,R,modisInputs, pixels2use, kingORs
 
 % extract inputs
 
-re = modisInputs.re;
-tau_c = modisInputs.tau_c;
+re = modisInputs.RT.re;
+tau_c = modisInputs.RT.tau_c;
 pixel_row = pixels2use.res1km.row;
 pixel_col = pixels2use.res1km.col;
 bands2run = modisInputs.bands2run;
@@ -143,21 +143,26 @@ if strcmp(kingORsurf, 'king')==true
         xlabel(['Reflectance ', num2str(modis_band_vals(1,1)), ' $nm$'],Interpreter='latex')
         ylabel(['Reflectance ', num2str(modis_band_vals(2,1)), ' $nm$'],Interpreter='latex')
 
+        % Create textbox
+    annotation('textbox',[0.3 0.8 0.131464712269273 0.0623003194888175],...
+        'String',{['vza = ',num2str(modis.sensor.zenith(index_2plot(pp))), '$^{\circ}$  sza = ',...
+        num2str(modis.solar.zenith(index_2plot(pp))), '$$^{\circ}$', ...
+        '  pixel-idx = ', num2str(pixels2use.res1km.index(index_2plot(pp)))]},...
+        'FontSize', 20,...
+        'Interpreter','latex',...
+        'FitBoxToText','on');
+
+
+
         % set the last string entry to be MODIS value
         legend_str{end} = 'MODIS';
 
         legend(legend_str, 'Interpreter','latex','Location','best' , 'FontSize', 20, 'FontWeight','bold')
         title('Simulated Reflectance','Interpreter','latex')
-        set(gcf,"Position", [0 0 1200 800])
+        set(gcf,"Position", [0 0 1300 800])
 
 
-        % Create textbox
-        annotation('textbox',[0.4 0.8 0.131464712269273 0.0623003194888175],...
-            'String',{['vza = ',num2str(modis.sensor.zenith(index_2plot(pp))), '$^{\circ}$  sza = ',...
-            num2str(modis.solar.zenith(index_2plot(pp))), '$$^{\circ}$']},...
-            'FontSize', 20,...
-            'Interpreter','latex',...
-            'FitBoxToText','on');
+
 
 
     end
@@ -197,7 +202,8 @@ elseif strcmp(kingORsurf, 'surf')==true
         % Create textbox
         annotation('textbox',[0.4 0.8 0.131464712269273 0.0623003194888175],...
             'String',{['vza = ',num2str(modis.sensor.zenith(index_2plot(pp))), '$^{\circ}$  sza = ',...
-            num2str(modis.solar.zenith(index_2plot(pp))), '$$^{\circ}$']},...
+            num2str(modis.solar.zenith(index_2plot(pp))), '$$^{\circ}$', ...
+            'pixel idx = ', num2str(pixels2use.res1km.index(index_2plot(pp)))]},...
             'FontSize', 20,...
             'Interpreter','latex',...
             'FitBoxToText','on');
@@ -219,7 +225,7 @@ elseif strcmp(kingORsurf, 'surf')==true
         title(['Reflectance ', num2str(modis_band_vals(2,1)), ' $nm$'],Interpreter='latex')
 
 
-        set(gcf,"Position", [0 0 1200 800])
+        set(gcf,"Position", [0 0 1300 800])
 
 
 

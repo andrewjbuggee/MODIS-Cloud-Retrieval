@@ -13,8 +13,8 @@ function [minVals] = leastSquaresGridSearch(modisRefl,modelRefl,inputs)
 
 
 % extract inputs
-re = inputs.re;
-tau_c = inputs.tau_c;
+re = inputs.RT.re;
+tau_c = inputs.RT.tau_c;
 interpGridScaleFactor = inputs.interpGridScaleFactor;
 bands2search = inputs.bands2search; % bands to determine optical properties
 bands2run = inputs.bands2run; % bands to run through uvspec
@@ -111,7 +111,7 @@ for pp = 1:numPixels
         
         %% ---- lets view the surfaces of the model -----
         
-        band2Plot = 1;
+        band2Plot = 2;
         
         if inputs.flags.plotMLS_figures == true
             surfPlots4modisModel_andObs(T,Re,interp_modelRefl(:,:,band2Plot),observations_newGrid(:,:,band2Plot),bandVals(1,band2Plot))

@@ -19,8 +19,14 @@ clear variables;
 %     'Hyperspectral-Cloud-Droplet-Retrieval-Research/LibRadTran/libRadtran-2.0.4/MODIS_08_25_2021/'];
 
 % define the files names
+if strcmp(whatComputer, 'anbu8374')==true
 
-folderName = './MODIS_data/2023_04_13/';
+    folderName = '/Users/anbu8374/Documents/MATLAB/HyperSpectral_Cloud_Retrieval/MODIS_Cloud_Retrieval/MODIS_data/2023_04_13/';
+
+elseif strcmp(whatComputer, 'andrewbuggee') == true
+
+    error('What is the folder path?')
+end
 
 
 [modis,L1B_1km_fileName] = retrieveMODIS_data(folderName);
@@ -97,7 +103,7 @@ if inputs.flags.writeINPfiles == true
     % problem? The pixels that we found to be suitable!
     
     %names.inp = write_INP_4_MODIS_hdf(inputs,pixels2use,modis);
-    names.inp = write_INP_file_4MODIS_homogenous(inputs, pixels2use, modis);
+    [names.inp, inputs] = write_INP_file_4MODIS_homogenous(inputs, pixels2use, modis);
     
     % now lets write the output names
     
@@ -105,7 +111,7 @@ if inputs.flags.writeINPfiles == true
 else
     
     % if the files already exist, just grab the names!
-    names.inp = getMODIS_INPnames_withClouds(modis.solar,inputs,pixels2use);
+    [names.inp, inputs] = getMODIS_INPnames_withClouds(modis.solar,inputs,pixels2use);
     names.out = writeOutputNames(names.inp);
 end
 
@@ -164,10 +170,10 @@ plotReflectanceContours(R,inputs,pixels2use)
 
 % Plot MODIS re values against my calculated re values
 
-plot_effRadius_modis_estimates(truth_estimate_table)
+plot_effRadius_modis_estimates(truth_estimate_table, inputs)
 
 
-plot_tau_modis_estimates(truth_estimate_table)
+plot_tau_modis_estimates(truth_estimate_table, inputs)
 
 % Plot both re and tau on two panels within the same figure
 plot_re_tau_modis_vs_myEstimates(truth_estimate_table)
@@ -180,4 +186,4 @@ plot2ReflectanceFuncBands(modis,R, inputs, pixels2use, 'king')
 
 % Plot and compare the MODIS measured reflectance and my estiamte of
 % reflectance using LibRadTran
-compare_my_reflectance_with_MODIS(modisR,R,modisInputs, pixels2use)
+compare_my_reflectance_with_MODIS(modisR,R,inputs, pixels2use)

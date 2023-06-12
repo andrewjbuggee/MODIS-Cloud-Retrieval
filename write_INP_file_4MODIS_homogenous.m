@@ -4,7 +4,7 @@
 
 %%
 
-function inpNames = write_INP_file_4MODIS_homogenous(inputs, pixels2use, modis)
+function [inpNames, inputs] = write_INP_file_4MODIS_homogenous(inputs, pixels2use, modis)
 
 % ------------------------------------------------
 % ---------- INPUTS AND FUNCTION SET UP ----------
@@ -36,6 +36,65 @@ addpath(libRadTran_path);
 %% DEFINE UVSPEC INP FILE INPUTS
 
 
+% -----------------------------------------------------------------------
+% -------------- Define the grid of r_e and tau_c values ----------------
+% -----------------------------------------------------------------------
+% MODIS only considers homogenous plane parallel clouds. Lets construct the
+% re matrix needed to create homogenous water clouds using write_wc_file
+re = inputs.pixels.re_min_threshold:3:inputs.pixels.re_max_threshold;     % microns - values of re that we wish to model
+
+if inputs.pixels.tau_min_threshold<5 && inputs.pixels.tau_max_threshold>60
+
+    tau_c = [inputs.pixels.tau_min_threshold, 5:5:50, 60:10:inputs.pixels.tau_max_threshold];      % values of tau that we wish to model
+
+
+elseif inputs.pixels.tau_min_threshold<5 && inputs.pixels.tau_max_threshold<60
+
+    tau_c = [inputs.pixels.tau_min_threshold, 5:5:inputs.pixels.tau_max_threshold];      % values of tau that we wish to model
+
+
+elseif inputs.pixels.tau_min_threshold>5 && inputs.pixels.tau_max_threshold>60
+
+    tau_c = [inputs.pixels.tau_min_threshold:5:50, 60:10:inputs.pixels.tau_max_threshold];      % values of tau that we wish to model
+
+
+elseif inputs.pixels.tau_min_threshold>5 && inputs.pixels.tau_max_threshold<60
+
+    tau_c = inputs.pixels.tau_min_threshold:5:inputs.pixels.tau_max_threshold;      % values of tau that we wish to model
+
+
+end
+
+
+% save these values to the inputs structure
+inputs.RT.re = re;
+inputs.RT.tau_c = tau_c;
+% -----------------------------------------------------------------------
+
+
+
+
+% -----------------------------------------------------------------------
+% --------------- Define the spectral response function -----------------
+% -----------------------------------------------------------------------
+
+% using the input 'bands2run', this defines the spectral bands that will be
+% written into INP files.
+
+% check to see if the MODIS instrument is aboard Terra or Aqua
+if strcmp(inputs.L1B_filename(1:3), 'MOD')==true
+    % Then read in the spectral response functions for the terra instrument
+    inputs.spec_response = modis_terra_specResponse_func(inputs.bands2run, inputs.RT.sourceFile_resolution);
+elseif strcmp(inputs.L1B_filename(1:3), 'MYD')==true
+    % Then read in the spectral response functions for the Aqua instrument
+    inputs.spec_response = modis_aqua_specResponse_func(inputs.bands2run, source_file_resolution);
+end
+
+% define the MODIS bands to run using the spectral response functions
+wavelength = inputs.spec_response;
+
+% ------------------------------------------------------------------------
+
 
 
 % for each spectral bin, we have an image on the ground composed of 2030 *
@@ -56,24 +115,16 @@ if ~exist(folder2save, 'dir')
 end
 
 
-% define the MODIS bands to run using the spectral response functions
-wavelength = inputs.spec_response;
 
 
 
-
-
-% MODIS only considers homogenous plane parallel clouds. Lets construct the
-% re matrix needed to create homogenous water clouds using write_wc_file
-re = inputs.re;                 % microns - values of re that we wish to model
-tau_c = inputs.tau_c;           % values of tau that we wish to model
 
 % we repeat the re vector for every single optical depth
 % Therefore we create a grid of values where there is a water cloud file
 % for each re and each tau_c
-re_vec = repmat(inputs.re, 1, length(inputs.tau_c));
+re_vec = repmat(re, 1, length(tau_c));
 % The tau vector is a column vector the length of the re vector
-tau_vec = repmat(inputs.tau_c, length(inputs.re), 1);
+tau_vec = repmat(tau_c, length(re), 1);
 tau_vec = tau_vec(:)';
 
 
@@ -98,11 +149,12 @@ wavelength_forTau = wavelength_forTau(1);
 % ---------------------------------------
 % For now lets hard code the cloud height
 % ---------------------------------------
-% cloud top height and thickness is set to be the same values
-% described in: "Overview of the MODIS Collection 6 Cloud Optical
-% Property (MOD06) Retrieval Look-up Tables" Amarasinghe
+% cloud top height and thickness is set to 9km and 1km respectively,
+% the same values described in: "Overview of the MODIS Collection 6 
+% Cloud Optical Property (MOD06) Retrieval Look-up Tables" Amarasinghe
 % et. al 2017
-z_topBottom = [9, 8];                     % km - altitude above surface for the cloud top and cloud bottom
+%z_topBottom = [9, 8];                     % km - altitude above surface for the cloud top and cloud bottom
+z_topBottom = [3, 2];
 % ---------------------------------------
 % ---------------------------------------
 
@@ -210,15 +262,53 @@ for pp = 1:length(pixel_row)
         band_num = inputs.bands2run(bb);        % modis band number that defines the upper and lower wavelength boundaries used to compute the equation of radiative transfer
 
 
-        for rr = 1:length(inputs.re)
+        for rr = 1:length(re)
 
 
 
-            for tt = 1:length(inputs.tau_c)
+            for tt = 1:length(tau_c)
 
 
                 % redefine the old file each time
                 inpNames{pp,rr,tt,bb} = [fileBegin,num2str(band_num),'_r_',num2str(re(rr)),'_T_',num2str(tau_c(tt)),'.INP'];
+
+
+
+
+
+                % ------------------------------------------------------
+                % --------------------VERY IMPORTANT ------------------
+                % ----- TESTING IMPORTANCE OF CLOUD TOP HEIGHT --------
+                % ------------------------------------------------------
+
+%                 % define the geometric location of the cloud top and cloud bottom
+%                 if inputs.RT.use_MODIS_cloudTopHeight==false
+%                     z_topBottom = [9,8];          % km above surface
+%             
+%                 else
+%             
+%                     % if the cloud top height is below 1 km, make the lower altitude 0
+%                     cloudTopHeight = modis.cloud.topHeight(pixel_row(pp),pixel_col(pp));
+%             
+%                     if cloudTopHeight>=1000
+%                         z_topBottom = [cloudTopHeight, cloudTopHeight - 1000]./1000;      % km above surface
+%                     elseif cloudTopHeight<1000
+%                         z_topBottom = [cloudTopHeight, 0]./1000;      % km above surface
+%                     end
+%             
+%                 end
+% 
+%                 wc_filename = write_wc_file(re(rr),tau_c(tt),z_topBottom, wavelength_forTau, dist_str,...
+%                                 inputs.RT.drop_distribution_var, vert_homogeneous_str, parameterization_str, 0);
+                % ------------------------------------------------------
+                % ------------------------------------------------------
+
+
+
+
+
+
+
 
                 % ------------------------------------------------------------
                 % --------------------- WRITE INP FILE -----------------------
@@ -300,7 +390,7 @@ for pp = 1:length(pixel_row)
                
                 if inputs.RT.use_MODIS_aboveCloudWaterVapor==true
 
-                    total_h2O_column = modis.vapor.col_nir(rpixel_row(pp),pixel_col(pp))*10;        % mm of precipitable water
+                    total_h2O_column = modis.vapor.col_nir(pixel_row(pp),pixel_col(pp))*10;        % mm of precipitable water
 
                     if isnan(total_h2O_column)==false
                         formatSpec = '%s %s %f %s %5s %s \n';
@@ -322,9 +412,8 @@ for pp = 1:length(pixel_row)
                     % Define the water cloud file
                     % ------------------------------------------------
                     formatSpec = '%s %s %5s %s \n';
-                    %fprintf(fileID, formatSpec,'wc_file 1D', ['../data/wc/',wc_filename{nn}], ' ', '# Location of water cloud file');
-                    fprintf(fileID, formatSpec,'wc_file 1D', ['../data/wc/wc2/',wc_filename{rr,tt}], ' ', '# Location of water cloud file');
-
+                    fprintf(fileID, formatSpec,'wc_file 1D', ['../data/wc/',wc_filename{rr,tt}], ' ', '# Location of water cloud file');
+                    %fprintf(fileID, formatSpec,'wc_file 1D', ['../data/wc/',wc_filename{1}(1)], ' ', '# Location of water cloud file');
 
                     % Define the percentage of horizontal cloud cover
                     % This is a number between 0 and 1
@@ -430,7 +519,7 @@ for pp = 1:length(pixel_row)
                 % Set the error message to quiet of verbose
                 % ------------------------------------------------
                 formatSpec = '%s';
-                fprintf(fileID, formatSpec,'quiet');
+                fprintf(fileID, formatSpec,'verbose');
 
 
                 % Close the file!

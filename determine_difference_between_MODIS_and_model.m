@@ -10,7 +10,7 @@ clear variables
 
 modisFolder = '/Users/anbu8374/Documents/MATLAB/HyperSpectral_Cloud_Retrieval/MODIS_Cloud_Retrieval/MODIS_data/2023_04_13/';
 
-[modis,L1B_500m_fileName] = retrieveMODIS_data(modisFolder);
+[modis,L1B_1km_fileName] = retrieveMODIS_data(modisFolder);
 
 % Grab n random pixels from the suitablePixels mat file
 load('/Users/anbu8374/Documents/MATLAB/HyperSpectral_Cloud_Retrieval/MODIS_Cloud_Retrieval/MODIS_data/2023_04_13/suitablePixels.mat', 'pixels')
@@ -93,7 +93,7 @@ atm_file = 'afglus.dat';
 albedo = 0.05;
 
 % day of the year
-day_of_year = str2double(L1B_500m_fileName{1}(15:17));
+day_of_year = str2double(L1B_1km_fileName{1}(15:17));
 
 % ------------------------------------------------------------------------
 % ------ Do you want to use the MODIS cloud top height estimate? ---------
@@ -219,7 +219,7 @@ for nn = 1:length(idx)
 
         % if the cloud top height is below 1 km, make the lower altitude 0
         cloudTopHeight = modis.cloud.topHeight(row(nn), col(nn));
-
+    
         if cloudTopHeight>=1000
             z_topBottom(nn,:) = [cloudTopHeight, cloudTopHeight - 1000]./1000;      % km above surface
         elseif cloudTopHeight<1000
@@ -336,8 +336,7 @@ for nn = 1:length(idx)
         % Define the water cloud file
         % ------------------------------------------------
         formatSpec = '%s %s %5s %s \n';
-        %fprintf(fileID, formatSpec,'wc_file 1D', ['../data/wc/',wc_filename{nn}], ' ', '# Location of water cloud file');
-        fprintf(fileID, formatSpec,'wc_file 1D', ['../data/wc/wc2/',wc_filename{nn}], ' ', '# Location of water cloud file');
+        fprintf(fileID, formatSpec,'wc_file 1D', ['../data/wc/',wc_filename{nn}], ' ', '# Location of water cloud file');
 
         % Define the percentage of horizontal cloud cover
         % This is a number between 0 and 1
