@@ -519,7 +519,7 @@ for pp = 1:length(pixel_row)
                 % Set the error message to quiet of verbose
                 % ------------------------------------------------
                 formatSpec = '%s';
-                fprintf(fileID, formatSpec,'verbose');
+                fprintf(fileID, formatSpec, inputs.RT.err_msg);
 
 
                 % Close the file!

@@ -227,6 +227,12 @@ inputs.RT.aerosol_opticalDepth = 0.1;     % MODIS algorithm always set to 0.1
 % ------------------------------------------------------------------------
 
 
+% ----- Do you want a long error message? -----
+% if so, set error message to 'verbose'. Otherwise, set error message to
+% 'quiet'
+inputs.RT.err_msg = 'quiet';
+
+
 
 
 
