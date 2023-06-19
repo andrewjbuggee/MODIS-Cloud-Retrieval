@@ -69,7 +69,9 @@ max_tau_global = max([max_tau_est,max_tau_modis]);
 x_tau = linspace((0.9 * min_tau_global),(1.1*max_tau_global),150);
 
 
-
+% set font size for axes labels
+axes_font_size = 30;
+tick_labels_size = 30;
 
 f = figure; 
 % Create axes
@@ -81,10 +83,17 @@ hold on; grid on; grid minor
 errorbar(est_R17,modis_R17,modis_R17_uncert,'Parent',axes1,'vertical','m.','MarkerSize',20)
 xlim([x_r(1), x_r(end)])
 ylim([x_r(1), x_r(end)])
-xlabel('My Estimate: $r_{e}$ $(\mu m)$','Interpreter','latex')
-ylabel('MODIS Estimate: $r_{e}$ $(\mu m)$','Interpreter','latex')
-title(['RMS: ',num2str(rms_diff_R17),' $\mu m$'],'Interpreter','latex')
+
+% set tick label font size
+ax = gca;
+ax.FontSize = tick_labels_size;
+ax.TickLabelInterpreter = "latex";
+
+xlabel('Two-Wavelength $r_{e}$ $(\mu m)$','Interpreter','latex', 'FontSize',axes_font_size)
+ylabel('MODIS $r_{e}$ $(\mu m)$','Interpreter','latex', 'FontSize',axes_font_size)
+title(['RMS: ',num2str(rms_diff_R17),' $\mu m$'],'Interpreter','latex', 'FontSize',axes_font_size)
 axis square
+box on
 
 % --- PLOT tau NEXT ---
 
@@ -97,10 +106,17 @@ hold on; grid on; grid minor
 errorbar(est_T17,modis_T17,modis_T17_uncert,'Parent',axes2,'vertical','m.','MarkerSize',20)
 xlim([x_tau(1), x_tau(end)])
 ylim([x_tau(1), x_tau(end)])
-xlabel('My Estimate: $\tau_{c}$','Interpreter','latex')
-ylabel('MODIS Estimate: $\tau_{c}$','Interpreter','latex')
-title(['RMS: ',num2str(rms_diff_T17)],'Interpreter','latex')
+
+% set tick label font size
+ax = gca;
+ax.FontSize = tick_labels_size;
+ax.TickLabelInterpreter = "latex";
+
+xlabel('Two-Wavelength $\tau_{c}$','Interpreter','latex', 'FontSize',axes_font_size)
+ylabel('MODIS $\tau_{c}$','Interpreter','latex', 'FontSize',axes_font_size)
+title(['RMS: ',num2str(rms_diff_T17)],'Interpreter','latex', 'FontSize',axes_font_size)
 axis square
+box on
 
 % Create textbox
 annotation('textbox',[0.111749185667752 0.678913738019169 0.131464712269273 0.0623003194888175],...
@@ -110,6 +126,6 @@ annotation('textbox',[0.111749185667752 0.678913738019169 0.131464712269273 0.06
     'FitBoxToText','on');
 
 % set figure size
-set(gcf, 'Position', [0 0 1100 700])
+set(gcf, 'Position', [0 0 1200 800])
 
 end
