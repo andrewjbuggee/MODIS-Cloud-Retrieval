@@ -87,7 +87,7 @@ if strcmp(inputs.L1B_filename(1:3), 'MOD')==true
     inputs.spec_response = modis_terra_specResponse_func(inputs.bands2run, inputs.RT.sourceFile_resolution);
 elseif strcmp(inputs.L1B_filename(1:3), 'MYD')==true
     % Then read in the spectral response functions for the Aqua instrument
-    inputs.spec_response = modis_aqua_specResponse_func(inputs.bands2run, source_file_resolution);
+    inputs.spec_response = modis_aqua_specResponse_func(inputs.bands2run, inputs.RT.sourceFile_resolution);
 end
 
 % define the MODIS bands to run using the spectral response functions

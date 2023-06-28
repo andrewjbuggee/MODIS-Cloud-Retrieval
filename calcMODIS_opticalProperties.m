@@ -25,7 +25,7 @@ if strcmp(whatComputer, 'anbu8374')==true
 
 elseif strcmp(whatComputer, 'andrewbuggee') == true
 
-    error('What is the folder path?')
+    folderName = '/Users/andrewbuggee/Documents/MATLAB/CU Boulder/Hyperspectral_Cloud_Retrievals/MODIS_Cloud_Retrieval/MODIS_data/2023_04_13/';
 end
 
 
@@ -177,6 +177,10 @@ plot_tau_modis_estimates(truth_estimate_table, inputs)
 
 % Plot both re and tau on two panels within the same figure
 plot_re_tau_modis_vs_myEstimates(truth_estimate_table)
+
+% plot the ratio of my retireval to the MODIS retrieval of droplet size and
+% optical thickness
+plot_myRetrieval_vs_modisRetrieval_hist(truth_estimate_table)
 
 
 % plot the reflectance for bands 1 and 7 and show the MODIS measurement

@@ -15,7 +15,7 @@ modisFolder = '/Users/anbu8374/Documents/MATLAB/HyperSpectral_Cloud_Retrieval/MO
 % Grab n random pixels from the suitablePixels mat file
 load('/Users/anbu8374/Documents/MATLAB/HyperSpectral_Cloud_Retrieval/MODIS_Cloud_Retrieval/MODIS_data/2023_04_13/suitablePixels.mat', 'pixels')
 
-n_pixels = 50;
+n_pixels = 300;
 
 % --- We only want pixles with a droplet size less than 25 ---
 index_25 = modis.cloud.effRadius17(pixels.res1km.index)<25 & modis.cloud.effRad_uncert_17(pixels.res1km.index)<=10;
@@ -49,8 +49,9 @@ num_streams = 16;
 
 % Define the source file
 %source_file = '../data/solar_flux/lasp_TSIS1_hybrid_solar_reference_p01nm_resolution.dat';
-source_file = '../data/solar_flux/kurudz_0.1nm.dat';
-source_file_resolution = 0.1;           % nm
+%source_file = '../data/solar_flux/kurudz_0.1nm.dat';
+source_file = '../data/solar_flux/kurudz_1.0nm.dat';
+source_file_resolution = 1;           % nm
 
 
 
@@ -121,7 +122,7 @@ use_custom_mie_calcs = false;
 % define the type of droplet distribution
 distribution_str = 'gamma';
 % define the distribution varaince
-distribution_var = 10;
+distribution_var = 20;                  % for kokhanovsky, 1 is broad, 10 is narrow
 % define whether this is a vertically homogenous cloud or not
 vert_homogeneous_str = 'vert-homogeneous';
 % define how liquid water content will be computed
@@ -213,12 +214,16 @@ for nn = 1:length(idx)
 
     % define the geometric location of the cloud top and cloud bottom
     if use_MODIS_cloudTopHeight==false
-        z_topBottom = [9,8];          % km above surface
+        z_topBottom(nn,:) = [9,8];          % km above surface
 
     else
 
         % if the cloud top height is below 1 km, make the lower altitude 0
-        cloudTopHeight = modis.cloud.topHeight(row(nn), col(nn));
+        % ----- FIX THE 2% SYSTEMATIC BIAS OF MY REFLECTANCE ----
+        % My reflectances, when using MODIs retrieved cloud top height,
+        % effective radius and clou doptical depth, are consistantly 2%
+        % less than the MODIS measurements. 
+        cloudTopHeight = 1.75 * modis.cloud.topHeight(row(nn), col(nn));
     
         if cloudTopHeight>=1000
             z_topBottom(nn,:) = [cloudTopHeight, cloudTopHeight - 1000]./1000;      % km above surface
@@ -695,12 +700,12 @@ axis square
 if linear_cloudFraction==false
     title(['Band ', num2str(band_num), ' - X pass: ', num2str(n_pixels), ' pixels, ', num2str(num_streams), ' streams, ',...
         distribution_str, ' droplet distribution, cloud cover = ',num2str(cloud_cover), newline,...
-        'used ',band_parameterization, ' band model']);
+        'used ',band_parameterization, ' band model', ' dist-variance = ',num2str(distribution_var)]);
 
 else
     title(['Band ', num2str(band_num), ' - X pass: ', num2str(n_pixels), ' pixels', num2str(num_streams), ' streams',...
         distribution_str, ' droplet distribution, linear function to define cloud cover ', newline,...
-        'used ',band_parameterization, ' band model']);
+        'used ',band_parameterization, ' band model', ' dist-variance = ',num2str(distribution_var)]);
 
 end
 
