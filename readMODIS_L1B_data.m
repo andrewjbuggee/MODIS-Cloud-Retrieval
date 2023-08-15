@@ -56,7 +56,7 @@ if strcmp(fileName(6:8),'QKM')
     
     uncertainty = 'EV_250_RefSB_Uncert_Indexes';
     
-    earthView250 = hdfread(fileName,'EV_250_RefSB');
+    earthView250 = double(hdfread(fileName,'EV_250_RefSB'));
     
     m250_scaledIntegers = bandAcrossAlong2AcrossAlongBand(earthView250);
     
@@ -99,8 +99,8 @@ elseif strcmp(fileName(6:8),'HKM')
     
     uncertainty = 'EV_500_RefSB_Uncert_Indexes';
     
-    earthView250 = hdfread(fileName,'EV_250_Aggr500_RefSB');
-    earthView500 = hdfread(fileName,'EV_500_RefSB');
+    earthView250 = double(hdfread(fileName,'EV_250_Aggr500_RefSB'));
+    earthView500 = double(hdfread(fileName,'EV_500_RefSB'));
     
     m250_scaledIntegers = bandAcrossAlong2AcrossAlongBand(earthView250);
     m500_scaledIntegers = bandAcrossAlong2AcrossAlongBand(earthView500);
@@ -180,7 +180,7 @@ elseif strcmp(fileName(6:8),'1KM')
     
     % 250m Earth Viewing (EV) Science data aggregated to 1 km. This is the
     % data covering the first two MODIS bands
-    earthView250 = hdfread(fileName,'EV_250_Aggr1km_RefSB'); % first two modis bands aggregated to 1km resolution
+    earthView250 = double(hdfread(fileName,'EV_250_Aggr1km_RefSB')); % first two modis bands aggregated to 1km resolution
     
     
     % Uncertainty Index for 250m EV reflectance product aggregated to 1 km
@@ -190,7 +190,7 @@ elseif strcmp(fileName(6:8),'1KM')
     
     % 500m Earth Viewing (EV) Science data aggregated to 1 km. This is the
     % data covering the MODIS bands 3-7
-    earthView500 = hdfread(fileName,'EV_500_Aggr1km_RefSB'); % modis bands 3-7 aggregated to 1km resolution
+    earthView500 = double(hdfread(fileName,'EV_500_Aggr1km_RefSB')); % modis bands 3-7 aggregated to 1km resolution
     
     %earthView1000 = hdfread(fileName,'EV_1KM_RefSB'); % modis bands 8 - 36 at 1km resolution
     

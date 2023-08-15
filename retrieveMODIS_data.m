@@ -31,7 +31,8 @@ for ii = 1:length(files)
         % Record the time the data was taken
         % Time recorded in [hours, minutes]
         modis.time = [str2double(file_ii(19:20)), str2double(file_ii(21:22))];        % UTC time of data recording
-        
+        modis.time_decimal = modis.time(1) + modis.time(2)/60;                        % UTC time in decimal format
+
         if strcmp(file_ii(1:8),'MOD02HKM') == true || strcmp(file_ii(1:8),'MYD02HKM') == true
             % 500m resolution calibrated data
             
@@ -51,10 +52,16 @@ for ii = 1:length(files)
         
     elseif strcmp(file_ii(1:5),'MOD03') == true || strcmp(file_ii(1:5), 'MYD03') == true
         
+        % save the filename
+        L1B_fileNames{ii} = file_ii;
+
         % extract geolocation data from hdf files
         [modis.sensor,modis.solar,modis.geo] = readMODIS_geolocation(file_ii);
         
     elseif strcmp(file_ii(1:5),'MOD06') == true || strcmp(file_ii(1:5), 'MYD06') == true
+
+        % save the filename
+        L1B_fileNames{ii} = file_ii;
         
         % Retrive the true MODIS cloud Properties
         
@@ -62,6 +69,9 @@ for ii = 1:length(files)
 
 
     elseif strcmp(file_ii(1:5), 'MOD05') == true || strcmp(file_ii(1:5), 'MYD05') == true
+
+        % save the filename
+        L1B_fileNames{ii} = file_ii;
 
         % Retrieve the water vapor column estimates
         modis.vapor = readMODIS_L2_waterVapor_data(file_ii);

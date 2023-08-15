@@ -109,6 +109,7 @@ cloudFractionDay_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(39).Attributes(6).
 % extract the above cloud water vapor
 % determined by the 0.94 micron channel
 % only applies to pixels above ocean with an optical thickness greater>5
+% units are in cm
 aboveCloudWaterVapor_scales = cloudProp_info.Vgroup.Vgroup(2).SDS(103).Attributes(5).Value; %  output will be a cell array
 aboveCloudWaterVapor_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(103).Attributes(6).Value;
 

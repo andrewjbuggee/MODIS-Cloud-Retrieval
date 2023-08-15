@@ -49,10 +49,12 @@ function [sensor,solar,geo] = readMODIS_geolocation(fileName)
     sensorRange_scale = info.Vgroup.Vgroup(2).SDS(7).Attributes(4).Value;
     
     % load satellite position data
-    sensor.height = hdfread(fileName,'Height');
-    sensor.range = hdfread(fileName,'Range')*sensorRange_scale; % scale factor included
-    sensor.azimuth = hdfread(fileName,'SensorAzimuth')*sensorAzimuth_scale; % scale factor included
-    sensor.zenith = hdfread(fileName,'SensorZenith')*sensorZenith_scale; % scale factor included
+    % height of the ground location above the Earth ellipsoid (meters)
+    sensor.height = double(hdfread(fileName,'Height'));
+    % path length from the pixel on the ground to the satellite (meters)
+    sensor.range = double(hdfread(fileName,'Range'))*sensorRange_scale; % scale factor included
+    sensor.azimuth = double(hdfread(fileName,'SensorAzimuth'))*sensorAzimuth_scale; % scale factor included
+    sensor.zenith = double(hdfread(fileName,'SensorZenith'))*sensorZenith_scale; % scale factor included
 
 
     % ---- MODIS Parameters -----
