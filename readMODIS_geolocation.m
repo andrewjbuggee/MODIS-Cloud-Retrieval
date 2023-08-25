@@ -50,7 +50,7 @@ function [sensor,solar,geo] = readMODIS_geolocation(fileName)
     
     % load satellite position data
     % height of the ground location above the Earth ellipsoid (meters)
-    sensor.height = double(hdfread(fileName,'Height'));
+    sensor.gound_height = double(hdfread(fileName,'Height'));
     % path length from the pixel on the ground to the satellite (meters)
     sensor.range = double(hdfread(fileName,'Range'))*sensorRange_scale; % scale factor included
     sensor.azimuth = double(hdfread(fileName,'SensorAzimuth'))*sensorAzimuth_scale; % scale factor included
