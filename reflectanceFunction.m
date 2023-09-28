@@ -5,7 +5,7 @@
 
 %   (2) dataStructure  - output results from uvspec
 
-%   (3) spec_response - spectral response function - we need the
+%   (3) spec_response - spectral response function - we need only the
 %   weightings, not the wavelength data
 
 
