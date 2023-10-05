@@ -15,7 +15,7 @@ function plot_vocalsRex_with_MODIS_retrieved_re(vocalsRex, modis)
 LWP_vocals = trapz(vocalsRex.altitude, vocalsRex.lwc);                 % grams of water/m^2
 
 % ----- Compute the CDP uncertainty -----
-re_uncertainty = cloud_droplet_probe_uncertainty_estimate(vocalsRex);
+re_uncertainty = cloud_droplet_probe_uncertainty_estimate(vocalsRex.re);
 
 
 
