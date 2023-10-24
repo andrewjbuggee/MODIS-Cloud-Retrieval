@@ -5,7 +5,7 @@
 
 %%
 
-function plot_vocalsRex_with_MODIS_retrieved_re(vocalsRex, modis)
+function plot_vocalsRex_with_MODIS_retrieved_re(vocalsRex, modis, pixel_2Plot)
 
 
 % ------------------------------------------------------------------
@@ -70,17 +70,60 @@ annotation('textbox',[0.029,0.096825396825397,0.051,0.077777777777778],...
 
 
 % Plot the modis droplet estimate as a constant vertical line
-xl0 = xline(modis.cloud.effRadius17(vocalsRex.modisIndex_minDist_median),':',...
-    ['MODIS $$r_{2.1} = $$',num2str(modis.cloud.effRadius17(vocalsRex.modisIndex_minDist_median)), '$$\mu m$$'], 'Fontsize',22,...
-    'Interpreter','latex','LineWidth',2,'Color',nice_blue);
-xl0.LabelVerticalAlignment = 'bottom';
+if strcmp(pixel_2Plot, 'first')==true
 
-% Plot the MODIS optical depth estiamte as a constant horizontal line
-yl0 = yline(modis.cloud.optThickness17(vocalsRex.modisIndex_minDist_median),':',...
-    ['MODIS $$\tau_{2.1} = $$',num2str(modis.cloud.optThickness17(vocalsRex.modisIndex_minDist_median))], 'Fontsize',22,...
-    'Interpreter','latex','LineWidth',2,'Color',nice_orange);
-yl0.LabelVerticalAlignment = 'top';
-yl0.LabelHorizontalAlignment = 'left';
+    % grab the MODIS LWP to plot
+    modis_lwp_2plot = modis.cloud.lwp(vocalsRex.modisIndex_minDist_first); % g/m^2
+
+    xl0 = xline(modis.cloud.effRadius17(vocalsRex.modisIndex_minDist_first),':',...
+        ['MODIS $$r_{2.1} = $$',num2str(modis.cloud.effRadius17(vocalsRex.modisIndex_minDist_first)), '$$\mu m$$'], 'Fontsize',22,...
+        'Interpreter','latex','LineWidth',2,'Color',nice_blue);
+    xl0.LabelVerticalAlignment = 'bottom';
+
+    % Plot the MODIS optical depth estiamte as a constant horizontal line
+    yl0 = yline(modis.cloud.optThickness17(vocalsRex.modisIndex_minDist_first),':',...
+        ['MODIS $$\tau_{2.1} = $$',num2str(modis.cloud.optThickness17(vocalsRex.modisIndex_minDist_first))], 'Fontsize',22,...
+        'Interpreter','latex','LineWidth',2,'Color',nice_orange);
+    yl0.LabelHorizontalAlignment = 'left';
+
+elseif strcmp(pixel_2Plot, 'median')==true
+
+    % grab the MODIS LWP to plot
+    modis_lwp_2plot = modis.cloud.lwp(vocalsRex.modisIndex_minDist_median); % g/m^2
+
+    xl0 = xline(modis.cloud.effRadius17(vocalsRex.modisIndex_minDist_median),':',...
+        ['MODIS $$r_{2.1} = $$',num2str(modis.cloud.effRadius17(vocalsRex.modisIndex_minDist_median)), '$$\mu m$$'], 'Fontsize',22,...
+        'Interpreter','latex','LineWidth',2,'Color',nice_blue);
+    xl0.LabelVerticalAlignment = 'bottom';
+
+    % Plot the MODIS optical depth estiamte as a constant horizontal line
+    yl0 = yline(modis.cloud.optThickness17(vocalsRex.modisIndex_minDist_median),':',...
+        ['MODIS $$\tau_{2.1} = $$',num2str(modis.cloud.optThickness17(vocalsRex.modisIndex_minDist_median))], 'Fontsize',22,...
+        'Interpreter','latex','LineWidth',2,'Color',nice_orange);
+    yl0.LabelHorizontalAlignment = 'left';
+
+
+elseif strcmp(pixel_2Plot, 'last')==true
+
+    % grab the MODIS LWP to plot
+    modis_lwp_2plot = modis.cloud.lwp(vocalsRex.modisIndex_minDist_last); % g/m^2
+
+    xl0 = xline(modis.cloud.effRadius17(vocalsRex.modisIndex_minDist_last),':',...
+        ['MODIS $$r_{2.1} = $$',num2str(modis.cloud.effRadius17(vocalsRex.modisIndex_minDist_last)), '$$\mu m$$'], 'Fontsize',22,...
+        'Interpreter','latex','LineWidth',2,'Color',nice_blue);
+    xl0.LabelVerticalAlignment = 'bottom';
+
+    % Plot the MODIS optical depth estiamte as a constant horizontal line
+    yl0 = yline(modis.cloud.optThickness17(vocalsRex.modisIndex_minDist_last),':',...
+        ['MODIS $$\tau_{2.1} = $$',num2str(modis.cloud.optThickness17(vocalsRex.modisIndex_minDist_last))], 'Fontsize',22,...
+        'Interpreter','latex','LineWidth',2,'Color',nice_orange);
+    yl0.LabelHorizontalAlignment = 'left';
+
+else
+
+    error([newline, 'I dont know which MODIS pixel to plot', newline])
+
+end
 
 
 % Let's compute the mean number concentration within this cloud and print
