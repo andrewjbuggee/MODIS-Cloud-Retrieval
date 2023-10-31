@@ -51,8 +51,15 @@ data2plot = modis.cloud.effRadius17(vocalsRex.modisIndex_minDist);
 data2plot(isnan(data2plot))=0;
 
 [~, index_sort] = sort(reshape(data2plot, [],1), 'ascend');
-%[r,c] = ind2sub([n_rows, n_cols], index_sort);
-C = parula(length(index_sort));
+
+% Check to see if all the data is unique
+[data2plot_unique, ~, idx_unique] = unique(data2plot(index_sort));
+
+% We span the colormap only by the number of unique data values
+C = parula(length(data2plot_unique));
+
+% And now let's repeat the same colors for the redundant data points
+C = C(idx_unique,:);
 
 
 for ii = 1:length(data2plot)
