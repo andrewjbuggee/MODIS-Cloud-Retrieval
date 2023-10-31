@@ -29,11 +29,12 @@ cloudProp_info = hdfinfo(fileName);
 % -----------------------------------------------------
 
 % extract effective radius info first
-
+% These are reported in units of microns!
 effectiveRadius17_scales = cloudProp_info.Vgroup.Vgroup(2).SDS(67).Attributes(5).Value; %  
 effectiveRadius17_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(67).Attributes(6).Value;
 
 % effective radius uncertainty for bands 1 and 7
+% These values are reported as percentages of the retireval!
 effectiveRadius_uncertainty_17_scales = cloudProp_info.Vgroup.Vgroup(2).SDS(91).Attributes(5).Value;
 effectiveRadius_uncertainty_17_offset = cloudProp_info.Vgroup.Vgroup(2).SDS(91).Attributes(6).Value;
 
