@@ -48,11 +48,11 @@ elseif strcmp(whatComputer,'andrewbuggee')==true
     %modisFolder = '/Users/andrewbuggee/Documents/MATLAB/CU Boulder/Hyperspectral_Cloud_Retrievals/MODIS_Cloud_Retrieval/MODIS_data/2008_10_18/';
 
     % ----- November 2nd at decimal time 0.607 (14:35) -----
-    modisFolder = '/Users/andrewbuggee/Documents/MATLAB/CU Boulder/Hyperspectral_Cloud_Retrievals/MODIS_Cloud_Retrieval/MODIS_data/2008_11_02/';
+    %modisFolder = '/Users/andrewbuggee/Documents/MATLAB/CU Boulder/Hyperspectral_Cloud_Retrievals/MODIS_Cloud_Retrieval/MODIS_data/2008_11_02/';
 
 
     % ----- November 9th at decimal time 0.611 (14:40) -----
-    %modisFolder = '/Users/andrewbuggee/Documents/MATLAB/CU Boulder/Hyperspectral_Cloud_Retrievals/MODIS_Cloud_Retrieval/MODIS_data/2008_11_09/';
+    modisFolder = '/Users/andrewbuggee/Documents/MATLAB/CU Boulder/Hyperspectral_Cloud_Retrievals/MODIS_Cloud_Retrieval/MODIS_data/2008_11_09/';
 
 
     % ----- November 11th at decimal time 0.604 (14:30) -----
@@ -115,7 +115,7 @@ end
 %filename = 'RF07.20081031.060000_150000.PNI.nc';
 
 % ----- November 2 data -----
-filename = 'RF08.20081102.055700_152100.PNI.nc';
+%filename = 'RF08.20081102.055700_152100.PNI.nc';
 
 % ----- November 4 data -----
 %filename = 'RF09.20081104.060000_145600.PNI.nc';
@@ -124,7 +124,7 @@ filename = 'RF08.20081102.055700_152100.PNI.nc';
 %filename = 'RF10.20081106.074800_142000.PNI.nc';
 
 % ----- November 9 data -----
-%filename = 'RF11.20081109.125700_213600.PNI.nc';
+filename = 'RF11.20081109.125700_213600.PNI.nc';
 
 % ------ November 11 data -----
 %filename = 'RF12.20081111.125000_214500.PNI.nc';
@@ -522,16 +522,41 @@ end
 % trajectory.
 % The origin of this coordinate system is the first VR data point
 
-% compute the distance (magnitude) from the first VR point to each MODIS
-% pixel location. (in km)
-modis_dist_fromVR = distance(vocalsRex.latitude(1), vocalsRex.longitude(1), modis_lat, modis_long, wgs84)./1e3;        % meters
 
-% Compute the angle between the first VR data point and each MODIS pixel
-% This angle is measured with respect to due north
-az_MODIS = azimuth(vocalsRex.latitude(1), vocalsRex.longitude(1), modis_lat, modis_long, wgs84);
 
-% Compute the angle with respect to noraml of the vocals-rex profile
-az_VR = azimuth(vocalsRex.latitude(1), vocalsRex.longitude(1), vocalsRex.latitude(end), vocalsRex.longitude(end), wgs84);
+% REMEMBER - if a simple advection model was used, we need the new lat long
+% position.
+if modisInputs.flags.useAdvection==false
+
+    % compute the distance (magnitude) from the first VR point to each MODIS
+    % pixel location. (in km)
+    modis_dist_fromVR = distance(vocalsRex.latitude(1), vocalsRex.longitude(1), modis_lat, modis_long, wgs84)./1e3;        % meters
+    
+    % Compute the angle between the first VR data point and each MODIS pixel
+    % This angle is measured with respect to due north
+    az_MODIS = azimuth(vocalsRex.latitude(1), vocalsRex.longitude(1), modis_lat, modis_long, wgs84);
+    
+    % Compute the angle with respect to noraml of the vocals-rex profile
+    az_VR = azimuth(vocalsRex.latitude(1), vocalsRex.longitude(1), vocalsRex.latitude(end), vocalsRex.longitude(end), wgs84);
+
+
+else
+
+    % compute the distance (magnitude) from the first VR point to each MODIS
+    % pixel location. (in km)
+    modis_dist_fromVR = distance(vocalsRex.lat_withAdvection(1), vocalsRex.long_withAdvection(1), modis_lat, modis_long, wgs84)./1e3;        % meters
+    
+
+    % Compute the angle between the first VR data point and each MODIS pixel
+    % This angle is measured with respect to due north
+    az_MODIS = azimuth(vocalsRex.lat_withAdvection(1), vocalsRex.long_withAdvection(1), modis_lat, modis_long, wgs84);
+    
+    % Compute the angle with respect to noraml of the vocals-rex profile
+    az_VR = azimuth(vocalsRex.lat_withAdvection(1), vocalsRex.long_withAdvection(1), vocalsRex.latitude(end), vocalsRex.longitude(end), wgs84);
+
+end
+
+
 
 % compute the angle between the vector connected the first VR data point
 % and MODIS and the VR profile
