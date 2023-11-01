@@ -45,10 +45,10 @@ elseif strcmp(whatComputer,'andrewbuggee')==true
     % Define the MODIS folder name
 
     % ----- October 18th at decimal time 0.6354 (15:15) -----
-    modisFolder = '/Users/andrewbuggee/Documents/MATLAB/CU Boulder/Hyperspectral_Cloud_Retrievals/MODIS_Cloud_Retrieval/MODIS_data/2008_10_18/';
+    %modisFolder = '/Users/andrewbuggee/Documents/MATLAB/CU Boulder/Hyperspectral_Cloud_Retrievals/MODIS_Cloud_Retrieval/MODIS_data/2008_10_18/';
 
     % ----- November 2nd at decimal time 0.607 (14:35) -----
-    %modisFolder = '/Users/andrewbuggee/Documents/MATLAB/CU Boulder/Hyperspectral_Cloud_Retrievals/MODIS_Cloud_Retrieval/MODIS_data/2008_11_02/';
+    modisFolder = '/Users/andrewbuggee/Documents/MATLAB/CU Boulder/Hyperspectral_Cloud_Retrievals/MODIS_Cloud_Retrieval/MODIS_data/2008_11_02/';
 
 
     % ----- November 9th at decimal time 0.611 (14:40) -----
@@ -97,7 +97,7 @@ end
 %filename = 'RF01.20081015.164800_201200.PNI.nc';
 
 % Oct-18-2008 Data
-filename = 'RF02.20081018.130300_213000.PNI.nc';
+%filename = 'RF02.20081018.130300_213000.PNI.nc';
 
 % Oct-21-2008 Data
 %filename = 'RF03.20081021.060000_142400.PNI.nc';
@@ -115,7 +115,7 @@ filename = 'RF02.20081018.130300_213000.PNI.nc';
 %filename = 'RF07.20081031.060000_150000.PNI.nc';
 
 % ----- November 2 data -----
-%filename = 'RF08.20081102.055700_152100.PNI.nc';
+filename = 'RF08.20081102.055700_152100.PNI.nc';
 
 % ----- November 4 data -----
 %filename = 'RF09.20081104.060000_145600.PNI.nc';
@@ -516,18 +516,58 @@ for nn = 1:length(vocalsRex.modisIndex_minDist)
 
 end
 
-% compute the distance from the first VR point in km
-modis_dist_traveled_fromVR = distance(vocalsRex.latitude(1), vocalsRex.longitude(1), modis_lat, modis_long, wgs84)./1e3;        % meters
+% ----- Compute the projected distance along the VR profile -----
+% Using the MODIS pixel position, we want to project this vector onto the
+% VR in-situ vector asd compute the distance travelled along this
+% trajectory.
+% The origin of this coordinate system is the first VR data point
+
+% compute the distance (magnitude) from the first VR point to each MODIS
+% pixel location. (in km)
+modis_dist_fromVR = distance(vocalsRex.latitude(1), vocalsRex.longitude(1), modis_lat, modis_long, wgs84)./1e3;        % meters
+
+% Compute the angle between the first VR data point and each MODIS pixel
+% This angle is measured with respect to due north
+az_MODIS = azimuth(vocalsRex.latitude(1), vocalsRex.longitude(1), modis_lat, modis_long, wgs84);
+
+% Compute the angle with respect to noraml of the vocals-rex profile
+az_VR = azimuth(vocalsRex.latitude(1), vocalsRex.longitude(1), vocalsRex.latitude(end), vocalsRex.longitude(end), wgs84);
+
+% compute the angle between the vector connected the first VR data point
+% and MODIS and the VR profile
+az_between_MODIS_VR = abs(az_MODIS - az_VR);
+
+% the distance of the MODIS pixel location along the VR flight path is the
+% magnitude of the MODIS location multiplied by the cosine of the angle
+% between the two 
+dist_MODIS_along_VR = modis_dist_fromVR .* cosd(az_between_MODIS_VR);
+
+% For now, we will assume that the distances between the first data point
+% taken by vocals rex and the MODIS pixels is so small that we can ignore
+% spherical trigonometry
+
+
+% ------------------------------------------------------------------
 
 % Define a Colormap for the optical depth values
 [modis_tau_c_sorted, idx_sort] = sort(modis_tau_c);
 
+% Check to see if all the data is unique
+[modis_tau_c_unique, ~, idx_unique] = unique(modis_tau_c(idx_sort));
+
+% We span the colormap only by the number of unique data values
+C_tau = parula(length(modis_tau_c_unique));
+
+% And now let's repeat the same colors for the redundant data points
+C_tau = C_tau(idx_unique,:);
+
+
 % sort the distance travelled and the modis effective radius by the optical
 % depth
-modis_dist_sort = modis_dist_traveled_fromVR(idx_sort);
+modis_dist_sort = dist_MODIS_along_VR(idx_sort);
 modis_re_sort = modis_re(idx_sort);
 
-C_tau = parula(length(modis_tau_c_sorted));
+
 
 hold on
 for nn = 1:length(modis_re_sort)
@@ -543,8 +583,8 @@ set(get(cb, 'label'), 'string', '$\tau_c$','Interpreter','latex', 'Fontsize',28)
 
 % plot the average value as a dashed line
 mean_val = mean(modis_re);
-constant_y_val = linspace(mean_val, mean_val, length(modis_dist_traveled_fromVR));
-plot(modis_dist_traveled_fromVR, constant_y_val,...
+constant_y_val = linspace(mean_val, mean_val, length(dist_MODIS_along_VR));
+plot(dist_MODIS_along_VR, constant_y_val,...
     'LineStyle','--','LineWidth',1.5,'Color', C_tau(1,:));
 
 legend_str{3} = ['$\sigma_{modis}$ = ', num2str(round(std(modis_re), 2)), ' $\mu m$'];
