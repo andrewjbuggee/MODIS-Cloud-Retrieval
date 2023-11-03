@@ -125,8 +125,17 @@ for ii = 1:length(data2plot)
 
 end
 
-% Plot the Vocals-Rex data
-geoscatter(vocalsRex.latitude, vocalsRex.longitude, 10, "red",'*')
+
+% ----- Plot the Vocals-Rex data ------
+if modisInputs.flags.useAdvection==true
+
+    geoscatter(vocalsRex.lat_withAdvection, vocalsRex.long_withAdvection, 10, "red",'*')
+
+else
+
+    geoscatter(vocalsRex.latitude, vocalsRex.longitude, 10, "red",'*')
+
+end
 
 
 cb = colorbar;
