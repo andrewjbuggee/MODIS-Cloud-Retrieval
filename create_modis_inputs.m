@@ -65,8 +65,28 @@ inputs.bands2plot = [1,7]; % these are the modis bands that will be plotted, bot
 % rows, and 10 columns will be interpolated to be 100 columns
 inputs.interpGridScaleFactor = 150; % scale factor the will be used to increase the grid size for interpolation.
 
-inputs.savedCalculations_folderName = folderName; % this is the folder that all the saved calculations will go
-inputs.saveCalculations_fileName = ['uvspec_CALCS_',date,'.mat'];
+% --------------------------------------------
+% Create a new folder to save all calculations
+% --------------------------------------------
+inputs.savedCalculations_folderName = [folderName, 'Retrieval_outputs_', char(datetime("today")),'/']; % this is the folder that all the saved calculations will go
+
+
+% rev_num = 1;
+% inputs.savedCalculations_folderName = [folderName, 'Retrieval_outputs_', datetime("today"),...
+%     '_rev', num2str(rev_num), '/']; % this is the folder that all the saved calculations will go
+
+% If this foldername already exists, AND there are .mat files in it, create
+% a new folder by increasing the rev number
+% while isfolder(inputs.savedCalculations_folderName)==true
+%     
+%     rev_num = rev_num +1;
+%     inputs.savedCalculations_folderName = [folderName, 'Retrieval_outputs_', datetime("today"),...
+%     '_rev', num2str(rev_num), '/']; % this is the folder that all the saved calculations will go
+% 
+% 
+% end
+
+inputs.saveCalculations_fileName = ['uvspec_calculations_', char(datetime("today")),'.mat'];
 
 % save the day of the year
 if L1B_fileNames{1}(15)==0
