@@ -8,6 +8,10 @@
 
 function [modis,L1B_fileNames] = retrieveMODIS_data(folderName)
 
+
+% --- Add foldername to the matlab path ---
+addpath(folderName)
+
 % -----------------------------------------------------
 % ----- Check to see if the folder name is valid ------
 % -----------------------------------------------------
